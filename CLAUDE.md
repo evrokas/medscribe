@@ -31,6 +31,60 @@ It is meant mainly for one person's medical practice, but should stay adaptable 
   `CLAUDE.md` (for example `../inv/CLAUDE.md`) for the exact permission conventions before creating
   web-served files.
 
+## LaTeX templates (source: `~/devel/docs`, GitHub `evrokas/evrdocs`)
+
+The documents MedScribe has to produce already exist as a hand-edited LaTeX kit used on Overleaf. Read
+`~/devel/docs/template-kit/README.md` and `VARIABLES.md` (the full variable reference) before touching
+the generation layer. MedScribe should drive this kit, not rewrite it.
+
+- **Layout:** the shared files sit in the kit root, and every path inside them is relative to that
+  root, so TeX must run *from the root*:
+  - `evrtemplate.tex`: the letterhead (header, footer, QR, date, title, signature/stamp).
+  - `evr-gr.tex` / `evr-en.tex`: doctor details, `\QRBaseURL`, labels, and one
+    `\SetClinic{key}{name}{address}{phone}{logo}` line per clinic. A new clinic must be added to
+    both files.
+  - `images/`: logos and the stamp image.
+  - `latexmkrc`.
+- **Templates:** `templates/tpl-*.tex` holds one complete, compilable letter per document type (the
+  README table maps type → file). `letter-gr.tex` / `letter-en.tex` are blank letters. The text is
+  Greek apart from the `-en` and `recommendation-en` files. `overleaf/` is the old archive; don't use
+  it.
+- **How a letter is set up:**
+  - **Variables:** `\providecommand\Name{value}` lines come *before* `\input{evrtemplate}`. Because
+    `\providecommand` doesn't overwrite, MedScribe can inject values by prepending its own
+    definitions before the template's settings block.
+  - **Main variables:**
+    - `\DocLang` (`gr`/`en`, matched with documentclass `greek`/`british`), `\DocPaper` (`a4`/`a5`)
+      and `\Clinic` (`Mandra`, `Peristeri`, `Bioclinic`, `Psychikou`, `Metropolitan`, `Dunant`,
+      `Euroclinic`).
+    - `\DocTitle`, `\DocDate`, `\DocClosing` (empty = no doctor block) and `\DocStamp` (`yes`/`no`).
+    - `\PatientPrefix` / `\PatientName` / `\PatientAge` (empty = hidden) / `\PatientAMKA`.
+  - **Template-specific variables:** `\LeaveDays`, `\Drug`, `\DrugCount`, `\Recipient`, `\InputPDF`.
+  - **Body helpers:**
+    - `PatientInfo` with `\Info{label}{value}` rows;
+    - `MedTable` with `\DrugEntry{name}{dose}{freq}{days}{notes}`;
+    - `UrgentBox`;
+    - `\V{L4-5}` for spine levels.
+  - **Body text:** placeholders are written `[text]`, and alternative sentences are `%`-commented
+    lines. Turning those into structured input is MedScribe's main templating job.
+  - **Drug library:** the postop templates (`tpl-odigies-*`) and `tpl-syntagi.tex` share a 32-line
+    commented drug library that must stay identical across all six files.
+- **QR ↔ DocArc:** the QR code encodes `\QRBaseURL` + `\DocCode`, where `\QRBaseURL` is
+  `https://doc.erns.eu/qr/` (DocArc's public `qr.php`). `\DocCode` is the DocArc record token, and
+  empty means no QR. This is why the DocArc record must exist before typesetting (see DocArc below).
+- **Build:**
+  - **Engine:** XeLaTeX only (fontspec + the system font **Roboto Slab**, which is installed here).
+  - **Passes:** at least two runs are needed (TikZ overlays, `LastPage` totals, QR position).
+  - **Reference script:** `~/devel/docs/scripts/build.sh <file.tex>` (`-o outdir`, `-k` keep temp
+    files). It copies the kit into a temp dir, runs `xelatex -interaction=nonstopmode -halt-on-error`
+    2–4 times until no "Rerun" message appears, and copies the PDF out. MedScribe's compile step
+    should behave the same way: an isolated temp dir per job and never writing into the kit.
+  - **Two A5 pages per A4 sheet:** `scripts/a5-2up.sh [--dup] [-c] <a5.pdf|.tex>` (pdfpages), or
+    `latexmk -xelatex templates/tpl-a5-2up.tex`.
+- **Content rules from the kit:** templates contain placeholders only, never real patient data.
+  Clinical wording is the doctor's own; don't rephrase it. `template-kit/PROGRESS.md` lists open
+  clinical review items.
+
 ## Collaborating apps
 
 MedScribe sits between two existing apps. It reads patient data from **ZPMS**, the main collaborator,
