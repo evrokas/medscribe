@@ -1,0 +1,696 @@
+# MedScribe: design plan (v4, for review)
+
+Status: **draft, 2026-11-05.** Decisions marked ✅ were taken in the planning conversation; open
+questions are in §11. Nothing is built yet.
+
+Changes since v1:
+- **Template storage is decided:** an internal versioned store with a version number and SHA-256
+  per template file (§5).
+- **Documents can be freely edited away from their template** (D9).
+- **Base-template versions can be chosen per document** (D10).
+- **New §6:** the template hierarchy found by scanning the kit.
+- **v3:** research on the documents a surgical practice needs (§6.5); the scales family; the new
+  types chosen (D11–D14); milestones M8–M9; open questions 11–13.
+- **v4:** the content reuse model (§12): sections as shared slots, history fed automatically by
+  every issued document, archive seeding, reuse across types, @tokens, case features and modules
+  (D15–D17); future Bayesian proposals (§13); blocks versioned as sources (§5); milestones updated.
+
+## 1. What MedScribe is for
+
+You already have a working LaTeX letterhead (`evrtemplate.tex` + `evr-gr.tex` / `evr-en.tex` + images)
+and 21 document-type templates (`tpl-*.tex`) in the evrdocs kit. Writing a document today means:
+
+1. copy a template and rename it;
+2. move `%` signs to choose the clinic, closing, stamp and title;
+3. turn sentences and whole blocks on or off: the postop templates have ~85–140 commented
+   alternatives each, plus a 32-drug commented library;
+4. replace every `[placeholder]` by hand, and fix Greek gender agreement (ο/η ασθενής, του/της);
+5. look up the patient in ZPMS and type their details;
+6. compile with XeLaTeX, get a code from DocArc, paste it into `\DocCode`, compile again, then upload
+   the PDF to DocArc.
+
+Steps 1–6 are structural work. **MedScribe takes all of it over, so that the only thing left for you
+is the medical text itself.**
+
+Writing is not static. No two documents are the same: each is **its template, modified**, with text
+added, removed or reworded for the patient. Templates change over time too, and so does the
+letterhead (a clinic's phone number, a new logo, a layout fix). MedScribe has to support both kinds of
+change without ever losing the ability to rebuild an old document exactly.
+
+## 2. Goals and targets
+
+| # | Goal | Target (how we know it's met) |
+|---|---|---|
+| G1 | No structural LaTeX work for routine documents | Every one of the 21 templates can be produced without seeing or editing LaTeX |
+| G2 | Fast | From the ZPMS patient page to an issued `vevaiosi-mri` (PDF in DocArc, QR printed): **under 1 minute**. A postop letter: **under 5 minutes** |
+| G3 | Same look as today | For the same inputs, a MedScribe PDF matches the hand-filled kit PDF (text and layout); checked by an automated regression test per type |
+| G4 | Correct Greek | Gender agreement comes from the patient's gender automatically; Greek text, accents and hyphenation are correct; user text can never break the LaTeX build |
+| G5 | Reproducible and traceable | Every issued document records the exact version and SHA-256 of every template file it was built from. It can be rebuilt from those sources at any time, even after the templates have moved on |
+| G6 | Each app keeps its role | ZPMS stays the patient record, DocArc the archive and QR service. MedScribe stores the template sources and what it needs to rebuild a document |
+| G7 | The text pool grows from your writing | Every issued document feeds the pool automatically; text written once is offered as a suggestion next time, with no extra action (§12) |
+
+**Out of scope (non-goals):** a clinical record (that's ZPMS), a document archive (that's DocArc),
+official electronic channels (e-prescription and e-referral through ΗΔΙΚΑ, e-ΕΦΚΑ sickness
+certification, the ΚΕΠΑ electronic file); MedScribe writes the accompanying letters only, a general-purpose LaTeX/WYSIWYG editor, automatic text generation,
+a full version-control system (no branches or merges; see §5).
+
+## 3. Decisions so far
+
+| # | Decision | Status |
+|---|---|---|
+| D1 | **Writing model: blocks + free text.** Each type is shown as sections; the document is a list of block cards per section, pre-filled with the type's defaults. Blocks are added from a suggestions pane (§12), edited in place, or written new; fields are typed values or @tokens. MedScribe generates the LaTeX | ✅ |
+| D2 | **Templates live in MedScribe's own versioned store.** Each template file has numbered versions, each identified by its SHA-256. The evrdocs kit is the starting point (imported as version 1) and can still exchange versions with MedScribe (§5.5) | ✅ concept; the details in §5 are for review |
+| D3 | **Users: you + secretary.** The secretary prepares drafts; you complete and issue them | ✅ |
+| D4 | **Login: ZeusFw's own users/roles** (ZPMS-style RBAC), not ErnsAuth SSO | ✅ |
+| D5 | **Lifecycle: issued = locked.** Corrections are new versions under a new DocArc code; "copy as new" reuses the inputs for another patient | ✅ |
+| D6 | **Two ways to start:** a "New document" button on the ZPMS patient page (patient already filled in), and MedScribe's own patient search (through ZPMS) | ✅ |
+| D7 | **All document types are needed;** `vevaiosi-mri` is the first, as the end-to-end pilot | ✅ |
+| D8 | **Every issued document feeds the text pool automatically** (no approval step). Suggestions come from blocks of past issued documents; promoting a block to library/default stays manual and is the point where it is cleaned by hand (§12.1). *Replaces the earlier "save to library on request only"* | ✅ 2026-11-05 |
+| D9 | **Each document is a modified copy of its template.** Beyond choosing blocks, any block's text can be reworded or removed for that document only, and free text can be inserted anywhere. The template is never changed by writing a document | ✅ |
+| D10 | **Base-template versions are selectable.** A new document uses the current released letterhead by default, but an earlier version can be chosen. The choice is recorded with the document | ✅ |
+| D11 | **Ten families + scales.** The six kit families (§6.4) sit within the ten care-pathway families of §6.5, plus an eleventh: **clinical scales & questionnaires** (patient questionnaires and doctor-recorded scales/exam charts, scored automatically) | ✅ |
+| D12 | **New types beyond the kit:** pre-operative instructions, fitness certificates (work, driving, travel) and practice documents | ✅ |
+| D13 | **Every type has attributes:** family, legal nature (certificate needs an examination date), audience, clinical anchor, signature, has-patient (§6.5 C) | ✅ |
+| D14 | **Official electronic channels are out of scope** (ΗΔΙΚΑ e-prescription/e-referral, e-ΕΦΚΑ, ΚΕΠΑ file); MedScribe writes the accompanying documents | ✅ |
+| D15 | **Seed the text pool from the existing archive.** The old letters (`overleaf/archive`, `post-surg`, ~95 files) are imported once into history, with each letter's patient details (`\PatientName`, dates, levels) recorded so the swap on insertion (§12.1) works, so MedScribe starts with years of the doctor's own wording (§12) | ✅ 2026-11-05 |
+| D16 | **Reuse across types.** Suggestions come from the same slot in the same type, then the same family, then all text. Slots are named consistently across types so text can travel between them (§12) | ✅ 2026-11-05 |
+| D17 | **Case features + modules.** A document's case is described with structured feature chips (procedure, area, levels, complications, comorbidities…), not free prose. Each feature has a *module*: blocks spread across slots that it adds or swaps. Modules stack, every line shows which feature added it, and the doctor reviews. The app only selects the doctor's own blocks, never writes clinical wording. Free-text → chips is a later convenience (§12.2) | ✅ 2026-11-05 |
+| D18 | **Types are stored as structured data (Q1 → c).** The master of each type (and block) is structured data in MedScribe's store; a kit-style `.tex` is generated from it for reading diffs as a letter and for export to Overleaf. The generated `.tex` is never edited and re-imported as a type | ✅ 2026-11-05 |
+| D19 | **Base layer: hybrid master (Q7).** Layout *code* (`evrtemplate.tex`, images) is mastered in git (the evrdocs kit) and imported into MedScribe as a draft version. Layout *data* (doctor details, clinics, labels) is mastered in MedScribe, which generates `evr-gr.tex` / `evr-en.tex` from one form so the two languages cannot drift. Base releases (B1, B2…) are made only in MedScribe | ✅ 2026-11-05 |
+
+## 4. Core concepts
+
+```
+ Template store (versioned, §5)                       Document (one per patient letter)
+ ──────────────────────────────                       ─────────────────────────────────
+ base:  evrtemplate.tex  v3 ─┐                        patient snapshot (from ZPMS)
+        evr-gr.tex       v5  ├─ base release B4 ───┐  settings (clinic, title, stamp…)
+        evr-en.tex       v2  │                     ├▶ choices, field values, free text,
+        images/*         v1  ┘                     │  local edits, medication rows
+ type:  vevaiosi-mri     v2 ─ sections → blocks ───┤  status: draft → issued → superseded
+ shared: drug library    v7, purpose phrases v1 ───┘  manifest: every source + version + SHA-256
+                                                      DocArc token, .tex, PDF
+ content pool (§12)                                   case features (chips) → modules
+ ──────────────────                                   ───────────────────────────────
+ slot (= a named section) ──< block ──< versions      each feature adds/swaps blocks
+      tiers: default · library · history              across slots (D17)
+```
+
+- **Document type** (e.g. "Βεβαίωση συμβατότητας MRI"): the same idea as a `tpl-*.tex` file. It holds:
+  - **Defaults:** language, paper size, title (plus alternative titles), closing, stamp, page numbers.
+  - **The DocArc document-type code** used when the document is issued.
+  - **The patient block:** the `\Info` rows it shows (Διάγνωση, Ημ. Χειρουργείου…).
+  - **An ordered list of sections.**
+- **Section:** an optional heading plus a *layout*, matching what the kit already uses:
+  - `paragraphs`;
+  - `itemize`, or `enumerate` with sub-items;
+  - `description` (Επανέλεγχοι);
+  - `patient-info` rows;
+  - `medtable`;
+  - `urgentbox`.
+
+  A section can be optional, i.e. switched off as a whole: today that is a commented-out
+  `\section*` or `UrgentBox`.
+
+  **A section is a slot.** Each section has a stable name (e.g. `wound-care`, `mobilisation`,
+  `follow-up`) besides its printed heading. The same name in two types means the same kind of
+  content, which is what lets text travel between types (D16). There is no separate slot concept.
+- **Block (phrase):** one sentence or item. Each has:
+  - **Default state:** on or off (today: uncommented or commented).
+  - **Choice group:** blocks in the same group are alternatives, choose one (today: "move the `%`").
+  - **Fields:** typed placeholders such as `[3] ημέρες` → a number field defaulting to 3, or a date
+    or a free-text field. A field's value can come from the patient, the document or you.
+  - **Gender variants:** written inline (notation to be fixed in M1, e.g.
+    `{ο|η} ασθενής υποβλήθηκε`). They resolve from the patient's gender, and are asked for when ZPMS
+    has none.
+  - **Optional formatting:** bold, `\V{L4-5}` spine levels.
+  - **@tokens:** field references such as `@patient`, `@surgery_date`, `@level`, which take each
+    document's values (§12.1).
+  - **Its own version history** (§5.1) and a `derived_from` link when it is a variant of another
+    block, plus a **tier**: default, library or history (§12).
+- **Shared components:** blocks used by more than one type, stored once and versioned once rather
+  than copied into each template. The scan (§6) found two that are copied by hand today:
+  - **The drug library:** 32 entries, byte-identical in 7 files. Each entry has a name, form,
+    default dose, frequency, days and notes. A medication table is built by picking drugs and
+    adjusting rows.
+  - **The "purpose" sentences:** the 7 "Το παρόν χορηγείται…" alternatives, identical in 9 files.
+- **Case features and modules** (§12.2): structured chips describing the case (procedure, area,
+  levels, complications, comorbidities). Each feature's module is a set of blocks across sections
+  that it adds or swaps in.
+- **Document:** one letter for one patient. It holds:
+  - **Inputs:** the type version it started from, a snapshot of the patient, every choice, value,
+    free text and medication row, and its **local edits** (D9): blocks reworded, removed or added
+    for this document only.
+  - **Its case features**, recorded with every issued document (they rank suggestions now and
+    are the data for §13 later).
+  - **A manifest** of the exact source versions it was built from (§5.3).
+  - **Lifecycle:** draft → issued (locked) → superseded by a correction.
+  - **Once issued:** the DocArc token, plus the exact `.tex` and PDF that were sent there.
+
+## 5. Template sources and versioning
+
+### 5.1 What gets versioned
+
+Every file that can end up in a build is a **source** with its own history. A source has a stable
+name, e.g. `base/evrtemplate.tex`, `base/evr-gr.tex`, `base/images/logo-stamp.png`,
+`type/vevaiosi-mri`, `shared/drug-library`, `block/<id>`. There are five kinds:
+
+| Kind | Examples | Today in the kit |
+|---|---|---|
+| **Base** (letterhead) | `evrtemplate.tex`, `evr-gr.tex`, `evr-en.tex` | root files |
+| **Asset** | clinic logos, `logo-01.png`, `logo-stamp.png` | `images/` |
+| **Type** (document template) | `vevaiosi-mri`, `odigies-osfyiki`, … | `templates/tpl-*.tex` |
+| **Shared component** | drug library, purpose sentences | copied inside several `tpl-*.tex` |
+| **Block** | one sentence or item of the content pool (§12) | lines inside `tpl-*.tex` and old letters |
+
+A type version lists its sections and the **block versions** that are its defaults, rather than
+containing their text, so a block edited once is updated for every type that uses it (in that
+type's next version).
+
+### 5.2 Versions: simple, linear, immutable
+
+This works like git but deliberately much simpler:
+- **Numbering:** each source has a **linear** history v1, v2, v3… There are no branches and no
+  merges.
+- **What a version stores:**
+  - its **number**, the **SHA-256** of its exact bytes, and the date;
+  - **author** and a **change note** ("Psychikou phone corrected");
+  - the **previous version**;
+  - a **status**: `draft` → `released` → `retired`.
+- **Content-addressed storage:** the bytes are stored once, keyed by their SHA-256, the way git
+  stores objects. Identical content is stored once, and every read is checked against its hash.
+- **Released versions never change.** Editing a template always creates a new version. "Going back"
+  means releasing a new version with the old content, so the history is never rewritten.
+- **New documents use released versions only.** Draft versions are for trying out a change: you can
+  preview a document against a draft template version before releasing it.
+- **Diffs:** a text diff between any two versions of a source, to see what changed.
+
+### 5.3 What a document records
+
+Every build, both previews and issues, records a **manifest** in the database:
+
+| For each source used | Plus, for the build as a whole |
+|---|---|
+| source name, version number, SHA-256 (base files, assets, type, shared components **and every block version used**) | SHA-256 of the generated document `.tex` |
+| | SHA-256 of the produced PDF |
+| | build environment: XeLaTeX / TeX Live version, MedScribe version, font file hashes |
+
+Local edits (D9) are stored with the document itself, so the manifest plus the document's inputs
+rebuild it exactly even after the blocks it used have evolved.
+
+The manifest of an **issued** document is permanent and is shown on the document's page ("built with
+evrtemplate v3, evr-gr v5, vevaiosi-mri v2, …").
+
+### 5.4 Rebuilding an old document
+
+1. Read the document's manifest.
+2. Fetch each source **by its SHA-256** from the store, and stop if any hash does not match.
+3. Lay the files out as the kit layout in a temporary folder, together with the document's stored
+   `.tex`.
+4. Compile.
+
+The result is the same document even after every template has moved on. For **byte-identical**
+PDFs, builds set a fixed creation date (`SOURCE_DATE_EPOCH` with `FORCE_SOURCE_DATE=1`), so a rebuild
+can be checked against the stored PDF hash. The one thing outside MedScribe's control is the TeX
+installation itself; its version is recorded so that a rebuild on a different TeX Live can be flagged.
+
+### 5.5 Choosing base versions (D10)
+
+The base layer is a set of files that must work together: `evrtemplate.tex` expects certain macros in
+`evr-gr.tex`, which point to certain images. Picking a version of each file separately is easy to get
+wrong, so:
+- **Base releases:** the base layer is released as a numbered **base release** (B1, B2, …): a
+  manifest of exactly which version of each base file and asset belongs together. Changing one clinic
+  phone gives a new `evr-gr.tex` version and a new base release.
+- **Per document:** a new document uses the **current base release**. In the document's settings you
+  can pick an **earlier base release**, e.g. to reissue a letter with the letterhead it originally
+  had.
+- **Per type:** each type version records the base release it was made and tested with. MedScribe
+  warns, without blocking, when a document combines a type with a base release it was never tested
+  with.
+- **Advanced: per-file override.** Choosing one file's version outside a release is possible, but
+  marked in the manifest as a non-standard combination.
+
+### 5.6 Exchange with the evrdocs kit and Overleaf
+
+- **Import:** the first import makes every kit file v1 of its source and creates base release B1.
+  After that (D19): **layout code** (`evrtemplate.tex`, images) is still edited in the kit/git;
+  re-importing creates a new *draft* version only for files whose SHA-256 changed, which becomes
+  part of a base release in MedScribe. **Layout data** (doctor, clinics, labels) is edited only in
+  MedScribe, which generates `evr-gr.tex` / `evr-en.tex`; those two files are not re-imported.
+  **Types** are mastered in MedScribe (D18); the kit's `tpl-*.tex` files are imported once.
+- **Export:** any base release, with any set of types, can be exported as a kit-shaped folder or zip
+  that compiles on its own (`scripts/build.sh`, Overleaf), so you never depend on MedScribe to open
+  a source.
+- **Format (D18):** a type is stored as structured data and versioned and hashed as such; its
+  kit-style `.tex` is generated for diffs and export, never edited and re-imported.
+
+## 6. Template hierarchy (scan of `~/devel/docs/template-kit`, 2026-11-05)
+
+### 6.1 Dependency tree
+
+```
+Base layer
+  evrtemplate.tex ......................... layout engine: header, footer, QR, signature,
+  │                                         helpers PatientInfo / MedTable / UrgentBox / \V
+  ├─ \input{evr-\DocLang} ................. picked at build time by \DocLang
+  │    ├─ evr-gr.tex ...................... doctor details, labels, \QRBaseURL, 7 × \SetClinic
+  │    └─ evr-en.tex ...................... the same keys in English
+  ├─ \DrLogo   → images/logo-01.png ....... spine logo (set in evr-*.tex)
+  ├─ \DrStamp  → images/logo-stamp.png .... signature/stamp (only when \DocStamp{yes})
+  └─ \ClinicLogo → images/logo-*.png|jpg .. picked by \Clinic (Mandra: none)
+  (images/logo-01a.svg: vector source of the logo; never used in a build)
+  (latexmkrc: build rule, needed only by tpl-a5-2up)
+
+Level 1: document templates (each does \input{evrtemplate}; none inputs another template)
+  letter-gr, letter-en, tpl-* (19 files)
+
+Level 2: post-processing (not a letter; consumes the PDF of a level-1 document)
+  tpl-a5-2up ── \includepdf{\InputPDF} ──▶ PDF of tpl-syntagi-a5 (or a copy of it)
+```
+
+### 6.2 Findings
+
+1. **Only two real layers.** Every letter depends on `evrtemplate.tex` directly. Templates never
+   build on other templates. All reuse between templates is **copy-paste**, so a shared change (a
+   drug dose, a sentence) has to be repeated by hand in every copy. This is the main thing grouping
+   and shared components (§4) should fix.
+2. **The language file is chosen at build time** (`\input{evr-\DocLang}`), and the images are chosen
+   through data (`\SetClinic`, `\DrLogo`, `\DrStamp`). A document's real dependencies therefore
+   depend on its settings. A Greek document at Peristeri without a stamp uses `evr-gr.tex` and
+   `logo-iatriko-peristeriou.png` but not `logo-stamp.png`. The manifest (§5.3) records what the
+   build actually used.
+3. **Copied blocks found:**
+   - **The drug library:** 32 lines with the same hash in **7** files: `syntagi`, `syntagi-a5` and
+     the 5 `odigies`. The kit README says six; `syntagi-a5` is the seventh.
+   - **The purpose sentences:** 7 alternatives, identical in **9** files.
+   - **The settings block:** clinic, patient, date, title, closing and stamp, in all **22** letters.
+4. **`tpl-a5-2up` is a different kind of thing:** a layout step applied to a finished A5 PDF. In
+   MedScribe it becomes an output option of A5 documents ("print 2 per A4 sheet") rather than a
+   document type.
+5. **All templates default to `\DocStamp{no}`.** The default closing differs per template (empty vs
+   `Ο ιατρός`).
+
+### 6.3 What each template uses
+
+| Template | Lang | Paper | Default title | Closing | Patient block | Sections | MedTable | UrgentBox | Own variables |
+|---|---|---|---|---|---|---|---|---|---|
+| letter-gr | gr | a4 | Ιατρική Βεβαίωση | – | ✓ | – | – | – | |
+| letter-en | en | a4 | Medical Certificate | – | ✓ | – | – | – | |
+| vevaiosi-mri | gr | a4 | Ιατρική Βεβαίωση | Ο ιατρός | ✓ | – | – | – | |
+| vevaiosi-ylikon | gr | a4 | Ιατρική Βεβαίωση για χρήση υλικού | – | ✓ | – | – | – | |
+| vevaiosi-amoivis | gr | a4 | Ιατρική Βεβαίωση | Ο ιατρός | ✓ | – | – | – | |
+| adeia | gr | a4 | Ιατρική Βεβαίωση | – | ✓ | – | – | – | `\LeaveDays` |
+| gnomateysi-exetaseon | gr | a4 | Ιατρική Γνωμάτευση | – | ✓ | – | – | – | |
+| gnomateysi-farmakon | gr | a4 | Ιατρική Γνωμάτευση | – | ✓ | – | – | – | `\Drug`, `\DrugCount`, `\PatientAMKA` |
+| proegkrisi | gr | a4 | Προέγκριση Χειρουργείου | – | ✓ (Προγρ. επέμβαση) | – | – | – | |
+| enimerotiko | gr | a4 | Ενημερωτικό | Ο ιατρός | ✓ (3 dates) | 5 (Ιστορικό → Σχέδιο) | optional | – | |
+| iatrodikastiki | gr | a4 | Ιατρική Γνωμάτευση | Ο ιατρός | ✓ (2 dates) | 5 (Ιστορικό → Συμπέρασμα) | – | – | |
+| synainesi | gr | a4 | Έντυπο Ενημερωμένης Συγκατάθεσης… | – | ✓ | 2 risk subsections | – | – | |
+| praktiko | gr | a4 | Πρακτικό Χειρουργείου | – | ✓ (9 rows) | 5 subsections | – | – | |
+| odigies-osfyiki | gr | a4 | Μετεγχειρητικές Οδηγίες | Ο ιατρός | ✓ | Γενικές / Εξειδικευμένες / Επανέλεγχοι | ✓ + library | ✓ (commented) | |
+| odigies-auxeniki | gr | a4 | 〃 | Ο ιατρός | ✓ | + Κρίσιμες (dural tear, commented) | ✓ + library | ✓ | |
+| odigies-kyfoplastiki | gr | a4 | 〃 | Ο ιατρός | ✓ | Γενικές / Εξειδικευμένες / Επανέλεγχοι | ✓ + library | ✓ (commented) | |
+| odigies-kranio | gr | a4 | 〃 | Ο ιατρός | ✓ (+ Ημ. Εξιτηρίου) | Γενικές / Επανέλεγχοι | ✓ + library | ✓ (commented) | |
+| odigies-tridymo | gr | a4 | 〃 | Ο ιατρός | ✓ | Κρίσιμες / Γενικές / Εξειδικευμένες / Επανέλεγχοι | ✓ + library | ✓ | |
+| syntagi | gr | a4 | Οδηγίες Φαρμακευτικής Αγωγής | Ο ιατρός | ✓ | – | ✓ + library | – | `\DocPageNumbers{all}` |
+| syntagi-a5 | gr | **a5** | Συνταγή | Ο ιατρός | ✓ | – | ✓ + library | – | `\DocPageNumbers{all}` |
+| epistoli | gr | a4 | (free) | Ο ιατρός | **–** | – | – | – | `\Recipient` |
+| recommendation-en | en | a4 | Letter of Recommendation | – | **–** | – | – | – | |
+| a5-2up | – | A4 landscape | – | – | – | – | – | – | `\InputPDF`, `\TwoUpMode`, `\TwoUpCutLine` |
+
+### 6.4 Grouping (agreed 2026-11-05)
+
+Six families, grouped by structure:
+- **Certificates:** short, patient block plus body plus the purpose sentence: `vevaiosi-*`, `adeia`,
+  `letter-gr/en`.
+- **Opinions and requests to third parties:** `gnomateysi-*`, `proegkrisi`.
+- **Structured clinical reports** with fixed section headings: `enimerotiko`, `iatrodikastiki`,
+  `praktiko`, `synainesi`.
+- **Postop instructions:** one shared skeleton (Γενικές / Εξειδικευμένες / Επανέλεγχοι / UrgentBox /
+  MedTable) with five procedure variants.
+- **Prescriptions:** `syntagi`, `syntagi-a5`, plus the 2-per-sheet output option.
+- **Letters without a patient:** `epistoli`, `recommendation-en`.
+
+Versioning (§5) also settles the kit's own decision D8 (`TYPES-PLAN.md`). The kit copied the drug
+library into each template *because a shared file would silently change old letters on recompile*.
+With pinned versions that cannot happen, so the library can safely become one shared component.
+
+### 6.5 What documents a private-practice surgeon needs (research, 2026-11-05)
+
+**Sources.** The main evidence is your own archive: the kit's `TYPES-PLAN.md` classified all ~95
+letters in `overleaf/` by purpose. That is complemented by:
+- **The Greek framework:** the Code of Medical Ethics (ν. 3418/2005); the Athens Medical
+  Association's rules on documents for the courts (after ΣτΕ 2552/2021); e-ΕΦΚΑ / ΚΕΠΑ procedures;
+  ΕΟΠΥΥ prior approval (S2); private insurers' claim requirements.
+- **Surgical documentation practice** in general.
+
+#### A. Two distinctions that affect the design
+
+1. **Πιστοποιητικό/βεβαίωση vs γνωμάτευση.** Under the Code of Medical Ethics, as the Athens Medical
+   Association explains it:
+   - **A certificate** attests a fact and **requires a prior examination of the patient**.
+   - **An opinion** expresses a medical view; when it is not based on an examination it must be
+     drafted with particular care, using all available evidence.
+
+   **Design consequence:** every type carries a *legal nature* attribute. Certificate types require
+   an **examination date** field, and documents for court use follow the Athens Medical Association's
+   specific rules.
+2. **Official electronic channels are out of scope.** Several documents now go through official
+   electronic systems, which MedScribe does not replace:
+   - e-prescription and e-referral (ΗΔΙΚΑ);
+   - e-ΕΦΚΑ sickness certification;
+   - the ΚΕΠΑ treating-physician file, which is moving to a single electronic application and
+     requires ICD-10 codes per condition.
+
+   MedScribe produces the **accompanying letter or report** that the official form or file needs.
+   This extends the non-goals in §2.
+
+#### B. Document families along the care pathway
+
+✅ = a template exists in the kit · ◐ = partly covered · ✗ = gap
+
+| # | Family | Documents | Audience | Kit | Notes |
+|---|---|---|---|---|---|
+| 1 | **Consultation & referral** | Consultation report / letter to the referring doctor; second opinion; referral or opinion for tests and physiotherapy | Doctor, patient | ◐ `gnomateysi-exetaseon` | **Gap:** the consultation letter to the referring doctor, the most common letter in surgical practice in general |
+| 2 | **Pre-operative** | Surgical pre-approval; cost estimate (surgeon fee, materials, clinic); pre-op instructions (tests, stopping anticoagulants, fasting, what to bring); request for cardiology or anaesthesia clearance; procedure information leaflet; informed consent | Insurer/ΕΟΠΥΥ, patient, colleague | ◐ `proegkrisi`, `synainesi` | **Gaps:** the cost estimate (could take fees from APYweb), pre-op instructions, the clearance request. Consent is the one type the **patient signs** |
+| 3 | **Peri-operative record** | Operative note; discharge / clinical summary | Clinic, insurer, next doctor | ✅ `praktiko`, `enimerotiko` | Insurers ask for the operative note together with their own treating-physician form |
+| 4 | **Post-operative care** | Postop instructions (per procedure); medication instructions; follow-up visit report | Patient, GP | ✅ `odigies-*` ×5, `syntagi`, `syntagi-a5` · ✗ follow-up | **Gap:** the follow-up visit report ("επανεξέταση"), a natural sequel to every operation |
+| 5 | **Certificates for insurers & imaging** | Procedure + materials certificate; MRI compatibility of implants; fee-paid certificate | Insurer, imaging centre, tax office | ✅ `vevaiosi-ylikon`, `vevaiosi-mri`, `vevaiosi-amoivis` | Certificates in the legal sense: examination date needed |
+| 6 | **Work & social-security certificates** | Sick leave, work restrictions, remote work; fitness to return to work, drive, travel or do sport; disability (supporting report for the ΚΕΠΑ file); military service; school or exam arrangements | Employer, public service, e-ΕΦΚΑ, ΚΕΠΑ, school | ◐ `adeia` | **Gaps:** fitness certificates and the disability report (needs ICD-10 per condition). Public-sector short sick leave (up to 8 days a year) accepts a private doctor's opinion |
+| 7 | **Drugs & devices** | High-cost drug (ΦΥΚ) justification; baclofen kit; chronic medication justification; treatment abroad (ΕΟΠΥΥ S2 needs the treating doctor's opinion) | ΕΟΠΥΥ, pharmacy, supplier | ✅ `gnomateysi-farmakon` · ✗ abroad | Treatment abroad is rare |
+| 8 | **Medico-legal & insurance claims** | Medico-legal examination; court expert opinion; accident or assault report; claim support (cover report to the insurer's own form) | Court, lawyer, police, insurer | ◐ `iatrodikastiki` | Court documents follow the Athens Medical Association's specific rules (after ΣτΕ 2552/2021) |
+| 9 | **Correspondence** | Administrative letters (clinic, laboratory, coding requests, paraffin blocks); recommendation / observership letters; free letters | Institutions, colleagues | ✅ `epistoli`, `recommendation-en`, `letter-*` | No patient, or a patient without a clinical block |
+| 10 | **Practice documents (not per patient)** | GDPR privacy notice for patients; consent to use photos or images; practice information and price list; patient education leaflets (e.g. after a lumbar disc herniation) | All patients | ✗ | Static documents that reuse the letterhead and the phrase library. Under GDPR a doctor keeps a record of processing activities (not given to patients); explicit consent is **not** the legal basis for ordinary care. Verify with the medical association's DPO before writing these |
+| 11 | **Clinical scales & questionnaires** | (a) **Questionnaires the patient fills in**: pain NRS/VAS, Oswestry (ODI), Neck Disability Index (NDI), Roland–Morris, EQ-5D, SF-36/SF-12. (b) **Scales and exam charts the doctor records**: neurological exam table (MRC muscle power per root, sensation, reflexes, signs), mJOA / Nurick (myelopathy), ASIA, GCS, mRS, Karnofsky, BNI (trigeminal pain and numbness), Barthel | Patient (blank form), doctor/insurer (scored result) | ✗ | **Two outputs per scale:** a blank form to print and fill on paper, and a scored result table. Results can be compared over time (pre-op vs follow-up) and quoted in other documents (follow-up report, pre-approval, medico-legal). Needs **validated Greek versions**; some instruments are licensed (EQ-5D: EuroQol; SF-36/SF-12: licensed), so check each one's terms |
+
+#### C. Attributes every type needs (consequences for §4)
+
+| Attribute | Values | Why |
+|---|---|---|
+| Family | 1–11 above | Grouping in menus; shared defaults (e.g. the purpose sentence for families 5–6) |
+| Legal nature | certificate · opinion · instructions · record · consent · letter | A certificate needs an examination date; consent needs a patient signature area |
+| Audience | patient · doctor · insurer/ΕΟΠΥΥ · employer/public body · court · institution | Language register, purpose sentence, how much is disclosed |
+| Clinical anchor | surgery · visit · none | A surgery-anchored type asks for, or later pulls from ZPMS, the date, procedure and materials |
+| Signature | hand-signed · stamp image · patient signs too · none | Today `\DocClosing` / `\DocStamp`, chosen per type |
+| Has patient | yes · no | Families 9–10 often have none |
+
+#### D. Gaps: decided 2026-11-05
+
+**Adopted** (D11, D12):
+- **Clinical scales & questionnaires** (family 11).
+- **Pre-operative instructions** (family 2).
+- **Fitness certificates:** work, driving, travel (family 6).
+- **Practice documents** (family 10).
+
+**Not now:**
+- Consultation letter to the referring doctor (family 1).
+- Follow-up visit report (family 4).
+- Cost estimate (family 2).
+- Disability supporting report (family 6).
+
+New types are written fresh, because there is no kit template to import. Each goes through the same
+review → release path as the imported ones.
+
+#### E. Scales: what they add to the engine
+
+Scales are the one family that is not just text, so they need three additions:
+- **A `scale` section layout.** Each item has its answer options and their scores. MedScribe
+  computes the total and any subscores, and shows the interpretation band (e.g. ODI 21–40 % =
+  "moderate disability"). The scoring rules are versioned with the scale's definition (§5), so an old
+  score can always be explained.
+- **Two renderings of the same definition:**
+  - a **blank questionnaire** (patient-facing, Greek, printable);
+  - a **result table** (items, answers, total, band, date).
+- **Structured results.** A completed scale is stored as data (patient guid, scale, version, date,
+  answers, score), not only as a PDF. This lets other documents quote it: e.g. "ODI 46 % pre-op →
+  18 % at 3 months" in a postop or medico-legal text. Where these results live is open (§11 Q11).
+
+## 7. How a document is produced
+
+### 7.1 Rendering (inputs → `.tex`)
+
+MedScribe never edits a template version at run time. It **writes a complete, standalone `.tex`** for
+each document, in the kit's own style:
+
+```latex
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+\providecommand\DocLang{gr}
+\providecommand\Clinic{Peristeri}
+\providecommand\DocCode{PEX-2026-8K3XQ2}
+\providecommand\PatientName{…}        % … every setting, from the type defaults + your choices
+\input{evrtemplate}
+\begin{document}
+\begin{PatientInfo} \Info{Ημ. Χειρουργείου}{12-10-2026} \end{PatientInfo}
+…body generated from the selected blocks, field values, local edits and free text…
+\end{document}
+```
+
+Consequences:
+- **Same output as today:** the letterhead and helpers (`PatientInfo`, `MedTable`, `UrgentBox`, `\V`)
+  are used unchanged.
+- **Portable:** the stored `.tex`, together with an export of its base release (§5.6), compiles by
+  hand or on Overleaf, which gives you an escape route for any unusual document.
+- **Safe text:** your free text and local edits are **escaped** (`& % $ # _ { } ~ ^ \`), and a small
+  markup is turned into LaTeX: bold, italic, list items, spine levels. Template text is trusted, and
+  may contain LaTeX.
+
+### 7.2 Compiling (`.tex` → PDF)
+
+This follows what `~/devel/docs/scripts/build.sh` already does:
+- **Isolation:** each job gets its own temporary folder, filled from the template store by the
+  manifest's hashes, so a build never reads a mutable working copy.
+- **XeLaTeX runs:** `xelatex -interaction=nonstopmode -halt-on-error -no-shell-escape`, 2 to 4 passes
+  until there is no "Rerun", with a fixed `SOURCE_DATE_EPOCH`.
+- **Limits:** a time limit and a size limit per job. Fonts and caches go to a folder Apache's user
+  can write to.
+- **On failure:** the error and the end of the log are shown in the form, never a blank page.
+- **A5 and two-up:** A5 documents use `\DocPaper{a5}`, and two A5 pages per A4 sheet is an output
+  option using the kit's `a5-2up` imposition.
+
+### 7.3 Preview
+
+**Preview** compiles the draft with a placeholder QR and a "ΠΡΟΣΧΕΔΙΟ" (DRAFT) mark, so a draft can
+never be mistaken for an issued document. The mark needs a small, optional `\DocDraft` switch in
+`evrtemplate.tex` (§11 Q6), which becomes a new base version.
+
+### 7.4 Issuing (doctor only)
+
+The QR has to be inside the PDF, so the DocArc token must exist before typesetting:
+
+1. MedScribe asks DocArc to **create a record**, sending the document type code, patient name, date,
+   clinic and requesting user. DocArc returns the **token**.
+2. MedScribe renders the `.tex` with `\DocCode{token}`, compiles it, and records the manifest.
+3. MedScribe **uploads the PDF** as the record's main document, and the `.tex` (plus any
+   non-kit images) as supplementary files.
+4. The document is **locked**. MedScribe stores the token, the `.tex`, the PDF and its hash, the
+   inputs and the manifest.
+
+If step 2 or 3 fails, the DocArc record exists without a file. MedScribe keeps the token on the draft
+and retries; it never creates a second record for the same issue attempt.
+
+**Corrections:** "Correct" makes a new draft from the issued inputs. By default it keeps the same
+template versions, and you can choose to move it to the current ones. Issuing it gets a **new**
+token, and the old document is marked *superseded by* the new one. DocArc may want a link back to the
+old record (§11 Q5).
+
+## 8. Users and roles
+
+| Role | Can |
+|---|---|
+| **Secretary** | Pick a patient and a type; create and edit drafts; fill in administrative fields; preview; hand a draft to the doctor ("ready for review") |
+| **Doctor** | Everything the secretary can, plus issue, correct and copy documents; edit, version and release types, shared components and the base layer; edit the phrase and drug libraries |
+| **Admin** | Users, roles, settings, integration keys |
+
+These use ZeusFw's built-in users, roles and permissions, the same mechanism ZPMS uses. Each draft
+records who created it and who issued it. Each template version records who made it and who released
+it. Whether the secretary may issue purely administrative documents is open (§11 Q2).
+
+## 9. Integrations
+
+The pattern is the one in `CLAUDE.md`: server to server, an API key in a header checked with
+`hash_equals()`, and the integration switches off cleanly when not configured.
+
+**ZPMS** (changes in the ZPMS repo):
+- `GET /api/v1/patients/search/{term}`: the existing search, made to accept an
+  `X-MedScribe-Api-Key` header as well as DocArc's.
+- **New:** `GET /api/v1/patients/{guid}` returns name, date of birth, gender, AMKA, and possibly
+  address and phone, only for the types that print them.
+- **New:** a "New document" button on the patient page that opens MedScribe at
+  `/documents/new?patient=<guid>`.
+- Possibly later: surgery and appointment data, to fill in "Ημ. Χειρουργείου" or "Επέμβαση".
+- The patient's age is calculated from the date of birth **at the document date**.
+- MedScribe stores a **snapshot** of the patient on each document (what was printed), plus the
+  `guid`, and never syncs back.
+
+**DocArc** (changes in the DocArc repo; it has no inbound API today):
+- **New, API-key gated:**
+  - **Create record:** returns the token and retrieval URL.
+  - **Upload main document:** the PDF.
+  - **Upload supplementary files:** the `.tex`.
+- **Reuse DocArc's own code:** `includes/token.php`, `includes/documents.php` and its audit log,
+  rather than duplicating them.
+- **Type codes:** a mapping from MedScribe type to DocArc document-type code (the token prefix).
+- **Patient name only:** DocArc keeps receiving the patient name as plain text, as today.
+
+**APYweb**: not needed now. `vevaiosi-amoivis` (fee paid) could later pull the payment from APYweb.
+
+## 10. Milestones
+
+Each milestone ends with something you can use or test.
+
+| # | Milestone | Done when |
+|---|---|---|
+| M0 | **Foundations:** ZeusFw app scaffold (same layout as ZPMS), login + roles, config templates, test runner. The **template store** (sources, versions, SHA-256, base releases), the kit import (all files → v1, base release B1), and the compile service running XeLaTeX as Apache's user from a manifest | The unmodified `tpl-vevaiosi-mri.tex` compiles from the store into the same PDF as `scripts/build.sh` gives. A build's manifest lists every file used, with its version and hash |
+| M1 | **Engine + first type**: the type/section/block format, gender variants, field types, local edits, escaping and markup. The form, renderer and preview, with the patient typed in by hand. `vevaiosi-mri` is defined in the new format | A `vevaiosi-mri` is written entirely in the form, and its PDF matches the hand-filled kit version (regression test G3) |
+| M2 | **ZPMS**: patient search and fetch-by-guid endpoints in ZPMS, the "New document" button, the patient snapshot | Opening ZPMS → "New document" → `vevaiosi-mri` arrives with the patient already filled in |
+| M3 | **DocArc + lifecycle**: the DocArc endpoints, the issue flow of §7.4, locking, versions, copy as new, correct. Rebuilding from a manifest. **Issued documents feed the history** (D8) | **G2 is met for `vevaiosi-mri`:** an issued PDF with a working QR, in DocArc, in under a minute. **G5 is met:** after a new base release, an old document still rebuilds to the same PDF hash |
+| M4 | **Template management and short certificates**: an editor for type, section and block versions (draft → released, diffs); base-release selection per document; **the content pool UI: suggestions pane, @tokens, swap on insertion, library screen (promote/merge/hide)**; `vevaiosi-ylikon`, `adeia`, `vevaiosi-amoivis`, `gnomateysi-exetaseon` and the shared purpose sentences | Five types in daily use; changing a clinic phone produces a new base release that new documents use, while old ones keep theirs |
+| M5 | **Prescriptions**: the drug library as a shared component, a medication table editor, `syntagi` (A4) and `syntagi-a5`, two A5 pages on one A4 sheet | A multi-page A5 prescription is printed two pages per sheet, straight from MedScribe |
+| M6 | **Postop instructions + case modules**: the five `odigies` types (the largest import: ~100+ alternatives each, the dural-tear blocks, emergency boxes); **seeding history from the archive (D15)**; **case features and modules (D17)**, e.g. a "dural tear / CSF leak" module | A postop letter in under 5 minutes (G2); adding the "Διαρροή ΕΝΥ" chip brings in its lines across all sections |
+| M7 | **Clinical and other types**: `proegkrisi`, `enimerotiko`, `gnomateysi-farmakon`, `iatrodikastiki`, `synainesi`, `praktiko`, `epistoli`, the English types, and the blank `letter-gr` / `letter-en` | All 21 templates covered (G1) |
+| M8 | **New types (D12)**: pre-operative instructions, fitness certificates (work, driving, travel), practice documents (GDPR notice, information and price list, patient leaflets) | Each type released after your review; practice documents work without a patient |
+| M9 | **Scales (D11)**: the `scale` layout, scoring and interpretation bands, blank questionnaire + result table, structured results, quoting a score in another document. First set: NRS/VAS, ODI, NDI, the neurological exam chart, mJOA, BNI | A patient fills an ODI on paper, the secretary enters it, MedScribe scores it, and the follow-up letter quotes the pre-op and current scores |
+
+**Importing the templates (M1, M4–M7):** a one-off import script reads each `tpl-*.tex` and proposes
+the type's structure. Uncommented lines become blocks that are on by default, commented lines become
+blocks that are off, `[text]` becomes fields, and copied blocks are linked to their shared component.
+You then review each type in the app, one per sitting, as you did with the kit's `TYPES-PLAN`, and
+release it as v1.
+
+## 11. Open questions
+
+1. ~~**How is a *type* stored inside its versions?**~~ *Resolved 2026-11-05: (c), structured data
+   as the master plus a generated kit-style `.tex` (D18).*
+2. **Secretary issuing:** may the secretary issue administrative documents without you (fee
+   certificate, administrative letter), or does every issue need the doctor?
+3. **Patient gender missing in ZPMS:** ask at document creation every time (proposed), or write it
+   back to ZPMS? MedScribe never writes to ZPMS in the current design.
+4. ~~**Free-text formatting**~~ *Resolved 2026-11-05: light markup (bold, italic, lists, spine
+   levels `L4-5` → `\V{L4-5}`) plus a raw-LaTeX block type as an escape hatch; more formatting only
+   if a real document needs it.*
+5. **DocArc details:**
+   - Should an issued document set DocArc's optional *verification code* (e.g. AMKA) per type?
+   - Should a correction link to the record it replaces?
+   - Which clinic and requesting-user values should be sent?
+6. **Draft mark:** may a `\DocDraft` switch (the preview's "ΠΡΟΣΧΕΔΙΟ" mark) be added to
+   `evrtemplate.tex` as a new base version? Hand-written letters would be unaffected.
+7. ~~**Who is the master of the base layer after import?**~~ *Resolved 2026-11-05: hybrid —
+   code in git, data in MedScribe, releases only in MedScribe (D19).*
+8. **Language:** the English types (`letter-en`, `recommendation-en`) — will they also take the
+   patient from ZPMS, or are they free letters?
+9. **Data kept in MedScribe:** drafts and issued inputs include patient data. Should MedScribe have a
+   GDPR audit log like ZPMS and DocArc (proposed: yes), and how long should drafts that were never
+   issued be kept?
+10. ~~**Version numbers**~~ *Resolved 2026-11-05: plain integers per source (v1, v2…) and per
+    base release (B1, B2…); the change note says what changed.*
+11. **Where do scale results live?** *(deferred to the future, 2026-11-05.)* In MedScribe, linked
+    to the ZPMS guid (simplest), or in ZPMS
+    as part of the clinical record, with MedScribe sending them there (fits G6 better, but needs a
+    ZPMS write API)?
+12. **Which scales, and which Greek versions?** Confirm the first set (M9) and the validated Greek
+    translation you use for each. Check the licence terms for licensed instruments (EQ-5D,
+    SF-36/SF-12) before including them.
+13. **Questionnaire entry:** paper only (the secretary types the answers in), or also a tablet form
+    the patient fills in at the office?
+14. ~~**Intake of edited and new text on issue**~~ *Resolved 2026-11-05: automatic, no
+    approval and no de-identification step (D8, §12.1).*
+
+## 12. Content reuse model (draft, 2026-11-05)
+
+The goal is to minimise writing time by reusing the doctor's own past text. A document mixes text
+common to every patient with text specific to this patient; the doctor reuses paragraphs, modifies
+them, or writes new ones.
+
+- **Slot = section** (§4): a section's stable name gives it a meaning (e.g. "Φροντίδα τραύματος",
+  "Κινητοποίηση", "Επανέλεγχος") shared across types (D16).
+- **Block:** a piece of text in a section, with immutable versions (SHA-256, §5.1), a `derived_from` link
+  when it is a modified variant, and usage data (count, last used, types, document context).
+- **Tiers:** *default* (pre-selected by the type) → *library* (reviewed alternatives) → *history*
+  (blocks of all issued documents and the seeded archive, D15, fed automatically). Promotion is
+  manual (§12.1).
+- **Context / case features:** per-document structured features (procedure, area, levels,
+  complications, comorbidities, surgery date…) that fill block fields, pull in modules and rank
+  suggestions (§12.2, D17).
+- **Suggestions:** ranked by slot → type → family → all text; same-procedure matches first, then
+  frequency and recency (a simple heuristic first; see §13).
+- **UI (proposal):** Home (drafts, recently issued, quick start); Composer (outline · document as
+  block cards · suggestions pane that follows the cursor, Ctrl+K palette, plain-text editing with
+  light markup and field chips, raw-LaTeX block as escape hatch); Preview & issue (real PDF on
+  demand, checklist incl. numbers to confirm); Library (variant tree, promote/merge/hide, used-in);
+  Type editor; Base screen (doctor, clinics, labels, base releases).
+
+### 12.1 Storage, reuse and @tokens (simple model, 2026-11-05)
+
+1. **Every issued document is stored as it is.** It is the record, and it is the knowledge base.
+2. **Suggestions come straight from past issued documents.** No separate cleaned copy, no scanning
+   or flagging. Drafts that are never issued add nothing.
+3. **@tokens.** In the editor, typing `@` inserts a field token (`@patient`, `@surgery_date`,
+   `@level`, `@age`, `@clinic`…), shown as a chip. Tokens stay tokens inside the block, so on
+   reuse they take the new document's values automatically.
+4. **Swap on insertion for plain text.** When a past block contains the old patient's details as
+   plain text, the app replaces them with the current ones: the old document records its own
+   name, dates and levels, the new one has its own, so this is a lookup, not text analysis.
+   ```
+   from an old document:  Ο κ. Ιωάννου, μετά τη μικροδισκεκτομή Ο5-Ι1 …
+   inserted now:          Ο κ. Παπαδόπουλος, μετά τη μικροδισκεκτομή Ο4-Ο5 …
+   ```
+5. **Anything else the doctor sees and fixes**, as when reusing an old letter today.
+6. **Promotion to library/default is manual**, and is where a block is cleaned by hand (e.g.
+   plain-text details turned into @tokens).
+
+Privacy is unchanged: the text never leaves MedScribe, and the same documents are already stored
+there and in DocArc.
+
+### 12.2 Case features and modules (D17, 2026-11-05)
+
+Two approaches were considered:
+
+- **Free description, the app picks lines.** Fast and natural, but the app has to understand free
+  text: keywords miss synonyms and negations ("χωρίς διαρροή ΕΝΥ"), and a language model is a black
+  box with GDPR implications. When unsure it fails silently: a missing warning sign doesn't look
+  missing.
+- **Predefined case sections, the doctor chooses.** Predictable, but a complication is not a
+  section. A CSF leak changes several sections at once (wound care: longer dressing, watch for
+  leakage; mobilisation: lie flat 24–48 h; when to call: orthostatic headache, clear fluid; review:
+  earlier visit), and combinations (procedure × complication × comorbidity) explode.
+
+**Chosen: a hybrid.**
+
+```
+Case:  [Μικροδισκεκτομή ×] [Ο4-Ο5 ×] [Διαρροή ΕΝΥ ×] [+ add…]
+                                       ↑ typed "ενυ" → autocompleted
+```
+
+- **Features as chips** at the top of the composer, chosen from a controlled vocabulary with
+  synonyms and autocompletion.
+- **Each feature has a module:** a set of blocks across slots that it adds or swaps in. Removing
+  the chip removes them. Modules stack, so combinations need no extra writing.
+- **Explainable:** every line shows its origin ("added by: Διαρροή ΕΝΥ"). The app proposes; the
+  doctor reviews and edits as usual.
+- **Doctor's own text only:** modules select existing blocks; the app never writes clinical
+  wording.
+- **Modules grow from history:** on issuing a case with a feature, MedScribe notes which blocks were
+  added beyond the base defaults and offers them as (part of) that feature's module. Promotion is
+  manual.
+- **Groundwork for §13:** each issued document records its features and the blocks chosen, which is
+  exactly the training data the probabilistic proposals need. Modules give rule-based selection
+  first; statistics refine the ranking and surface lines no module covers yet.
+- **Later: free text → chips.** A typed description ("μικροδισκεκτομή με διαρροή ΕΝΥ") is turned
+  into chips the doctor confirms, so misunderstandings are visible. Start with a term/synonym
+  dictionary; a language model is an optional upgrade, given only the case description, never
+  patient identifiers.
+
+## 13. Future ideas (noted, not planned)
+
+- **Probabilistic (Bayesian) sentence proposals.** Instead of the fixed ranking heuristic of §12,
+  estimate for each block the probability that it is chosen given the document's features —
+  certificate/document type, body area operated, operation type, duration (e.g. leave or
+  recovery days), diagnosis, levels, patient age/gender, clinic, etc. — learned from the history
+  of issued documents (e.g. naive Bayes with smoothing, so blocks with little data still appear).
+  Could also propose default *values* (typical leave days for a given operation). Needs: the
+  context fields to be structured and recorded with every issued document from day one, so the
+  data exists when this is built; keep it explainable ("suggested because: microdiscectomy, L4-5").
+- *(More ideas to be added as the doctor researches further features.)*
+
