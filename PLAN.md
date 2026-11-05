@@ -74,7 +74,7 @@ a full version-control system (no branches or merges; see §5).
 | D14 | **Official electronic channels are out of scope** (ΗΔΙΚΑ e-prescription/e-referral, e-ΕΦΚΑ, ΚΕΠΑ file); MedScribe writes the accompanying documents | ✅ |
 | D15 | **Seed the text pool from the existing archive.** The old letters (`overleaf/archive`, `post-surg`, ~95 files) are imported once into history, with each letter's patient details (`\PatientName`, dates, levels) recorded so the swap on insertion (§12.1) works, so MedScribe starts with years of the doctor's own wording (§12) | ✅ 2026-11-05 |
 | D16 | **Reuse across types.** Suggestions come from the same slot in the same type, then the same family, then all text. Slots are named consistently across types so text can travel between them (§12) | ✅ 2026-11-05 |
-| D17 | **Case features + modules.** A document's case is described with structured feature chips (procedure, area, levels, complications, comorbidities…), not free prose. Each feature has a *module*: blocks spread across slots that it adds or swaps. Modules stack, every line shows which feature added it, and the doctor reviews. The app only selects the doctor's own blocks, never writes clinical wording. Free-text → chips is a later convenience (§12.2) | ✅ 2026-11-05 |
+| D17 | **Case features + modules.** A document's case is described with structured feature chips (procedure, area, levels, complications, comorbidities…), not free prose. Each feature has a *module*: blocks spread across slots that it adds or swaps. Modules stack, every line shows which feature added it, and the doctor reviews; medication rows a module proposes stay unticked until confirmed. The app only selects the doctor's own blocks, never writes clinical wording. Free-text → chips is a later convenience (§12.2) | ✅ 2026-11-05 |
 | D18 | **Types are stored as structured data (Q1 → c).** The master of each type (and block) is structured data in MedScribe's store; a kit-style `.tex` is generated from it for reading diffs as a letter and for export to Overleaf. The generated `.tex` is never edited and re-imported as a type | ✅ 2026-11-05 |
 | D19 | **Base layer: hybrid master (Q7).** Layout *code* (`evrtemplate.tex`, images) is mastered in git (the evrdocs kit) and imported into MedScribe as a draft version. Layout *data* (doctor details, clinics, labels) is mastered in MedScribe, which generates `evr-gr.tex` / `evr-en.tex` from one form so the two languages cannot drift. Base releases (B1, B2…) are made only in MedScribe | ✅ 2026-11-05 |
 
@@ -144,7 +144,8 @@ a full version-control system (no branches or merges; see §5).
   - **Its case features**, recorded with every issued document (they rank suggestions now and
     are the data for §13 later).
   - **A manifest** of the exact source versions it was built from (§5.3).
-  - **Lifecycle:** draft → issued (locked) → superseded by a correction.
+  - **Lifecycle:** draft → *ready for review* (the secretary's hand-over, §8) → issued (locked) →
+    superseded by a correction. A draft may also be issued directly by the doctor.
   - **Once issued:** the DocArc token, plus the exact `.tex` and PDF that were sent there.
 
 ## 5. Template sources and versioning
@@ -490,7 +491,9 @@ The QR has to be inside the PDF, so the DocArc token must exist before typesetti
 If step 2 or 3 fails, the DocArc record exists without a file. MedScribe keeps the token on the draft
 and retries; it never creates a second record for the same issue attempt.
 
-**Corrections:** "Correct" makes a new draft from the issued inputs. By default it keeps the same
+**Corrections:** "Correct" makes a new draft from the issued inputs. A **reason for the correction
+is required**; it is stored on the new document together with the link to the one it replaces,
+the date and time and the author. By default it keeps the same
 template versions, and you can choose to move it to the current ones. Issuing it gets a **new**
 token, and the old document is marked *superseded by* the new one. DocArc may want a link back to the
 old record (§11 Q5).
@@ -499,7 +502,7 @@ old record (§11 Q5).
 
 | Role | Can |
 |---|---|
-| **Secretary** | Pick a patient and a type; create and edit drafts; fill in administrative fields; preview; hand a draft to the doctor ("ready for review") |
+| **Secretary** | Pick a patient and a type; create and edit drafts; fill in administrative fields; preview; hand a draft to the doctor by setting it to *ready for review* (an explicit document state, shown on the doctor's Home) |
 | **Doctor** | Everything the secretary can, plus issue, correct and copy documents; edit, version and release types, shared components and the base layer; edit the phrase and drug libraries |
 | **Admin** | Users, roles, settings, integration keys |
 
@@ -669,6 +672,9 @@ Case:  [Μικροδισκεκτομή ×] [Ο4-Ο5 ×] [Διαρροή ΕΝΥ �
   the chip removes them. Modules stack, so combinations need no extra writing.
 - **Explainable:** every line shows its origin ("added by: Διαρροή ΕΝΥ"). The app proposes; the
   doctor reviews and edits as usual.
+- **No silent prescribing:** a module may add text, but **medication rows it proposes stay
+  unticked until the doctor confirms each one**. A chip never adds a drug to the document by
+  itself.
 - **Doctor's own text only:** modules select existing blocks; the app never writes clinical
   wording.
 - **Modules grow from history:** on issuing a case with a feature, MedScribe notes which blocks were
@@ -692,5 +698,9 @@ Case:  [Μικροδισκεκτομή ×] [Ο4-Ο5 ×] [Διαρροή ΕΝΥ �
   Could also propose default *values* (typical leave days for a given operation). Needs: the
   context fields to be structured and recorded with every issued document from day one, so the
   data exists when this is built; keep it explainable ("suggested because: microdiscectomy, L4-5").
+- **Register tags on blocks** (e.g. short · detailed · patient-friendly · technical). The same
+  clinical content can exist in several registers, and suggestions prefer the register that fits
+  the type's audience (D13): patient-friendly for a consent or instructions, technical for an
+  operative note or a letter to a colleague.
 - *(More ideas to be added as the doctor researches further features.)*
 
