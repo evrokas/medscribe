@@ -62,7 +62,7 @@ a full version-control system (no branches or merges; see §5).
 | D2 | **Templates live in MedScribe's own versioned store.** Each template file has numbered versions, each identified by its SHA-256. The evrdocs kit is the starting point (imported as version 1) and can still exchange versions with MedScribe (§5.5) | ✅ concept; the details in §5 are for review |
 | D3 | **Users: you + secretary.** The secretary prepares drafts; you complete and issue them | ✅ |
 | D4 | **Login: ZeusFw's own users/roles** (ZPMS-style RBAC), not ErnsAuth SSO | ✅ |
-| D5 | **Lifecycle: issued = locked.** Corrections are new versions under a new DocArc code; "copy as new" reuses the inputs for another patient | ✅ |
+| D5 | **Lifecycle: issued = locked.** Revisions are new versions of the same DocArc record, under the same code, each with a required reason (DocArc's versioning design, §7.4); mistakes are withdrawn, not revised; "copy as new" reuses the inputs for another patient | ✅ |
 | D6 | **Two ways to start:** a "New document" button on the ZPMS patient page (patient already filled in), and MedScribe's own patient search (through ZPMS) | ✅ |
 | D7 | **All document types are needed;** `vevaiosi-mri` is the first, as the end-to-end pilot | ✅ |
 | D8 | **Every issued document feeds the text pool automatically** (no approval step). Suggestions come from blocks of past issued documents; promoting a block to library/default stays manual and is the point where it is cleaned by hand (§12.1). *Replaces the earlier "save to library on request only"* | ✅ 2026-11-05 |
@@ -77,6 +77,7 @@ a full version-control system (no branches or merges; see §5).
 | D17 | **Case features + modules.** A document's case is described with structured feature chips (procedure, area, levels, complications, comorbidities…), not free prose. Each feature has a *module*: blocks spread across slots that it adds, swaps or adjusts (`SET` for value-only changes, §12.3); any feature, value features included, may carry one. Modules stack, conflicts are left to the doctor, every line shows which feature added it, and the doctor reviews; medication rows a module proposes stay unticked until confirmed. The app only selects the doctor's own blocks, never writes clinical wording. Free-text → chips is a later convenience (§12.2) | ✅ 2026-11-05 |
 | D18 | **Types are stored as structured data (Q1 → c).** The master of each type (and block) is structured data in MedScribe's store; a kit-style `.tex` is generated from it for reading diffs as a letter and for export to Overleaf. The generated `.tex` is never edited and re-imported as a type | ✅ 2026-11-05 |
 | D19 | **Base layer: hybrid master (Q7).** Layout *code* (`evrtemplate.tex`, images) is mastered in git (the evrdocs kit) and imported into MedScribe as a draft version. Layout *data* (doctor details, clinics, labels) is mastered in MedScribe, which generates `evr-gr.tex` / `evr-en.tex` from one form so the two languages cannot drift. Base releases (B1, B2…) are made only in MedScribe | ✅ 2026-11-05 |
+| D20 | **DocArc document types are DocArc's.** MedScribe fetches the list from DocArc and links each MedScribe type to one or more of them (one default; the doctor may pick another at issue). The link is many-to-many, not 1-1: e.g. all five `odigies` types can share one DocArc type. DocArc has the final word: MedScribe never creates or renames DocArc types, re-checks the link when issuing, and blocks issuing (flagging the type "relink") if DocArc no longer has it. DocArc's clinics are linked to MedScribe's `\Clinic` keys the same way. Issuing is two-stage (§7.4): request the code (DocArc creates the record and returns it), compile with the QR, the doctor approves the final PDF, then send it with the `.tex` source as a supplementary file | ✅ 2026-11-06 |
 
 ## 4. Core concepts
 
@@ -98,7 +99,8 @@ a full version-control system (no branches or merges; see §5).
 
 - **Document type** (e.g. "Βεβαίωση συμβατότητας MRI"): the same idea as a `tpl-*.tex` file. It holds:
   - **Defaults:** language, paper size, title (plus alternative titles), closing, stamp, page numbers.
-  - **The DocArc document-type code** used when the document is issued.
+  - **Its link to DocArc document types** (D20): one or more DocArc types, one of them the default,
+    chosen from the list DocArc publishes. Several MedScribe types may share one DocArc type.
   - **The patient block:** the `\Info` rows it shows (Διάγνωση, Ημ. Χειρουργείου…).
   - **An ordered list of sections.**
 - **Section:** an optional heading plus a *layout*, matching what the kit already uses:
@@ -145,7 +147,7 @@ a full version-control system (no branches or merges; see §5).
     are the data for §13 later).
   - **A manifest** of the exact source versions it was built from (§5.3).
   - **Lifecycle:** draft → *ready for review* (the secretary's hand-over, §8) → issued (locked) →
-    superseded by a correction. A draft may also be issued directly by the doctor.
+    superseded by an approved revision (§7.5), or withdrawn if it was a mistake (§7.4). A draft may also be issued directly by the doctor.
   - **Once issued:** the DocArc token, plus the exact `.tex` and PDF that were sent there.
 
 ## 5. Template sources and versioning
@@ -478,25 +480,102 @@ never be mistaken for an issued document. The mark needs a small, optional `\Doc
 
 ### 7.4 Issuing (doctor only)
 
-The QR has to be inside the PDF, so the DocArc token must exist before typesetting:
+The QR has to be inside the PDF, so the DocArc code (token) must exist before the final typesetting.
+Issuing has two stages, **request the code** and **approve and send**:
 
-1. MedScribe asks DocArc to **create a record**, sending the document type code, patient name, date,
-   clinic and requesting user. DocArc returns the **token**.
-2. MedScribe renders the `.tex` with `\DocCode{token}`, compiles it, and records the manifest.
-3. MedScribe **uploads the PDF** as the record's main document, and the `.tex` (plus any
-   non-kit images) as supplementary files.
-4. The document is **locked**. MedScribe stores the token, the `.tex`, the PDF and its hash, the
-   inputs and the manifest.
+0. **Final check of the draft.** Preview with the draft mark, the checks of §7.3 (fields filled, no
+   `[placeholders]`, medication rows confirmed).
+1. **Request the code.** MedScribe asks DocArc to create a record, sending everything DocArc's
+   record needs:
 
-If step 2 or 3 fails, the DocArc record exists without a file. MedScribe keeps the token on the draft
-and retries; it never creates a second record for the same issue attempt.
+   | DocArc field | From MedScribe |
+   |---|---|
+   | document type | the linked DocArc type: the type's default, or the one picked here (D20) |
+   | description (document name) | the document's title, e.g. "Μετεγχειρητικές Οδηγίες" |
+   | clinic (location / practice) | the DocArc clinic linked to the document's `\Clinic` key |
+   | patient name | from the patient snapshot, plain text as today |
+   | record date | the document date |
+   | requesting user | the MedScribe user issuing |
+   | verification code (optional) | per type, if used (§11 Q5) |
 
-**Corrections:** "Correct" makes a new draft from the issued inputs. A **reason for the correction
-is required**; it is stored on the new document together with the link to the one it replaces,
-the date and time and the author. By default it keeps the same
-template versions, and you can choose to move it to the current ones. Issuing it gets a **new**
-token, and the old document is marked *superseded by* the new one. DocArc may want a link back to the
-old record (§11 Q5).
+   DocArc validates the type and clinic, **creates the record** and responds with the **document
+   code** (e.g. `POS-2026-7K3QPA`). The record has no file yet.
+2. **Compile the final PDF** with `\DocCode{code}`: the real QR, no draft mark. The manifest is
+   recorded.
+3. **The doctor approves.** The final PDF, exactly as it will be archived, is shown with the code and
+   QR. Approving is the only way to continue; going back to edit keeps the code reserved on the draft.
+4. **Send to DocArc:** the PDF as the record's **main document** and the **`.tex` source as a
+   supplementary file** (plus any non-kit images). DocArc already accepts `.tex` there: its
+   supplementary uploads allow any type except a short extension denylist.
+5. **Lock.** MedScribe stores the code, the `.tex`, the PDF and its hash, the inputs and the manifest.
+
+**One record per document.** Once a code is reserved, MedScribe keeps it on the draft and reuses it:
+going back to edit, a failed compile or a failed upload never creates a second record. If the
+draft is abandoned (deleted), MedScribe asks DocArc to **delete the empty record** (decided
+2026-11-06). DocArc deletes only a record that has no main document yet; a failed delete is logged
+and retried, never ignored.
+
+**Changed documents (revisions)** follow DocArc's agreed versioning design (DocArc `CLAUDE.md`,
+"Document versioning", branch `claude/protocol-random-tokens-archive-8xc4p9`, not implemented yet):
+**a revision is a new version of the same DocArc record, under the same code.** The QR on paper
+already handed out keeps working and always serves the latest version; DocArc keeps every older
+version, with its own timestamp proof.
+
+- **"Revise"** makes a new draft from the issued inputs; the issued revision itself never changes.
+  It keeps the same patient and the same DocArc code. By default it keeps the same template
+  versions, and you can choose to move it to the current ones.
+- **A reason is required.** It is stored with the revision in MedScribe and sent to DocArc as the
+  version's **correction note** (staff-only there: never printed, never on the QR page, never in an
+  audit log).
+- **The amendment is stated inside the document,** because DocArc never alters the file: the
+  revised PDF carries a short revision line (e.g. "Αναθεώρηση 2 · 06/11/2026 · αντικαθιστά την
+  έκδοση της 03/11/2026"), through a new kit variable `\DocRevision`, empty for the first
+  revision (§11 Q6).
+- **Issuing a revision** uses the flow of §7.4 without step 1 (the code exists): compile with the
+  same code, the doctor approves, MedScribe uploads the PDF as **a new version with the correction
+  note** plus the `.tex` as a supplementary file, then locks. Only then is it a revision; the
+  previous one is marked *superseded*. An abandoned draft of a revision touches nothing in DocArc.
+- **Mistakes are not revisions.** A document issued for the wrong patient, or one that must not
+  exist, is **withdrawn** (decided 2026-11-06):
+  - **DocArc deletes the whole record,** with every version and supplementary file (its
+    destructive delete, for data-entry errors). The printed QR then leads nowhere.
+  - **MedScribe keeps the document,** marked *withdrawn* with a reason, the date and who withdrew
+    it. Its text is kept out of the pool, and only the doctor can open it.
+  - **The doctor may delete it from MedScribe as well,** at withdrawal or later, after a
+    confirmation. That removes its inputs, `.tex`, PDF and stored files; the audit log keeps only
+    the event (who, when, document id), never patient details or the reason. Keeping one patient's document as "history" under another's record is a GDPR problem,
+  not an audit trail.
+- **Dependency:** revisions need DocArc's versioning built first (its build step 1: schema, storage,
+  versioning on replace, required note) and exposed through the API. Until then MedScribe offers no
+  "Revise", and never uses DocArc's current destructive replace.
+
+### 7.5 Document history
+
+Every document has a **History** view listing its **approved revisions** only, newest first:
+
+Document `POS-2026-2M8XW5` (one DocArc code for all revisions):
+
+| Rev | Status | DocArc version | Approved | By | Reason | Changes |
+|---|---|---|---|---|---|---|
+| 3 | current | v3 | 06/11/2026 10:52 | Ε. Ρόκας | dose corrected | Αντιθρομβωτική: 1 row changed |
+| 2 | superseded | v2 | 04/11/2026 18:10 | Ε. Ρόκας | follow-up date | Επανέλεγχοι: 1 line |
+| 1 | superseded | v1 | 03/11/2026 12:30 | Ε. Ρόκας | (original) | |
+
+- **Each row** opens that revision's PDF, `.tex`, inputs and manifest, exactly as approved, and can
+  be rebuilt (G5).
+- **Changes** compares a revision with the previous one, by section: blocks added, removed or
+  reworded, fields and medication rows changed, patient or settings changed. The full diff is one
+  click away.
+- **Drafts are not revisions.** An open draft of a revision is shown above the list as "draft of
+  rev 4, not approved", and disappears if abandoned. Rejected or abandoned drafts leave no revision.
+- **Append-only:** revisions are never edited or deleted; the history and the audit log record who
+  approved what and when. The reason text stays out of the audit log (DocArc's rule for correction
+  notes, applied here too); the log carries the revision number.
+- **Revision numbers match DocArc's version numbers,** so both apps name the same thing the same
+  way. A withdrawn document shows as *withdrawn* with its reason; its revisions stay listed but only
+  the doctor can open them, until the doctor deletes the document.
+- **The latest approved revision is the current one** wherever the document is listed (Home,
+  patient page); older revisions stay reachable from the history.
 
 ## 8. Users and roles
 
@@ -529,12 +608,28 @@ The pattern is the one in `CLAUDE.md`: server to server, an API key in a header 
 
 **DocArc** (changes in the DocArc repo; it has no inbound API today):
 - **New, API-key gated:**
-  - **Create record:** returns the token and retrieval URL.
-  - **Upload main document:** the PDF.
+  - **List document types:** `{id, code, label}` from DocArc's `document_types` table. MedScribe
+    caches it for the type editor and refreshes it before issuing.
+  - **List clinics:** `{id, name}` from DocArc's `clinics` table, linked in MedScribe to its
+    `\Clinic` keys (Mandra, Peristeri…). Like types, DocArc owns them.
+  - **Create record (request a code):** takes the DocArc document type, description, clinic,
+    patient name, record date and requesting user (§7.4 step 1), rejects an unknown type or
+    clinic, creates the record without a file and returns the code and retrieval URL.
+  - **Upload main document:** the PDF, after the doctor approves it (§7.4 step 3).
   - **Upload supplementary files:** the `.tex`.
+  - **Upload a new version** (after DocArc builds its versioning): the revised PDF with the required
+    correction note; the same record and code (§7.4, Revisions).
+  - **Withdraw:** DocArc deletes the whole record (all versions, supplementary files), for
+    mistakes such as the wrong patient (§7.4).
+  - **Delete an empty record:** for a draft abandoned after its code was reserved (§7.4). DocArc
+    refuses it once the record has a main document.
 - **Reuse DocArc's own code:** `includes/token.php`, `includes/documents.php` and its audit log,
   rather than duplicating them.
-- **Type codes:** a mapping from MedScribe type to DocArc document-type code (the token prefix).
+- **Type links (D20):** stored in MedScribe as DocArc's type `id`, plus the last code and label
+  seen (for display only). The `id` is the key, since DocArc staff can edit codes and labels; what
+  DocArc returns always wins. A MedScribe type links to one or more DocArc types, one the default,
+  and a DocArc type can serve many MedScribe types. Managed in the type editor, picked from DocArc's
+  list; MedScribe never creates DocArc types.
 - **Patient name only:** DocArc keeps receiving the patient name as plain text, as today.
 
 **APYweb**: not needed now. `vevaiosi-amoivis` (fee paid) could later pull the payment from APYweb.
@@ -575,9 +670,15 @@ release it as v1.
    if a real document needs it.*
 5. **DocArc details:**
    - Should an issued document set DocArc's optional *verification code* (e.g. AMKA) per type?
-   - Should a correction link to the record it replaces?
-   - Which clinic and requesting-user values should be sent?
-6. **Draft mark:** may a `\DocDraft` switch (the preview's "ΠΡΟΣΧΕΔΙΟ" mark) be added to
+   - ~~Which clinic and requesting-user values should be sent?~~ The DocArc clinic linked to the
+     document's `\Clinic` key, and the MedScribe user who issues (§7.4, 2026-11-06).
+   - ~~What happens to the empty record of an abandoned draft?~~ DocArc deletes it (2026-11-06).
+   - ~~Changed documents~~: aligned with DocArc's versioning design, same record and code, new version
+     with a correction note (§7.4, 2026-11-06).
+   - ~~Withdrawing~~: DocArc deletes the record; MedScribe keeps the document as *withdrawn* and
+     deletes it only if the doctor chooses to (§7.4, 2026-11-06).
+6. **Draft mark and revision line:** may a `\DocDraft` switch (the preview's "ΠΡΟΣΧΕΔΙΟ" mark)
+   and a `\DocRevision` line (the printed "Αναθεώρηση N · date · replaces…", §7.4) be added to
    `evrtemplate.tex` as a new base version? Hand-written letters would be unaffected.
 7. ~~**Who is the master of the base layer after import?**~~ *Resolved 2026-11-05: hybrid —
    code in git, data in MedScribe, releases only in MedScribe (D19).*

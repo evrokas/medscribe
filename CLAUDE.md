@@ -164,11 +164,21 @@ DocArc is plain PHP 8.1+ with no framework and SQLite (`data/docarc.sqlite`), in
   `zpms_api_key` in its `settings` table.
 - **What storing MedScribe documents needs:** a new API-key-gated endpoint in DocArc, using the
   pattern above, that:
-  - creates a record (picking the document type by code) and stores the PDF as its main document,
-    plus optional supplementary sources;
+  - lists DocArc's document types (`id`, `code`, `label`). DocArc owns them: MedScribe links each of
+    its types to one or more DocArc types (many-to-many, one default) and never creates them
+    (`PLAN.md` D20);
+  - creates a record for a DocArc document type, rejecting unknown ones, and stores the PDF as its
+    main document, with the `.tex` source as a supplementary file;
   - returns the token and retrieval link. If the QR code must be printed *inside* the PDF, the token
-    has to exist before typesetting, so the flow is: create the record → compile LaTeX with the token
-    and QR → upload the PDF to that record;
+    has to exist before typesetting, so the flow is: request a code (DocArc creates the record with type,
+    description, clinic, patient name, date and requesting user) → compile LaTeX with the code and
+    QR → the doctor approves the final PDF → upload the PDF and the `.tex` to that record
+    (`PLAN.md` §7.4). An abandoned draft's empty record is deleted;
+  - **revised documents** follow DocArc's agreed versioning design (DocArc `CLAUDE.md`, "Document
+    versioning", not implemented yet): a new version of the same record under the same code, with a
+    required correction note, never DocArc's current destructive replace;
+  - **withdrawn documents** (mistakes such as the wrong patient): DocArc deletes the whole record;
+    MedScribe keeps the document marked *withdrawn* and deletes it only if the doctor chooses to;
   - reuses `includes/documents.php` and `includes/token.php` rather than duplicating them;
   - writes DocArc's GDPR `audit_log`.
 
