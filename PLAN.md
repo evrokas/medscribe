@@ -780,7 +780,13 @@ release it as v1.
    - ~~How long are never-issued drafts kept?~~ *Resolved 2026-11-06:* until the user deletes them;
      there is no automatic expiry. Deleting a draft that holds a reserved code also deletes its
      empty DocArc record (§7.4).
-   - A GDPR audit log like ZPMS and DocArc: proposed yes, and §7.4–7.5 and §14 already assume one.
+   - ~~A GDPR audit log?~~ *Resolved 2026-11-06: basic logging only.* MedScribe is a document
+     generator, so it does not need ZPMS/DocArc-level auditing. It keeps one simple, append-only
+     `audit_log` table (who, when, action, document id, revision) for the events that matter if a
+     GDPR request ever concerns an issued document: create, issue, revise, withdraw, delete, and
+     opening or downloading an issued document. It records no patient names, text or reasons
+     (§7.4–7.5), and can be filtered by document or user and exported. Nothing more elaborate
+     (access dashboards, per-field change tracking) is planned.
 10. ~~**Version numbers**~~ *Resolved 2026-11-05: plain integers per source (v1, v2…) and per
     base release (B1, B2…); the change note says what changed.*
 11. **Where do scale results live?** *(deferred to the future, 2026-11-05.)* In MedScribe, linked
@@ -995,7 +1001,7 @@ medscribe/
 │   ├── classes/yaml/*.yaml                   entities (generated php/sql gitignored)
 │   │
 │   │   feature files, flat, as in ZPMS (required from index.php; functions = route handlers):
-│   ├── rbac.php  rbac_seed.php  audit.php    pattern copied from ZPMS
+│   ├── rbac.php  rbac_seed.php  audit.php    RBAC as ZPMS; audit.php basic only (Q9)
 │   ├── zpms_client.php  docarc_client.php    cURL clients (3 s lookups, longer uploads; fail closed)
 │   ├── documents.php       pages: home, list, new, view, history, revise, withdraw
 │   ├── composer.php        composer page + its JSON endpoints (autosave, insert block,
