@@ -72,6 +72,7 @@ function page_type_edit($params) {
     return Renderer::render("type_edit.zetem", [
         'src' => $src, 'kind' => (string)$params['kind'], 'name' => (string)$params['name'], 'versions' => $versions,
         'shown' => $cur, 'text' => $_SESSION['type_edit_text'][$src['name']] ?? store_get($cur['sha256']), 'diff' => $diff,
+        'unsaved' => isset($_SESSION['type_edit_text'][$src['name']]),
         'latest_released' => (function () use ($versions) { foreach ($versions as $v) if ($v['status'] === 'released') return (int)$v['version']; return 0; })(),
     ]);
 }

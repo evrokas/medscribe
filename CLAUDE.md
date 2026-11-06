@@ -378,6 +378,12 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
 - **Type editor** (`web/types.php`, `/types/{typedef|shared}/{name}`, doctor): JSON editor that validates before
   saving, change note required, new versions are drafts until released, diff between versions (`web/diff.php`).
   A document uses the latest *released* version at creation and keeps it.
+- **Tree view of the type editor** (`web/js/type_tree.js`, plain JS; Tree/JSON tabs, the JSON text box stays the form field):
+  every key is a row to edit, rename, reorder (drag or arrows), duplicate (new ids) or delete; key order is kept by its own JSON
+  parser. Renames carry: a field → every `@field` (whole, unescaped tokens) and feature `field`; a block/section id → feature
+  operations; a choice group → all its blocks; a shared key → `use`/`library`. A section's name on the composer form is
+  `label`, else `heading`, else `slot`. Test: `tests/js/type_tree_test.js` (all type files round-trip unchanged), run by the
+  static suite.
 - **Letterhead version per document (D10):** a select in the composer (any released base release).
 - **Content pool** (`web/pool.php`, D8/D16): at issue, text the doctor wrote or edited (local edits and free text,
   not unchanged type blocks) is stored per slot with the patient's name, AMKA, field values and dates turned back

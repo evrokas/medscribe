@@ -15,25 +15,25 @@
                 <ul id="patient-results" class="results" hidden></ul>
             </div>
             {% endif %}
-            {% if($zpms_error): %}<p class="notice">{{{t('The patient could not be loaded from ZPMS. You can type the details by hand.')}}}</p>{% endif %}
-            {% if(!empty($prefill['guid'])): %}<p class="muted">{{{t('From ZPMS')}}}: {{{$prefill['name']}}}. <a href="{{rel_url('/documents/new')}}">{{{t('Clear')}}}</a></p>{% endif %}
-            <input type="hidden" name="patient[guid]" value="{{{$prefill['guid'] ?? ''}}}">
-            <input type="hidden" name="patient[dob]" value="{{{$prefill['dob'] ?? ''}}}">
-            <label>{{{t('Name')}}} <input type="text" name="patient[name]" value="{{{$prefill['name'] ?? ''}}}" maxlength="255" {% if(empty($prefill['guid'])): %}autofocus{% endif %}></label>
+            <p class="notice" id="patient-error" {% if(!$zpms_error): %}hidden{% endif %}>{{{t('The patient could not be loaded from ZPMS. You can type the details by hand.')}}}</p>
+            <p class="muted" id="patient-from" {% if(empty($prefill['guid'])): %}hidden{% endif %}>{{{t('From ZPMS')}}}: <span id="patient-from-name">{{{$prefill['name'] ?? ''}}}</span>. <button type="button" class="linklike" id="patient-clear">{{{t('Clear')}}}</button></p>
+            <input type="hidden" name="patient[guid]" id="p-guid" value="{{{$prefill['guid'] ?? ''}}}">
+            <input type="hidden" name="patient[dob]" id="p-dob" value="{{{$prefill['dob'] ?? ''}}}">
+            <label>{{{t('Name')}}} <input type="text" id="p-name" name="patient[name]" value="{{{$prefill['name'] ?? ''}}}" maxlength="255" {% if(empty($prefill['guid'])): %}autofocus{% endif %}></label>
             <label>{{{t('Gender')}}}
-                <select name="patient[gender]">
+                <select name="patient[gender]" id="p-gender">
                     <option value="">-</option>
                     <option value="M" {% if(($prefill['gender'] ?? '') == 'M'): %}selected{% endif %}>{{{t('Male')}}}</option>
                     <option value="F" {% if(($prefill['gender'] ?? '') == 'F'): %}selected{% endif %}>{{{t('Female')}}}</option>
                 </select>
             </label>
-            <label>{{{t('Age')}}} <input type="text" name="patient[age]" value="{{{!empty($prefill['dob']) ? '' : ($prefill['age'] ?? '')}}}" placeholder="{{{!empty($prefill['dob']) ? t('from date of birth') : ''}}}" maxlength="16" size="8"></label>
-            <label>AMKA <input type="text" name="patient[amka]" value="{{{$prefill['amka'] ?? ''}}}" maxlength="11" size="12" inputmode="numeric"></label>
+            <label>{{{t('Age')}}} <input type="text" id="p-age" data-dob-hint="{{{t('from date of birth')}}}" name="patient[age]" value="{{{!empty($prefill['dob']) ? '' : ($prefill['age'] ?? '')}}}" placeholder="{{{!empty($prefill['dob']) ? t('from date of birth') : ''}}}" maxlength="16" size="8"></label>
+            <label>AMKA <input type="text" id="p-amka" name="patient[amka]" value="{{{$prefill['amka'] ?? ''}}}" maxlength="11" size="12" inputmode="numeric"></label>
         </fieldset>
         <label>{{{t('Clinic')}}}
             <select name="clinic">{% foreach($clinics as $c): %}<option>{{{$c}}}</option>{% endforeach %}</select>
         </label>
-        <label>{{{t('Document date')}}} <input type="date" name="date" value="{{{$today}}}"></label>
+        <label>{{{t('Document date')}}} <input type="date" id="doc-date" name="date" value="{{{$today}}}"></label>
         <div class="buttons"><button type="submit">{{{t('Create draft')}}}</button></div>
     </form>
 </div>
@@ -42,6 +42,22 @@
 (function () {
   var q = document.getElementById('patient-q'), ul = document.getElementById('patient-results'), timer = null;
   var base = '{{{rel_url('/documents/patient-search')}}}', pick = '{{{rel_url('/documents/new')}}}';
+  var el = function (id) { return document.getElementById(id); };
+  // Fill the patient in place: the type, clinic and date already chosen stay as they are.
+  function fill(p) {
+    el('p-guid').value = p.guid || ''; el('p-dob').value = p.dob || ''; el('p-name').value = p.name || '';
+    el('p-gender').value = p.gender || ''; el('p-amka').value = p.amka || '';
+    var age = el('p-age'); age.value = p.dob ? '' : (p.age || ''); age.placeholder = p.dob ? age.dataset.dobHint : '';
+    el('patient-from-name').textContent = p.name || ''; el('patient-from').hidden = !p.guid;
+  }
+  function load(guid) {
+    el('patient-error').hidden = true;
+    fetch(base + '?guid=' + encodeURIComponent(guid) + '&date=' + encodeURIComponent(el('doc-date').value), {credentials: 'same-origin'})
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (!j.ok || !j.patient) throw new Error('not loaded'); fill(j.patient); ul.hidden = true; q.value = ''; })
+      .catch(function () { el('patient-error').hidden = false; });
+  }
+  el('patient-clear').addEventListener('click', function () { fill({}); el('p-name').focus(); });
   q.addEventListener('input', function () {
     clearTimeout(timer);
     if (q.value.trim().length < 2) { ul.hidden = true; return; }
@@ -53,6 +69,7 @@
           var li = document.createElement('li'), a = document.createElement('a');
           a.href = pick + '?patient=' + encodeURIComponent(m.guid);
           a.textContent = m.name + (m.amka ? ' (' + m.amka + ')' : '');
+          a.addEventListener('click', function (e) { e.preventDefault(); load(m.guid); });
           li.appendChild(a); ul.appendChild(li);
         });
         if (!j.matches.length) { var n = document.createElement('li'); n.textContent = '{{{t('No match')}}}'; ul.appendChild(n); }

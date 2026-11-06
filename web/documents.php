@@ -209,6 +209,15 @@ function page_document_patient_search($params) {
     header('Content-Type: application/json');
     header('Cache-Control: no-store');
     if (!zpms_enabled()) { echo json_encode(['enabled' => false, 'matches' => []]); exit(); }
+    // ?guid=: one patient's snapshot, so the new-document page fills the patient in place (the type, clinic
+    // and date already chosen stay as they are). Age is computed at the date on the form.
+    $guid = strtolower(trim((string)($_GET['guid'] ?? '')));
+    if ($guid !== '') {
+        $p = zpms_get_patient($guid);
+        $date = doc_clean_date($_GET['date'] ?? '') ?: date('Y-m-d');
+        echo json_encode(['enabled' => true, 'ok' => $p !== null, 'patient' => $p ? patient_snapshot_from_zpms($p, $date) : null], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
     $m = zpms_search_patients((string)($_GET['q'] ?? ''));
     echo json_encode(['enabled' => true, 'ok' => $m !== null, 'matches' => $m ?? []], JSON_UNESCAPED_UNICODE);
     exit();

@@ -24,11 +24,13 @@
   {% endif %}
 
   <h3>{{{t('Edit')}}} (v{{{$shown['version']}}} {{{t('as the starting point')}}})</h3>
-  <p class="muted">{{{t('Saving makes a new draft version; nothing changes for new documents until you release it. A type pins its shared components: write "latest" in the shared map to take the latest released version.')}}}</p>
+  <p class="muted">{{{t('Tree: drag ⠿ or use ↑↓ to reorder, ✎ to rename (a field rename updates every @field and feature operation; an id rename updates the feature operations). Saving makes a new draft version; nothing changes for new documents until you release it. A type pins its shared components: write "latest" in the shared map to take the latest released version.')}}}</p>
   <form method="post" action="{{rel_url('/types/' . $kind . '/' . $name)}}">
     {{ csrf_field() }}
+    {% if($unsaved): %}<p class="notice">{{{t('This text is NOT saved: it was handed back after a refused save (see the message above). Fix it and save again, or reset the text.')}}}</p>{% endif %}
     <textarea name="text" rows="28" class="code" spellcheck="false">{{{$text}}}</textarea>
-    <label>{{{t('Change note (required)')}}} <input type="text" name="note" maxlength="500" size="60"></label>
-    <div class="actions"><button type="submit" name="action" value="save" class="primary">{{{t('Validate and save as a new version')}}}</button><button type="submit" name="action" value="discard">{{{t('Reset the text')}}}</button></div>
+    <label>{{{t('Change note (required)')}}} <input type="text" name="note" maxlength="500" size="60" required></label>
+    <div class="actions"><button type="submit" name="action" value="save" class="primary">{{{t('Validate and save as a new version')}}}</button><button type="submit" name="action" value="discard" formnovalidate>{{{t('Reset the text')}}}</button></div>
   </form>
 </div>
+<script src="{{rel_url('/js/type_tree.js')}}"></script>

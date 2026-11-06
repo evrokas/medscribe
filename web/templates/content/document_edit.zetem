@@ -180,6 +180,11 @@
     {% endif %}
   </form>
 
+  <div class="composer-splitter" role="separator" aria-orientation="vertical" tabindex="0" title="{{{t('Drag to change the width of the preview')}}}">
+    <button type="button" data-dir="left" title="{{{t('Widen the preview')}}}">&#9664;</button>
+    <button type="button" data-dir="right" title="{{{t('Narrow the preview')}}}">&#9654;</button>
+  </div>
+
   <div class="composer-preview">
     {% if($pdf_url && $is_a5): %}<p class="print-links">{{{t('Print two A5 per A4 sheet')}}}: <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=seq')}}" target="_blank">{{{t('pages in order')}}}</a> &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=dup')}}" target="_blank">{{{t('each page twice')}}}</a></p>{% endif %}
     {% if($pdf_url): %}
@@ -221,6 +226,40 @@
       var list = JSON.parse(sel.dataset.drugs), d = list.filter(function (x) { return x.id === sel.value; })[0];
       if (d) addRow(sel.dataset.table, d); sel.value = '';
     }); });
+    // Splitter between the form and the preview: drag it, or use its buttons (form only / both / preview only).
+    var comp = document.querySelector('.composer'), sp = comp.querySelector('.composer-splitter'), KEY = 'medscribe.composer.layout';
+    var states = ['form-max', 'split', 'pdf-max'], layout = {state: 'split', split: 52};
+    try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && states.indexOf(saved.state) >= 0) layout = saved; } catch (e) {}
+    function apply() {
+      comp.classList.remove('form-max', 'pdf-max');
+      if (layout.state !== 'split') comp.classList.add(layout.state);
+      comp.style.setProperty('--split', layout.split + '%');
+      sp.querySelector('[data-dir=left]').disabled = layout.state === 'pdf-max';
+      sp.querySelector('[data-dir=right]').disabled = layout.state === 'form-max';
+      sp.setAttribute('aria-valuenow', layout.state === 'split' ? Math.round(layout.split) : (layout.state === 'pdf-max' ? 0 : 100));
+      try { localStorage.setItem(KEY, JSON.stringify(layout)); } catch (e) {}
+    }
+    function step(dir) { var i = states.indexOf(layout.state) + (dir === 'left' ? 1 : -1); layout.state = states[Math.max(0, Math.min(2, i))]; apply(); }
+    sp.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+      b.addEventListener('click', function () { step(b.dataset.dir); });
+    });
+    sp.addEventListener('pointerdown', function (e) {
+      if (layout.state !== 'split') return;
+      e.preventDefault(); sp.setPointerCapture(e.pointerId); comp.classList.add('dragging');
+      var r = comp.getBoundingClientRect(), cs = getComputedStyle(comp), left = r.left + parseFloat(cs.paddingLeft), width = r.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      function move(ev) { layout.split = Math.max(20, Math.min(80, (ev.clientX - left) / width * 100)); comp.style.setProperty('--split', layout.split + '%'); }
+      function up() { comp.classList.remove('dragging'); sp.removeEventListener('pointermove', move); sp.removeEventListener('pointerup', up); sp.removeEventListener('pointercancel', up); apply(); }
+      sp.addEventListener('pointermove', move); sp.addEventListener('pointerup', up); sp.addEventListener('pointercancel', up);
+    });
+    sp.addEventListener('dblclick', function () { layout = {state: 'split', split: 52}; apply(); });
+    sp.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      if (layout.state !== 'split') { step(e.key === 'ArrowLeft' ? 'left' : 'right'); return; }
+      layout.split = Math.max(20, Math.min(80, layout.split + (e.key === 'ArrowLeft' ? -3 : 3))); apply();
+    });
+    apply();
     var pal = document.getElementById('token-palette');
     if (pal) pal.addEventListener('change', function () { if (pal.value && last) insert(last, '@' + pal.value); pal.value = ''; });
   })();
