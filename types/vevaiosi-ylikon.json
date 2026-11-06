@@ -1,0 +1,108 @@
+{
+  "format": 1,
+  "name": "vevaiosi-ylikon",
+  "label": "Βεβαίωση χρήσης υλικού",
+  "lang": "gr",
+  "paper": "a4",
+  "title": "Ιατρική Βεβαίωση για χρήση υλικού",
+  "titles": [
+    "Ιατρική Βεβαίωση για χρήση υλικού",
+    "Ιατρική Βεβαίωση"
+  ],
+  "closing": "",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "surgery_date": {
+      "type": "date",
+      "label": "Ημερομηνία χειρουργείου",
+      "required": true
+    },
+    "admission_date": {
+      "type": "date",
+      "label": "Ημερομηνία εισαγωγής"
+    },
+    "discharge_date": {
+      "type": "date",
+      "label": "Ημερομηνία εξιτηρίου"
+    },
+    "procedure": {
+      "type": "text",
+      "label": "Επέμβαση",
+      "placeholder": "επέμβαση, π.χ. αναθεώρηση της πρόσθιας αυχενικής δισκεκτομής ACDF στο επίπεδο Α3/4",
+      "required": true
+    },
+    "indication": {
+      "type": "text",
+      "label": "Ένδειξη",
+      "placeholder": "Ένδειξη, π.χ. λόγω ατυχηματικής ρήξης μήνιγγας στο προηγούμενο χειρουργείο και διαρροής εγκεφαλονωτιαίου υγρού."
+    }
+  },
+  "sections": [
+    {
+      "id": "patient",
+      "slot": "certificate.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "surgery_row",
+          "label": "Ημ. Χειρουργείου",
+          "text": "@surgery_date",
+          "datefmt": "d-m-Y",
+          "default": true
+        },
+        {
+          "id": "admission_row",
+          "label": "Ημ. Εισαγωγής",
+          "text": "@admission_date",
+          "datefmt": "d-m-Y",
+          "default": false
+        },
+        {
+          "id": "discharge_row",
+          "label": "Ημ. Εξιτηρίου",
+          "text": "@discharge_date",
+          "datefmt": "d-m-Y",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "operation",
+      "slot": "material.operation",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "operation",
+          "text": "{Ο|Η} ασθενής υποβλήθηκε σε @procedure.",
+          "default": true
+        },
+        {
+          "id": "indication",
+          "text": "@indication",
+          "default": true,
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "materials",
+      "slot": "material.items",
+      "layout": "enumerate",
+      "intro": "Κατά τη διάρκεια του χειρουργείου χρησιμοποιήθηκαν και τα εξής, εκτός από τα υλικά που αναφέρονται στο πρακτικό χειρουργείου:",
+      "blocks": []
+    },
+    {
+      "id": "purpose",
+      "slot": "certificate.purpose",
+      "layout": "paragraphs",
+      "use": "purpose",
+      "default_block": "purpose_insurer"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+---
+table:
+  name: builds
+  class: buildsClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: purpose
+    type: varchar(16)
+    required: true
+
+  - name: status
+    type: varchar(16)
+    required: true
+
+  - name: tex_sha256
+    type: char(64)
+
+  - name: pdf_sha256
+    type: char(64)
+
+  - name: source_date_epoch
+    type: int
+
+  - name: manifest
+    type: text
+
+  - name: log_tail
+    type: text
+
+  - name: document_id
+    type: int
+
+...
+
+# One compile job (PLAN.md §5.3). manifest is JSON: every source used (name, version,
+# sha256), the build environment (TeX Live, MedScribe version, font hashes) and the
+# SOURCE_DATE_EPOCH. purpose: test | preview | issue. status: ok | failed.
+# Document-level fields (document id, base release) arrive with the documents table in M1.

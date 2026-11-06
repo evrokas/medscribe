@@ -1,0 +1,229 @@
+{
+  "format": 1,
+  "name": "iatrodikastiki",
+  "label": "iatrodikastiki",
+  "lang": "gr",
+  "paper": "a4",
+  "imported": "kit tpl-iatrodikastiki.tex",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "f1": {
+      "type": "date",
+      "label": "DD-MM-YYYY",
+      "placeholder": "DD-MM-YYYY"
+    },
+    "f2": {
+      "type": "date",
+      "label": "DD-MM-YYYY",
+      "placeholder": "DD-MM-YYYY"
+    },
+    "f3": {
+      "type": "text",
+      "label": "τον κύριο / την κυρία",
+      "placeholder": "τον κύριο / την κυρία"
+    },
+    "f4": {
+      "type": "date",
+      "label": "DD/MM/YYYY",
+      "placeholder": "DD/MM/YYYY"
+    },
+    "f5": {
+      "type": "text",
+      "label": "της ασφαλιστικής εταιρείας ... / του πληρεξούσιου δικηγόρου ",
+      "placeholder": "της ασφαλιστικής εταιρείας ... / του πληρεξούσιου δικηγόρου ..."
+    },
+    "f6": {
+      "type": "text",
+      "label": "ατύχημα / κάκωση",
+      "placeholder": "ατύχημα / κάκωση"
+    },
+    "f7": {
+      "type": "date",
+      "label": "DD/MM/YYYY",
+      "placeholder": "DD/MM/YYYY"
+    },
+    "f8": {
+      "type": "text",
+      "label": "Μηχανισμός κάκωσης, πρώτη αντιμετώπιση (νοσοκομείο, ημερομην",
+      "placeholder": "Μηχανισμός κάκωσης, πρώτη αντιμετώπιση (νοσοκομείο, ημερομηνία, διάγνωση), μεταγενέστερες εξετάσεις και θεραπείες, συμπτώματα από τότε."
+    },
+    "f9": {
+      "type": "text",
+      "label": "Προϋπάρχουσες παθήσεις και πώς ελέγχθηκαν, π.χ.\\ αναζήτηση σ",
+      "placeholder": "Προϋπάρχουσες παθήσεις και πώς ελέγχθηκαν, π.χ.\\ αναζήτηση στην Ηλεκτρονική Συνταγογράφηση, με άδεια του ασθενούς ή του πληρεξουσίου του."
+    },
+    "f10": {
+      "type": "text",
+      "label": "Ευρήματα της σημερινής εξέτασης. Εξωτερικές κακώσεις.",
+      "placeholder": "Ευρήματα της σημερινής εξέτασης. Εξωτερικές κακώσεις."
+    },
+    "f11": {
+      "type": "text",
+      "label": "CT, MRI, ΗΕΓ κ.λπ.\\ με ημερομηνίες και ευρήματα.",
+      "placeholder": "CT, MRI, ΗΕΓ κ.λπ.\\ με ημερομηνίες και ευρήματα."
+    },
+    "f12": {
+      "type": "text",
+      "label": "Συσχέτιση των ευρημάτων με την κάκωση, με βιβλιογραφική τεκμ",
+      "placeholder": "Συσχέτιση των ευρημάτων με την κάκωση, με βιβλιογραφική τεκμηρίωση όπου χρειάζεται."
+    },
+    "f13": {
+      "type": "text",
+      "label": "Παρούσα κατάσταση, ικανότητα για εργασία και αυτοεξυπηρέτηση",
+      "placeholder": "Παρούσα κατάσταση, ικανότητα για εργασία και αυτοεξυπηρέτηση, αιτιώδης συνάφεια με το συμβάν."
+    },
+    "f14": {
+      "type": "text",
+      "label": "2",
+      "placeholder": "2"
+    },
+    "f15": {
+      "type": "text",
+      "label": "5",
+      "placeholder": "5"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "slot": "import.iatrodikastiki.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "s1_b1",
+          "text": "@f1",
+          "default": true,
+          "label": "Ημ. συμβάντος",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b2",
+          "text": "@f2",
+          "default": true,
+          "label": "Ημ. εξέτασης",
+          "datefmt": "d-m-Y"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "slot": "import.iatrodikastiki.s2",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s2_b1",
+          "text": "Εξέτασα @f3 @patient\\ στις @f4, μετά από αίτημα @f5, σχετικά με @f6 στις @f7.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "slot": "import.iatrodikastiki.s3",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s3_b1",
+          "text": "@f8",
+          "default": true
+        },
+        {
+          "id": "s3_b2",
+          "text": "@f9",
+          "default": true,
+          "inline": true
+        }
+      ],
+      "heading": "Ιστορικό"
+    },
+    {
+      "id": "s4",
+      "slot": "import.iatrodikastiki.s4",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s4_b1",
+          "text": "@f10",
+          "default": true
+        }
+      ],
+      "heading": "Κλινική εξέταση"
+    },
+    {
+      "id": "s5",
+      "slot": "import.iatrodikastiki.s5",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s5_b1",
+          "text": "@f11",
+          "default": true
+        }
+      ],
+      "heading": "Απεικονιστικός και εργαστηριακός έλεγχος"
+    },
+    {
+      "id": "s6",
+      "slot": "import.iatrodikastiki.s6",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s6_b1",
+          "text": "@f12",
+          "default": true
+        }
+      ],
+      "heading": "Συζήτηση"
+    },
+    {
+      "id": "s7",
+      "slot": "import.iatrodikastiki.s7",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s7_b1",
+          "text": "@f13",
+          "default": true
+        },
+        {
+          "id": "s7_b2",
+          "text": "Συνιστάται ανάπαυση επί @f14 ημερών και αποφυγή σωματικής και πνευματικής κόπωσης για @f15 ημέρες. Επί επιμονής των συμπτωμάτων επιβάλλεται έλεγχος με μαγνητική τομογραφία εγκεφάλου και επανεξέταση.",
+          "default": false,
+          "inline": true
+        }
+      ],
+      "heading": "Συμπέρασμα"
+    },
+    {
+      "id": "s8",
+      "slot": "import.iatrodikastiki.s8",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s8_b1",
+          "text": "Purpose (for a female patient: \"της ασθενούς\", \"της\")",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "slot": "certificate.purpose",
+      "layout": "paragraphs",
+      "use": "purpose",
+      "default_block": "purpose_any"
+    }
+  ],
+  "title": "Ιατρική Γνωμάτευση",
+  "titles": [
+    "Ιατρική Γνωμάτευση",
+    "Ιατρική Βεβαίωση"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no"
+}

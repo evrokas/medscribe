@@ -1,0 +1,95 @@
+% =====================================================================
+%  TYPE: Sick leave / work restriction / remote work
+%  Rest for N days, restrictions, remote work, fitness to return.
+%  Based on Karypidou 2026-10, Tsaroucha 2026-03, Kanaki, Kakalis.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδοπούλου Μαρία}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Ιατρική Βεβαίωση}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{Ο ιατρός}
+% \providecommand\DocClosing{Ο ιατρός}
+% \providecommand\DocClosing{Με εκτίμηση,}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+%%%%%%%%%%%%%%%%%%%%% Sick leave: type the number once, in digits and words
+\providecommand\LeaveDays{δύο (2) εβδομάδες}
+% \providecommand\LeaveDays{δύο (2) εβδομάδες}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+%   \Info{ΑΜΚΑ}{\PatientAMKA}
+\end{PatientInfo}
+
+% 1. Reason for the visit and findings
+Η ασθενής εξετάσθηκε σήμερα λόγω αυχεναλγίας με ριζιτική συνδρομή κυρίως αριστερά.
+% Ο ασθενής υποβλήθηκε στις [DD/MM/YYYY] σε [επέμβαση] στην [Κλινική].
+Από τον έλεγχο με Μαγνητική Τομογραφία Αυχενικής Μοίρας της Σπονδυλικής Στήλης διαπιστώθηκε εκφυλιστική δισκοπάθεια Α5/6 και Α6/7.
+
+% 2. Recommendation: keep the ones that apply
+% Ο ασθενής χρήζει ανάπαυσης για \LeaveDays\ και λήψης αναλγητικής αγωγής.
+Η ασθενής χρήζει \textbf{αναρρωτικής άδειας για \LeaveDays}.
+% Ο ασθενής χρήζει παράτασης της αναρρωτικής άδειας για \LeaveDays.
+% Λόγω [της υποτροπιάζουσας εμφάνισης των συμπτωμάτων], συνιστάται η συνέχιση της εξ αποστάσεως εργασίας (τηλεργασία) για [τον επόμενο μήνα].
+Η ασθενής μπορεί να επιστρέψει στην εργασία της από 01/02/2026.
+Συνιστάται να αποφεύγεται η συστηματική έκθεση σε κρύο και ζέστη κατά την εργασία.
+
+Συνιστάται η αποφυγή \textbf{άρσης βαρών} και \textbf{πολύωρης ορθοστασίας}.
+
+Επανεξέταση σε 15 ημέρες.
+Επανεξέταση με νέα Μαγνητική Τομογραφία ΟΜΣΣ.
+
+% --- Optional longer section (Tsaroucha 2026-03), for prolonged leave
+\subsection*{Εκτίμηση και Σχέδιο Αντιμετώπισης}
+Μυϊκή ισχύς 3/5, θεραπευτικό πρόγραμμα και αναμενόμενη βελτίωση.
+
+% Purpose (for a female patient: "της ασθενούς", "της")
+% Το παρόν χορηγείται για χρήση στην ασφαλιστική εταιρεία του ασθενούς.
+Το παρόν χορηγείται για χρήση από τον ασφαλιστικό φορέα της ασθενούς.
+% Το παρόν χορηγείται για την εργασία του ασθενούς.
+% Το παρόν χορηγείται μετά από αίτηση του ασθενούς, για την υπηρεσία του.
+% Το παρόν χορηγείται για χρήση στο διαγνωστικό κέντρο.
+% Το παρόν χορηγείται για κάθε νόμιμη χρήση.
+% Η παρούσα βεβαίωση δίνεται κατόπιν επιθυμίας του ασθενούς.
+
+\end{document}

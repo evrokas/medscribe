@@ -1,0 +1,72 @@
+% =====================================================================
+%  TYPE: Implant MRI-compatibility certificate
+%  For the imaging centre, before an MRI in a patient with implants.
+%  Based on 'mri certification-gr'.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδοπούλου Μαρία}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Ιατρική Βεβαίωση}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{Ο ιατρός}
+% \providecommand\DocClosing{}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+    \Info{Ημ. Χειρουργείου}{10-01-2026}
+\end{PatientInfo}
+
+Η ασθενής υποβλήθηκε στις 10/01/2026 σε διαδερμική σπονδυλοδεσία ΟΜΣΣ με χρήση νευροπλοηγού.
+
+Βεβαιώνεται ότι τα υλικά που χρησιμοποιήθηκαν είναι από παραμαγνητικό υλικό, και συγκεκριμένα τιτάνιο / PEEK, που είναι απόλυτα συμβατά με Μαγνητικό Τομογράφο. Επομένως η ασθενής μπορεί να υποβληθεί σε μαγνητική τομογραφία με ασφάλεια.
+
+% Purpose (for a female patient: "της ασθενούς", "της")
+% Το παρόν χορηγείται για χρήση στην ασφαλιστική εταιρεία του ασθενούς.
+% Το παρόν χορηγείται για χρήση από τον ασφαλιστικό φορέα του ασθενούς.
+Το παρόν χορηγείται για την εργασία της ασθενούς.
+% Το παρόν χορηγείται μετά από αίτηση του ασθενούς, για την υπηρεσία του.
+% Το παρόν χορηγείται για χρήση στο διαγνωστικό κέντρο.
+% Το παρόν χορηγείται για κάθε νόμιμη χρήση.
+% Η παρούσα βεβαίωση δίνεται κατόπιν επιθυμίας του ασθενούς.
+
+\end{document}

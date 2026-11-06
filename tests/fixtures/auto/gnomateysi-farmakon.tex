@@ -1,0 +1,95 @@
+% =====================================================================
+%  TYPE: Drug / consumable justification
+%  Baclofen pump refill kit, high-cost drug (ΦΥΚ, e.g. botulinum
+%  toxin), chronic neuropathic medication. Based on Damoulianos,
+%  'diavivastiko botox-dysport' and Tsilia 2026-09.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+\providecommand\PatientAMKA{12345678901}
+\providecommand\Drug{[DYSPORT]}
+\providecommand\DrugCount{[3 (τρία)]}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Ιατρική Γνωμάτευση}
+% \providecommand\DocTitle{Ιστορικό ασθενούς για αίτημα ΦΥΚ\\(\Drug)}
+% \providecommand\DocTitle{Ιατρική Βεβαίωση}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{}
+% \providecommand\DocClosing{Ο ιατρός}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+  \Info{ΑΜΚΑ}{\PatientAMKA}
+\end{PatientInfo}
+
+% Keep ONE of the three blocks below and delete the others.
+
+% ===== A. Intrathecal baclofen pump: refill kit
+Ο ασθενής πάσχει από Τιμή 1 και εμφανίζει Τιμή 2 και έντονη σπαστικότητα στα Τιμή 3. Έχει τοποθετηθεί αντλία ενδοραχιαίας έγχυσης baclofen, η οποία πρέπει να επαναπληρώνεται σε τακτά χρονικά διαστήματα.
+
+Η τελευταία επαναπλήρωση της αντλίας πραγματοποιήθηκε στις \textbf{10/01/2026}, με χρήση kit μιας χρήσεως της εταιρείας Τιμή 5.
+
+% ===== B. High-cost drug (ΦΥΚ), e.g. botulinum toxin
+% Ο ασθενής από το Τιμή 6 παρουσιάζει Τιμή 7. Η αρχική θεραπεία με Τιμή 8 δεν είχε αποτέλεσμα. Τιμή 9
+%
+% Οι εγχύσεις με Τιμή 10 βελτιώνουν Τιμή 11.
+%
+% Ιστορικό: Τιμή 12
+%
+% Για τη θεραπεία απαιτούνται \DrugCount\ φιαλίδια [PD.INJ.SOL \Drug\ 500U/vial], που θα χορηγηθούν από τον θεράποντα ιατρό στην [Κλινική].
+
+% ===== C. Chronic neuropathic medication (for the patient's service)
+% Ο ασθενής πάσχει από Τιμή 15. Τιμή 16
+%
+% Ο ασθενής παρουσιάζει νευροπαθητικό πόνο στην περιοχή Τιμή 17 και για τον λόγο αυτό λαμβάνει φαρμακευτική αγωγή με Τιμή 18 και Τιμή 19. Τα φάρμακα αυτά έχουν ένδειξη στον χρόνιο και νευροπαθητικό πόνο, και αυτός είναι ο λόγος που τα λαμβάνει ο ασθενής.
+
+% Purpose (for a female patient: "της ασθενούς", "της")
+% Το παρόν χορηγείται για χρήση στην ασφαλιστική εταιρεία του ασθενούς.
+Το παρόν χορηγείται για χρήση από τον ασφαλιστικό φορέα του ασθενούς.
+% Το παρόν χορηγείται για την εργασία του ασθενούς.
+% Το παρόν χορηγείται μετά από αίτηση του ασθενούς, για την υπηρεσία του.
+% Το παρόν χορηγείται για χρήση στο διαγνωστικό κέντρο.
+% Το παρόν χορηγείται για κάθε νόμιμη χρήση.
+% Η παρούσα βεβαίωση δίνεται κατόπιν επιθυμίας του ασθενούς.
+
+\end{document}

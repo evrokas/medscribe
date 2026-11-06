@@ -1,0 +1,96 @@
+{
+  "format": 1,
+  "name": "preop-odigies",
+  "label": "Προεγχειρητικές οδηγίες",
+  "lang": "gr",
+  "paper": "a4",
+  "title": "Προεγχειρητικές Οδηγίες",
+  "titles": [
+    "Προεγχειρητικές Οδηγίες"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός",
+    ""
+  ],
+  "stamp": "no",
+  "draft": true,
+  "needs_review": [
+    "New type (PLAN.md D12, M8): the structure is a skeleton; the doctor writes the wording and reviews before release."
+  ],
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "surgery_date": {
+      "type": "date",
+      "label": "Ημερομηνία χειρουργείου",
+      "required": true
+    },
+    "arrival": {
+      "type": "text",
+      "label": "Ώρα και τόπος προσέλευσης",
+      "placeholder": "π.χ. 07:00, Ιατρικό Περιστερίου"
+    }
+  },
+  "sections": [
+    {
+      "id": "patient",
+      "slot": "preop.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "surgery_row",
+          "label": "Ημ. Χειρουργείου",
+          "text": "@surgery_date",
+          "datefmt": "d-m-Y",
+          "default": true
+        },
+        {
+          "id": "arrival_row",
+          "label": "Προσέλευση",
+          "text": "@arrival",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "instructions",
+      "slot": "preop.instructions",
+      "heading": "Οδηγίες",
+      "layout": "topics",
+      "list_options": "",
+      "list_preamble": "\\setlength{\\parskip}{6pt}",
+      "topics": [
+        {
+          "id": "fasting",
+          "title": "Νηστεία",
+          "style": "itemize",
+          "slot": "preop.fasting",
+          "blocks": []
+        },
+        {
+          "id": "medication",
+          "title": "Φαρμακευτική αγωγή",
+          "style": "itemize",
+          "slot": "preop.medication",
+          "blocks": []
+        },
+        {
+          "id": "bring",
+          "title": "Τι να φέρετε",
+          "style": "itemize",
+          "slot": "preop.bring",
+          "blocks": []
+        },
+        {
+          "id": "hygiene",
+          "title": "Προετοιμασία και υγιεινή",
+          "style": "itemize",
+          "slot": "preop.hygiene",
+          "blocks": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+---
+table:
+  name: audit_log
+  class: auditLogClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: event_type
+    type: varchar(32)
+    required: true
+
+  - name: document_id
+    type: int
+
+  - name: revision
+    type: int
+
+  - name: ip
+    type: varchar(45)
+
+...
+
+# Basic, append-only accountability trail (PLAN.md §11 Q9): who, when, what, which document and revision.
+# Never patient names, text or reasons. Written by medscribe_audit() in web/audit.php.

@@ -1,0 +1,36 @@
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-brand">
+            <img src="{{rel_url('assets/logo3.png')}}" alt="Logo">
+            <h1>MedScribe</h1>
+        </div>
+
+        <p class="login-subtitle">{{t("Enter your credentials to login")}}</p>
+
+        
+        <div class="login-panel" data-login-panel="password">
+            <form action="{{$action}}" method="post">
+                {{ csrf_field() }}
+                <div class="field">
+                    <label for="username">{{t("Username")}}</label>
+                    <input type="text" name="username" id="username" autocomplete="username" autofocus>
+                </div>
+
+                <div class="field">
+                    <label for="password">{{t("Password")}}</label>
+                    <input type="password" name="password" id="password" autocomplete="current-password">
+                </div>
+
+                <div class="field field-remember">
+                    <input type="checkbox" name="rememberme" id="rememberme">
+                    <label for="rememberme">{{t("Remember me")}}</label>
+                </div>
+
+                <div class="buttons">
+                    <button type="submit">{{t("Login")}}</button>
+                </div>
+            </form>
+        </div>
+
+            </div>
+</div>

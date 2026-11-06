@@ -1,0 +1,120 @@
+% =====================================================================
+%  TYPE: Drug prescription / medication schedule
+%  Standalone version of the last page of the postop instructions:
+%  follow-up visit, ER visit, non-surgical patient. Does NOT replace
+%  the e-prescription (ΗΔΙΚΑ) for reimbursed drugs.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Οδηγίες Φαρμακευτικής Αγωγής}
+% \providecommand\DocTitle{Συνταγή}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{Ο ιατρός}
+% \providecommand\DocClosing{}
+
+%%%%%%%%%%%%%%%%%%%%% Page numbers: all = also on page 1 when the prescription has several pages
+\providecommand\DocPageNumbers{all}
+% \providecommand\DocPageNumbers{yes}   % from page 2 on only
+% \providecommand\DocPageNumbers{no}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+%   \Info{Διάγνωση}{[διάγνωση]}
+%   \Info{Αλλεργίες}{[καμία γνωστή]}
+%   \Info{Ημ. Χειρουργείου}{DD-MM-YYYY}
+\end{PatientInfo}
+
+\begin{MedTable}
+\DrugEntry{tb Paracetamol}{1000mg}{1 x 3}{10}{}
+% ---- Drug library: uncomment the lines you need ---------------------
+% -- Analgesics
+% \DrugEntry{tb Paracetamol}{1000mg}{1 x 3}{10}{}
+% \DrugEntry{tb Apotel}{1000mg}{2 ή 3 την ημέρα}{}{παυσίπονο, μέγιστη δόση 3 δισκία το 24ωρο}
+% \DrugEntry{tb Depon}{500mg}{1 ή 2, έως 3 φορές την ημέρα}{}{εφόσον υπάρχει πόνος -- μέγιστο 3g το 24ωρο}
+% \DrugEntry{tb Tramal}{50mg}{1 x 2 ή 3}{6}{}
+% \DrugEntry{tb Zaldiar}{}{2 ή 3 την ημέρα}{}{εφόσον υπάρχει έντονος πόνος}
+% -- NSAIDs
+% \DrugEntry{tb Movatec}{7.5mg}{1 x 2}{10}{μετά το φαγητό}
+% \DrugEntry{tb Movatec}{15mg}{1 x 1}{1}{μετά το φαγητό}
+% \DrugEntry{tb Naprosyn}{500mg}{1 x 2}{6}{μετά το φαγητό}
+% -- Steroids (tapers)
+\DrugEntry{tb Medrol}{4mg}{1 x 3\newline 1 x 2\newline 1 x 1\newline STOP}{}{για 5 ημέρες\newline για 5 ημέρες\newline για 5 ημέρες}
+% \DrugEntry{tb Medrol}{4mg}{2 x 3\newline 1 x 3\newline 1 x 2\newline 1 x 1\newline STOP}{}{για 3 ημέρες\newline για 3 ημέρες\newline για 3 ημέρες\newline για 3 ημέρες}
+% \DrugEntry{syr Dexaton}{2mg/5ml}{10cc x 3}{10}{μετά το φαγητό}
+% \DrugEntry{tb Dexamethasone}{4mg}{1 x 3}{}{μετά το φαγητό}
+% -- Antibiotics
+\DrugEntry{tb Zinadol}{500mg}{1 x 2}{5}{αντιβίωση}
+% \DrugEntry{tb Klaricid}{500mg}{1 x 2}{7}{αντιβίωση}
+% \DrugEntry{caps Amoxicillin}{500mg}{1 x 3}{7}{μετά το φαγητό}
+% -- Gastroprotection
+\DrugEntry{caps Omeprazole}{40mg}{1 x 2}{10}{προ φαγητού}
+% \DrugEntry{caps Omeprazole}{20mg}{1 x 2}{10}{15 λεπτά πριν το φαγητό}
+% \DrugEntry{caps Mostrelan}{40mg}{1 x 1}{10}{προ φαγητού}
+% -- Anticoagulants
+% \DrugEntry{inj Clexane}{4000IU}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+% \DrugEntry{inj Innohep}{0,45ml}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+% \DrugEntry{inj Fraxiparine}{2850IU}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+% -- Neuropathic pain, antiepileptics
+% \DrugEntry{tb Lyrica}{50mg}{1 x 1 (βράδυ)}{4}{μετά την 4η ημέρα, 1 x 2}
+% \DrugEntry{caps Lyrica}{150mg}{1 x 2}{}{πρωί -- βράδυ, με τροφή. Μην διακόπτεται απότομα}
+% \DrugEntry{tb Neurontin}{400mg}{2 x 2}{}{}
+\DrugEntry{tb Tegretol}{200mg}{1 x 3}{}{με τροφή, σταθερές ώρες. \textbf{Μην διακόπτεται απότομα}}
+% \DrugEntry{caps Cymbalta}{60mg}{1 x 2}{}{}
+% \DrugEntry{tb Keppra}{1000mg}{1 x 3}{}{}
+% \DrugEntry{tb Depakine}{400mg}{1 x 3}{}{θα γίνει προοδευτική μείωση σε συνεννόηση με τον θεράποντα ιατρό}
+% -- Other
+% \DrugEntry{sir Duphalac}{5ml}{1 ή 2 την ημέρα}{}{καθαρτικό, ανάλογα με τη λειτουργία του εντέρου -- στόχος: μαλακές κενώσεις χωρίς προσπάθεια}
+% \DrugEntry{tb Xanax}{0,25mg}{1 x 2-3}{}{μέχρι 3 την ημέρα επί εκνευρισμού}
+% \DrugEntry{tb Escitalopram}{10mg}{1 x 1}{}{}
+% \DrugEntry{spray Vioplex-T ή Pulvo47}{}{1 x 2}{}{στο τραύμα, και να καλύπτεται μετά}
+% ---------------------------------------------------------------------
+\end{MedTable}
+
+% Notes under the table (uncomment the ones you need)
+\textbf{Σημείωση:} Μην λαμβάνετε αντιφλεγμονώδη φάρμακα (π.χ.\ Voltaren, Brufen, Ponstan, Naprosyn) χωρίς ιατρική οδηγία.
+% \textbf{Σημείωση:} Μην διακόψετε και μην μειώσετε μόνος/μόνη σας τα [Tegretol / Lyrica / Keppra]. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.
+% \textbf{Σημείωση:} Ενημερώστε κάθε ιατρό και φαρμακοποιό ότι λαμβάνετε [φάρμακο], πριν από τη χορήγηση οποιουδήποτε νέου φαρμάκου.
+% \textbf{Σημείωση:} Η υπόλοιπη φαρμακευτική σας αγωγή (π.χ.\ αντιυπερτασική) συνεχίζεται \textbf{αμετάβλητη}.
+
+\end{document}

@@ -1,0 +1,344 @@
+title: MedScribe
+
+tz: "Europe/Athens"
+
+meta:
+  - charset="UTF-8"
+  - http-equiv="X-UA-Compatible" content="IE=edge"
+  - name="viewport" content="width=device-width, initial-scale=1.0"
+
+favicon:
+  type: image/png
+  src: assets/logo3.png
+
+# Session lifetime (zeusfw core/lib/SessionPolicy.php)
+session_idle_minutes: 60
+session_max_hours: 12
+remember_me_days: 15
+session_warn_seconds: 120
+session_name: medscribe_sess
+session_save_path: '@app/var/sessions'
+
+templates:
+  - '@core/templates/'
+  - '@app/web/templates/'
+
+css:
+  - normalize:
+    src: 'css/normalize.css'
+  - colorpalette:
+    src: 'css/color-palette.css'
+  - navigation:
+    src: 'css/navigation.css'
+  - styles:
+    src: 'css/styles.css'
+  - boxicons:
+    src: 'css/bx/css/boxicons.min.css'
+
+multilingual: false
+
+languages:
+  - en
+
+libraries:
+  boxicons:
+    css:
+      - boxicons:
+        src: 'css/bx/css/boxicons.min.css'
+
+roles:
+  anonymous: []
+  administrator: []
+  authenticated: []
+  doctor: []
+  secretary: []
+
+routes:
+  homepage:
+    title:
+      gr: "Αρχική"
+      en: "Home"
+    name: homepage
+    url: "/"
+    handler: homepage
+  login:
+    title:
+      en: "User login"
+      gr: "Είσοδος χρήστη"
+    url: "/login"
+    handler: login
+    method: get
+  login_post:
+    title:
+      en: "User login"
+      gr: "Είσοδος χρήστη"
+    url: "/login"
+    handler: login_post
+    method: post
+  logout:
+    title: "User logout"
+    url: "/logout"
+    handler: logout
+  documents:
+    title:
+      gr: "Έγγραφα"
+      en: "Documents"
+    name: documents
+    url: "/documents"
+    handler: page_documents
+    access: doctor secretary administrator
+  document_new:
+    title:
+      gr: "Νέο έγγραφο"
+      en: "New document"
+    url: "/documents/new"
+    handler: page_document_new
+    method: get
+    access: doctor secretary administrator
+  document_patient_search:
+    title: "Patient search"
+    url: "/documents/patient-search"
+    handler: page_document_patient_search
+    method: get
+    access: doctor secretary administrator
+  document_new_post:
+    title: "New document"
+    url: "/documents/new"
+    handler: page_document_new_post
+    method: post
+    access: doctor secretary administrator
+  document:
+    title:
+      gr: "Έγγραφο"
+      en: "Document"
+    url: "/documents/{id}"
+    handler: page_document
+    method: get
+    access: doctor secretary administrator
+  document_post:
+    title: "Document"
+    url: "/documents/{id}"
+    handler: page_document_post
+    method: post
+    access: doctor secretary administrator
+  document_pdf:
+    title: "Document preview"
+    url: "/documents/{id}/preview.pdf"
+    handler: page_document_pdf
+    method: get
+    access: doctor secretary administrator
+  document_issue:
+    title:
+      gr: "Έκδοση"
+      en: "Issue"
+    url: "/documents/{id}/issue"
+    handler: page_issue
+    method: get
+    access: doctor
+  document_issue_post:
+    title: "Issue"
+    url: "/documents/{id}/issue"
+    handler: page_issue_post
+    method: post
+    access: doctor
+  document_final_pdf:
+    title: "Final PDF"
+    url: "/documents/{id}/final.pdf"
+    handler: page_document_final_pdf
+    method: get
+    access: doctor
+  document_history:
+    title:
+      gr: "Ιστορικό"
+      en: "History"
+    url: "/documents/{id}/history"
+    handler: page_document_history
+    method: get
+    access: doctor secretary administrator
+  document_history_post:
+    title: "Rebuild"
+    url: "/documents/{id}/history"
+    handler: page_document_history_post
+    method: post
+    access: doctor secretary administrator
+  document_revision_file:
+    title: "Revision file"
+    url: "/documents/{id}/rev/{rev}/{what}"
+    handler: page_document_revision_file
+    method: get
+    access: doctor secretary administrator
+  docarc_links:
+    title:
+      gr: "Συνδέσεις DocArc"
+      en: "DocArc links"
+    url: "/types/links"
+    handler: page_docarc_links
+    method: get
+    access: doctor
+  docarc_links_post:
+    title: "DocArc links"
+    url: "/types/links"
+    handler: page_docarc_links_post
+    method: post
+    access: doctor
+  document_print:
+    title: "Print two A5 per A4"
+    url: "/documents/{id}/print.pdf"
+    handler: page_document_print
+    method: get
+    access: doctor secretary administrator
+  document_delete:
+    title: "Delete draft"
+    url: "/documents/{id}/delete"
+    handler: page_document_delete
+    method: post
+    access: doctor secretary administrator
+  types:
+    title:
+      gr: "Τύποι εγγράφων"
+      en: "Document types"
+    name: types
+    url: "/types"
+    handler: page_types
+    access: doctor administrator
+  type_edit:
+    title:
+      gr: "Επεξεργασία τύπου"
+      en: "Edit type"
+    url: "/types/{kind}/{name}"
+    handler: page_type_edit
+    method: get
+    access: doctor
+  type_edit_post:
+    title: "Edit type"
+    url: "/types/{kind}/{name}"
+    handler: page_type_edit_post
+    method: post
+    access: doctor
+  library:
+    title:
+      gr: "Βιβλιοθήκη"
+      en: "Library"
+    name: library
+    url: "/library"
+    handler: page_library
+    access: doctor
+  library_post:
+    title: "Library"
+    url: "/library"
+    handler: page_library_post
+    method: post
+    access: doctor
+  status:
+    title:
+      gr: "Κατάσταση συστήματος"
+      en: "System status"
+    name: status
+    url: "/status"
+    handler: page_status
+    access: doctor administrator
+  profile:
+    title:
+      gr: "Το προφίλ μου"
+      en: "My profile"
+    name: profile
+    url: "/profile"
+    handler: page_profile
+    access: authenticated
+
+regions:
+  - header:
+      access: authenticated
+  - main_navigation:
+      access: authenticated
+  - notification
+  - main_content
+  - footer:
+      access: authenticated
+
+structure:
+  header:
+    - header
+    - header-grid-2x1:
+      - left-column:
+        - userblock
+  main_navigation:
+    - mainnavigation
+  notification:
+    - notifications
+    - message
+  main_content:
+    - breadcrumbs
+    - content
+  footer:
+    - footer
+    - copyright
+
+menu:
+  main:
+    - homepage:
+      text:
+        gr: 'Αρχική'
+        en: 'Home'
+      url: '/'
+    - documents:
+      text:
+        gr: 'Έγγραφα'
+        en: 'Documents'
+      url: '/documents'
+      access: doctor secretary administrator
+    - types:
+      text:
+        gr: 'Τύποι'
+        en: 'Types'
+      url: '/types'
+      access: doctor administrator
+    - library:
+      text:
+        gr: 'Βιβλιοθήκη'
+        en: 'Library'
+      url: '/library'
+      access: doctor
+    - admin:
+      text:
+        gr: 'Διαχείριση'
+        en: 'Admin'
+      access: administrator
+      submenu:
+        - admin_users:
+          text:
+            gr: 'Χρήστες'
+            en: 'Users'
+          url: '/admin/users'
+        - admin_roles:
+          text:
+            gr: 'Ρόλοι'
+            en: 'Roles'
+          url: '/admin/roles'
+        - status:
+          text:
+            gr: 'Κατάσταση συστήματος'
+            en: 'System status'
+          url: '/status'
+
+modconf:
+  breadcrumbs:
+    access: authenticated
+
+modules:
+  path:
+    - "@core/modules/"
+    - "@app/web/modules/"
+  modules:
+    - admin
+    - mainnavigation
+    - notifications
+    - header
+    - breadcrumbs
+    - userblock
+    - htmltext
+    - copyright
+    - session_timer
+    - content
+    - message
+    - admin_crud

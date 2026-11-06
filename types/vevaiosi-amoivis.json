@@ -1,0 +1,108 @@
+{
+  "format": 1,
+  "name": "vevaiosi-amoivis",
+  "label": "Βεβαίωση αμοιβής",
+  "lang": "gr",
+  "paper": "a4",
+  "title": "Ιατρική Βεβαίωση",
+  "titles": [
+    "Ιατρική Βεβαίωση"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "surgery_date": {
+      "type": "date",
+      "label": "Ημερομηνία χειρουργείου",
+      "required": true
+    },
+    "clinic_name": {
+      "type": "text",
+      "label": "Κλινική",
+      "placeholder": "Κλινική",
+      "required": true
+    },
+    "procedure": {
+      "type": "text",
+      "label": "Επέμβαση",
+      "placeholder": "επέμβαση",
+      "required": true
+    },
+    "amount": {
+      "type": "text",
+      "label": "Ποσό (€)",
+      "placeholder": "500",
+      "required": true
+    },
+    "fee_role": {
+      "type": "text",
+      "label": "Αμοιβή ως",
+      "placeholder": "βοηθού χειρουργού",
+      "required": true
+    },
+    "apy_number": {
+      "type": "text",
+      "label": "ΑΠΥ Νο.",
+      "placeholder": "108",
+      "required": true
+    },
+    "apy_date": {
+      "type": "date",
+      "label": "Ημερομηνία ΑΠΥ",
+      "required": true
+    }
+  },
+  "sections": [
+    {
+      "id": "patient",
+      "slot": "certificate.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "surgery_row",
+          "label": "Ημ. Χειρουργείου",
+          "text": "@surgery_date",
+          "datefmt": "d-m-Y",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "operation",
+      "slot": "fee.operation",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "operation",
+          "text": "{Ο|Η} ασθενής υποβλήθηκε στις @surgery_date στην @clinic_name σε @procedure.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "fee",
+      "slot": "fee.statement",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "fee",
+          "text": "Με την παρούσα βεβαιώνεται ότι {ο|η} ασθενής έχει εξοφλήσει το ποσό των @amount€ ως ιατρική αμοιβή @fee_role, βάσει της ΑΠΥ Νο.\\ @apy_number που εξέδωσα στις @apy_date και την οποία έχει καταθέσει {ο ίδιος|η ίδια} στην ασφαλιστική {του|της} εταιρεία.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "slot": "certificate.purpose",
+      "layout": "paragraphs",
+      "use": "purpose",
+      "default_block": "purpose_insurer"
+    }
+  ]
+}

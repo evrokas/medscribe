@@ -1,0 +1,101 @@
+---
+table:
+  name: documents
+  class: documentsClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: udate
+    type: datetime
+
+  - name: type_name
+    type: varchar(64)
+    required: true
+
+  - name: typedef_version_id
+    type: int
+    required: true
+
+  - name: base_release_id
+    type: int
+    required: true
+
+  - name: status
+    type: varchar(16)
+    required: true
+
+  - name: patient_name
+    type: varchar(255)
+
+  - name: inputs
+    type: text
+    required: true
+
+  - name: last_build_id
+    type: int
+
+  - name: doc_code
+    type: varchar(64)
+
+  - name: docarc_url
+    type: varchar(255)
+
+  - name: docarc_type_id
+    type: int
+
+  - name: verify_code
+    type: varchar(64)
+
+  - name: final_build_id
+    type: int
+
+  - name: approved_by
+    type: varchar(32)
+
+  - name: approved_at
+    type: datetime
+
+  - name: issued_at
+    type: datetime
+
+  - name: busy_until
+    type: datetime
+
+  - name: withdraw_reason
+    type: text
+
+  - name: withdrawn_at
+    type: datetime
+
+  - name: withdrawn_by
+    type: varchar(32)
+
+  - name: copied_from
+    type: int
+
+...
+
+# One document for one patient (PLAN.md §4, §7.4).
+# - type_name           the typedef source name without prefix, e.g. vevaiosi-mri
+# - typedef_version_id  source_versions.id of the type definition the document started from
+# - base_release_id     base_releases.id (letterhead version, D10)
+# - status              draft | review | code_reserved | final_compiled | approved | pdf_sent | issued | withdrawn
+#                       (the issue steps of §7.4; only draft, review and code_reserved can be edited)
+# - patient_name        copy of the patient's name for lists
+# - inputs              JSON, see web/render.php's header comment
+# - last_build_id       builds.id of the latest preview
+# - doc_code, docarc_url, docarc_type_id   the reserved DocArc record (one per document, for life)
+# - verify_code         the plaintext verification code shown to the doctor (AMKA or random 6 digits, D22)
+# - final_build_id      builds.id of the final compile awaiting approval
+# - approved_*          who froze it and when; issued_at: when both files reached DocArc
+# - busy_until          a step is running until then: blocks a second "request code"/"approve" (double click)
+# - withdraw_*          a withdrawn document is kept, marked, until the doctor deletes it
+# - copied_from         documents.id this was copied from ("copy as new")

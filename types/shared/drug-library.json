@@ -1,0 +1,296 @@
+{
+  "format": 1,
+  "name": "drug-library",
+  "label": "Βιβλιοθήκη φαρμάκων",
+  "kind": "drugs",
+  "drugs": [
+    {
+      "id": "tb-paracetamol-1000mg",
+      "group": "Analgesics",
+      "name": "tb Paracetamol",
+      "dose": "1000mg",
+      "freq": "1 x 3",
+      "days": "10",
+      "notes": ""
+    },
+    {
+      "id": "tb-apotel-1000mg",
+      "group": "Analgesics",
+      "name": "tb Apotel",
+      "dose": "1000mg",
+      "freq": "2 ή 3 την ημέρα",
+      "days": "",
+      "notes": "παυσίπονο, μέγιστη δόση 3 δισκία το 24ωρο"
+    },
+    {
+      "id": "tb-depon-500mg",
+      "group": "Analgesics",
+      "name": "tb Depon",
+      "dose": "500mg",
+      "freq": "1 ή 2, έως 3 φορές την ημέρα",
+      "days": "",
+      "notes": "εφόσον υπάρχει πόνος -- μέγιστο 3g το 24ωρο"
+    },
+    {
+      "id": "tb-tramal-50mg",
+      "group": "Analgesics",
+      "name": "tb Tramal",
+      "dose": "50mg",
+      "freq": "1 x 2 ή 3",
+      "days": "6",
+      "notes": ""
+    },
+    {
+      "id": "tb-zaldiar",
+      "group": "Analgesics",
+      "name": "tb Zaldiar",
+      "dose": "",
+      "freq": "2 ή 3 την ημέρα",
+      "days": "",
+      "notes": "εφόσον υπάρχει έντονος πόνος"
+    },
+    {
+      "id": "tb-movatec-7-5mg",
+      "group": "NSAIDs",
+      "name": "tb Movatec",
+      "dose": "7.5mg",
+      "freq": "1 x 2",
+      "days": "10",
+      "notes": "μετά το φαγητό"
+    },
+    {
+      "id": "tb-movatec-15mg",
+      "group": "NSAIDs",
+      "name": "tb Movatec",
+      "dose": "15mg",
+      "freq": "1 x 1",
+      "days": "1",
+      "notes": "μετά το φαγητό"
+    },
+    {
+      "id": "tb-naprosyn-500mg",
+      "group": "NSAIDs",
+      "name": "tb Naprosyn",
+      "dose": "500mg",
+      "freq": "1 x 2",
+      "days": "6",
+      "notes": "μετά το φαγητό"
+    },
+    {
+      "id": "tb-medrol-4mg",
+      "group": "Steroids (tapers)",
+      "name": "tb Medrol",
+      "dose": "4mg",
+      "freq": "1 x 3{br}1 x 2{br}1 x 1{br}STOP",
+      "days": "",
+      "notes": "για 5 ημέρες{br}για 5 ημέρες{br}για 5 ημέρες"
+    },
+    {
+      "id": "tb-medrol-4mg-2",
+      "group": "Steroids (tapers)",
+      "name": "tb Medrol",
+      "dose": "4mg",
+      "freq": "2 x 3{br}1 x 3{br}1 x 2{br}1 x 1{br}STOP",
+      "days": "",
+      "notes": "για 3 ημέρες{br}για 3 ημέρες{br}για 3 ημέρες{br}για 3 ημέρες"
+    },
+    {
+      "id": "syr-dexaton-2mg-5ml",
+      "group": "Steroids (tapers)",
+      "name": "syr Dexaton",
+      "dose": "2mg/5ml",
+      "freq": "10cc x 3",
+      "days": "10",
+      "notes": "μετά το φαγητό"
+    },
+    {
+      "id": "tb-dexamethasone-4mg",
+      "group": "Steroids (tapers)",
+      "name": "tb Dexamethasone",
+      "dose": "4mg",
+      "freq": "1 x 3",
+      "days": "",
+      "notes": "μετά το φαγητό"
+    },
+    {
+      "id": "tb-zinadol-500mg",
+      "group": "Antibiotics",
+      "name": "tb Zinadol",
+      "dose": "500mg",
+      "freq": "1 x 2",
+      "days": "5",
+      "notes": "αντιβίωση"
+    },
+    {
+      "id": "tb-klaricid-500mg",
+      "group": "Antibiotics",
+      "name": "tb Klaricid",
+      "dose": "500mg",
+      "freq": "1 x 2",
+      "days": "7",
+      "notes": "αντιβίωση"
+    },
+    {
+      "id": "caps-amoxicillin-500mg",
+      "group": "Antibiotics",
+      "name": "caps Amoxicillin",
+      "dose": "500mg",
+      "freq": "1 x 3",
+      "days": "7",
+      "notes": "μετά το φαγητό"
+    },
+    {
+      "id": "caps-omeprazole-40mg",
+      "group": "Gastroprotection",
+      "name": "caps Omeprazole",
+      "dose": "40mg",
+      "freq": "1 x 2",
+      "days": "10",
+      "notes": "προ φαγητού"
+    },
+    {
+      "id": "caps-omeprazole-20mg",
+      "group": "Gastroprotection",
+      "name": "caps Omeprazole",
+      "dose": "20mg",
+      "freq": "1 x 2",
+      "days": "10",
+      "notes": "15 λεπτά πριν το φαγητό"
+    },
+    {
+      "id": "caps-mostrelan-40mg",
+      "group": "Gastroprotection",
+      "name": "caps Mostrelan",
+      "dose": "40mg",
+      "freq": "1 x 1",
+      "days": "10",
+      "notes": "προ φαγητού"
+    },
+    {
+      "id": "inj-clexane-4000iu",
+      "group": "Anticoagulants",
+      "name": "inj Clexane",
+      "dose": "4000IU",
+      "freq": "1 x 1",
+      "days": "10",
+      "notes": "αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα"
+    },
+    {
+      "id": "inj-innohep-0-45ml",
+      "group": "Anticoagulants",
+      "name": "inj Innohep",
+      "dose": "0,45ml",
+      "freq": "1 x 1",
+      "days": "10",
+      "notes": "αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα"
+    },
+    {
+      "id": "inj-fraxiparine-2850iu",
+      "group": "Anticoagulants",
+      "name": "inj Fraxiparine",
+      "dose": "2850IU",
+      "freq": "1 x 1",
+      "days": "10",
+      "notes": "αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα"
+    },
+    {
+      "id": "tb-lyrica-50mg",
+      "group": "Neuropathic pain, antiepileptics",
+      "name": "tb Lyrica",
+      "dose": "50mg",
+      "freq": "1 x 1 (βράδυ)",
+      "days": "4",
+      "notes": "μετά την 4η ημέρα, 1 x 2"
+    },
+    {
+      "id": "caps-lyrica-150mg",
+      "group": "Neuropathic pain, antiepileptics",
+      "name": "caps Lyrica",
+      "dose": "150mg",
+      "freq": "1 x 2",
+      "days": "",
+      "notes": "πρωί -- βράδυ, με τροφή. Μην διακόπτεται απότομα"
+    },
+    {
+      "id": "tb-neurontin-400mg",
+      "group": "Neuropathic pain, antiepileptics",
+      "name": "tb Neurontin",
+      "dose": "400mg",
+      "freq": "2 x 2",
+      "days": "",
+      "notes": ""
+    },
+    {
+      "id": "tb-tegretol-200mg",
+      "group": "Neuropathic pain, antiepileptics",
+      "name": "tb Tegretol",
+      "dose": "200mg",
+      "freq": "1 x 3",
+      "days": "",
+      "notes": "με τροφή, σταθερές ώρες. **Μην διακόπτεται απότομα**"
+    },
+    {
+      "id": "caps-cymbalta-60mg",
+      "group": "Neuropathic pain, antiepileptics",
+      "name": "caps Cymbalta",
+      "dose": "60mg",
+      "freq": "1 x 2",
+      "days": "",
+      "notes": ""
+    },
+    {
+      "id": "tb-keppra-1000mg",
+      "group": "Neuropathic pain, antiepileptics",
+      "name": "tb Keppra",
+      "dose": "1000mg",
+      "freq": "1 x 3",
+      "days": "",
+      "notes": ""
+    },
+    {
+      "id": "tb-depakine-400mg",
+      "group": "Neuropathic pain, antiepileptics",
+      "name": "tb Depakine",
+      "dose": "400mg",
+      "freq": "1 x 3",
+      "days": "",
+      "notes": "θα γίνει προοδευτική μείωση σε συνεννόηση με τον θεράποντα ιατρό"
+    },
+    {
+      "id": "sir-duphalac-5ml",
+      "group": "Other",
+      "name": "sir Duphalac",
+      "dose": "5ml",
+      "freq": "1 ή 2 την ημέρα",
+      "days": "",
+      "notes": "καθαρτικό, ανάλογα με τη λειτουργία του εντέρου -- στόχος: μαλακές κενώσεις χωρίς προσπάθεια"
+    },
+    {
+      "id": "tb-xanax-0-25mg",
+      "group": "Other",
+      "name": "tb Xanax",
+      "dose": "0,25mg",
+      "freq": "1 x 2-3",
+      "days": "",
+      "notes": "μέχρι 3 την ημέρα επί εκνευρισμού"
+    },
+    {
+      "id": "tb-escitalopram-10mg",
+      "group": "Other",
+      "name": "tb Escitalopram",
+      "dose": "10mg",
+      "freq": "1 x 1",
+      "days": "",
+      "notes": ""
+    },
+    {
+      "id": "spray-vioplex-t-pulvo47",
+      "group": "Other",
+      "name": "spray Vioplex-T ή Pulvo47",
+      "dose": "",
+      "freq": "1 x 2",
+      "days": "",
+      "notes": "στο τραύμα, και να καλύπτεται μετά"
+    }
+  ]
+}

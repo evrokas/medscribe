@@ -1,0 +1,484 @@
+{
+  "format": 1,
+  "name": "synainesi",
+  "label": "synainesi",
+  "lang": "gr",
+  "paper": "a4",
+  "imported": "kit tpl-synainesi.tex",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "f1": {
+      "type": "date",
+      "label": "DD-MM-YYYY",
+      "placeholder": "DD-MM-YYYY"
+    },
+    "f2": {
+      "type": "text",
+      "label": "πάθηση",
+      "placeholder": "πάθηση"
+    },
+    "f3": {
+      "type": "text",
+      "label": "σύντομη περιγραφή: θέση, φύση",
+      "placeholder": "σύντομη περιγραφή: θέση, φύση"
+    },
+    "f4": {
+      "type": "text",
+      "label": "Τι αναμένεται χωρίς επέμβαση.",
+      "placeholder": "Τι αναμένεται χωρίς επέμβαση."
+    },
+    "f5": {
+      "type": "text",
+      "label": "επέμβαση",
+      "placeholder": "επέμβαση"
+    },
+    "f6": {
+      "type": "text",
+      "label": ", με χρήση νευροπλοήγησης και νευροφυσιολογικής παρακολούθησ",
+      "placeholder": ", με χρήση νευροπλοήγησης και νευροφυσιολογικής παρακολούθησης"
+    },
+    "f7": {
+      "type": "text",
+      "label": "στόχος 1",
+      "placeholder": "στόχος 1"
+    },
+    "f8": {
+      "type": "text",
+      "label": "στόχος 2",
+      "placeholder": "στόχος 2"
+    },
+    "f9": {
+      "type": "text",
+      "label": "γενική / τοπική",
+      "placeholder": "γενική / τοπική"
+    },
+    "f10": {
+      "type": "text",
+      "label": "Βήματα της επέμβασης με απλά λόγια.",
+      "placeholder": "Βήματα της επέμβασης με απλά λόγια."
+    },
+    "f11": {
+      "type": "text",
+      "label": "Χ έως Υ",
+      "placeholder": "Χ έως Υ"
+    },
+    "f12": {
+      "type": "text",
+      "label": "κίνδυνος (≈ ποσοστό)",
+      "placeholder": "κίνδυνος (≈ ποσοστό)"
+    },
+    "f13": {
+      "type": "text",
+      "label": "κίνδυνος (≈ ποσοστό)",
+      "placeholder": "κίνδυνος (≈ ποσοστό)"
+    },
+    "f14": {
+      "type": "text",
+      "label": "αναμενόμενη πορεία",
+      "placeholder": "αναμενόμενη πορεία"
+    },
+    "f15": {
+      "type": "text",
+      "label": "άλλη επιλογή",
+      "placeholder": "άλλη επιλογή"
+    },
+    "f16": {
+      "type": "text",
+      "label": "αναμενόμενη πορεία",
+      "placeholder": "αναμενόμενη πορεία"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "slot": "import.synainesi.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "s1_b1",
+          "text": "@f1",
+          "default": true,
+          "label": "Ημ. Χειρουργείου",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b2",
+          "text": "\\DrName, \\DrSpecialty",
+          "default": true,
+          "format": "latex",
+          "label": "Θεράπων ιατρός"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "slot": "import.synainesi.s2",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s2_b1",
+          "text": "Έχετε διαγνωσθεί με @f2, @f3.",
+          "default": true
+        },
+        {
+          "id": "s2_b2",
+          "text": "@f4",
+          "default": true,
+          "inline": true
+        }
+      ],
+      "heading": "Περιγραφή πάθησης",
+      "numbered": true
+    },
+    {
+      "id": "s3",
+      "slot": "import.synainesi.s3",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s3_b1",
+          "text": "Η προτεινόμενη χειρουργική πράξη είναι η **@f5**@f6.",
+          "default": true
+        },
+        {
+          "id": "s3_b2",
+          "text": "Στόχος της επέμβασης είναι:",
+          "default": true,
+          "inline": true
+        }
+      ],
+      "heading": "Σκοπός της επέμβασης",
+      "numbered": true
+    },
+    {
+      "id": "s4",
+      "slot": "import.synainesi.s4",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s4_b1",
+          "text": "@f7",
+          "default": true
+        },
+        {
+          "id": "s4_b2",
+          "text": "@f8",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "slot": "import.synainesi.s5",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s5_b1",
+          "text": "Η επέμβαση πραγματοποιείται υπό **@f9 αναισθησία**.",
+          "default": true
+        },
+        {
+          "id": "s5_b2",
+          "text": "@f10",
+          "default": true,
+          "inline": true
+        },
+        {
+          "id": "s5_b3",
+          "text": "Η διάρκεια της επέμβασης κυμαίνεται συνήθως από **@f11 ώρες**.",
+          "default": true,
+          "inline": true
+        }
+      ],
+      "heading": "Περιγραφή της διαδικασίας",
+      "numbered": true
+    },
+    {
+      "id": "s6",
+      "slot": "import.synainesi.s6",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s6_b1",
+          "text": "Παρά τη μέγιστη προσοχή και εμπειρία, κάθε χειρουργική επέμβαση ενέχει κινδύνους, οι οποίοι περιλαμβάνουν:",
+          "default": true
+        }
+      ],
+      "heading": "Πιθανοί κίνδυνοι και επιπλοκές",
+      "numbered": true
+    },
+    {
+      "id": "s7",
+      "slot": "import.synainesi.s7",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s7_b1",
+          "text": "Αιμορραγία (≈ 2--5%)",
+          "default": true
+        },
+        {
+          "id": "s7_b2",
+          "text": "Λοίμωξη / Μηνιγγίτιδα (≈ 1--3%)",
+          "default": true
+        },
+        {
+          "id": "s7_b3",
+          "text": "Θρόμβωση ή Εμβολή (≈ 1--2%)",
+          "default": true
+        },
+        {
+          "id": "s7_b4",
+          "text": "Αντίδραση στην Αναισθησία ($<$1\\%)",
+          "default": true,
+          "format": "latex"
+        }
+      ],
+      "heading": "Γενικοί κίνδυνοι",
+      "heading_level": "subsection"
+    },
+    {
+      "id": "s8",
+      "slot": "import.synainesi.s8",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s8_b1",
+          "text": "@f12",
+          "default": true
+        },
+        {
+          "id": "s8_b2",
+          "text": "@f13",
+          "default": true
+        }
+      ],
+      "heading": "Ειδικοί κίνδυνοι της συγκεκριμένης επέμβασης",
+      "heading_level": "subsection"
+    },
+    {
+      "id": "s9",
+      "slot": "import.synainesi.s9",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s9_b1",
+          "text": "Ενδέχεται να απαιτηθεί μετεγχειρητική νοσηλεία σε ΜΕΘ και περαιτέρω αποκατάσταση.",
+          "default": false,
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "slot": "import.synainesi.s10",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s10_b1",
+          "text": "**Συντηρητική αντιμετώπιση**: @f14.",
+          "default": true
+        },
+        {
+          "id": "s10_b2",
+          "text": "@f15: @f16.",
+          "default": true
+        }
+      ],
+      "heading": "Εναλλακτικές επιλογές",
+      "numbered": true
+    },
+    {
+      "id": "s11",
+      "slot": "import.synainesi.s11",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s11_b1",
+          "text": "Στο πλαίσιο της ιατρικής εκπαίδευσης και της προαγωγής της επιστήμης, ζητείται επίσης η συγκατάθεσή μου για (σημειώστε ένα):",
+          "default": true
+        }
+      ],
+      "heading": "Χρήση δεδομένων και εκπαιδευτικού υλικού",
+      "numbered": true
+    },
+    {
+      "id": "s12",
+      "slot": "import.synainesi.s12",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s12_b1",
+          "text": "Τη χρήση **ανώνυμων ιατρικών δεδομένων**, εικόνων, βίντεο ή εγγραφών της επέμβασης, **αποκλειστικά για εκπαιδευτικούς ή επιστημονικούς σκοπούς**.",
+          "default": true,
+          "bullet": "{\\faSquare[regular]}"
+        },
+        {
+          "id": "s12_b2",
+          "text": "Δεν επιθυμώ τη χρήση τέτοιου υλικού.",
+          "default": true,
+          "bullet": "{\\faSquare[regular]}"
+        }
+      ]
+    },
+    {
+      "id": "s13",
+      "slot": "import.synainesi.s13",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s13_b1",
+          "text": "Σε κάθε περίπτωση, τα προσωπικά μου στοιχεία δεν θα δημοσιοποιηθούν και θα τηρηθούν όλοι οι κανόνες προστασίας προσωπικών δεδομένων (GDPR).",
+          "default": true,
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "s14",
+      "slot": "import.synainesi.s14",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s14_b1",
+          "text": "Δηλώνω ότι:",
+          "default": true
+        }
+      ],
+      "heading": "Δήλωση ασθενούς",
+      "numbered": true
+    },
+    {
+      "id": "s15",
+      "slot": "import.synainesi.s15",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s15_b1",
+          "text": "Μου εξηγήθηκε με κατανοητό τρόπο η φύση της νόσου και της προτεινόμενης επέμβασης.",
+          "default": true
+        },
+        {
+          "id": "s15_b2",
+          "text": "Έλαβα απαντήσεις σε όλες τις ερωτήσεις μου.",
+          "default": true
+        },
+        {
+          "id": "s15_b3",
+          "text": "Κατανοώ τους πιθανούς κινδύνους και τις εναλλακτικές επιλογές.",
+          "default": true
+        },
+        {
+          "id": "s15_b4",
+          "text": "Συναινώ ελεύθερα και χωρίς πίεση στη διενέργεια της επέμβασης.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s16",
+      "slot": "import.synainesi.s16",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s16_b1",
+          "text": "\\vspace{1em}",
+          "default": true,
+          "format": "latex"
+        },
+        {
+          "id": "s16_b2",
+          "text": "\\noindent\\textbf{Υπογραφή ασθενούς:} \\underline{\\hspace{6cm}} \\hfill \\textbf{Ημερομηνία:} \\underline{\\hspace{3cm}}",
+          "default": true,
+          "format": "latex",
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "s17",
+      "slot": "import.synainesi.s17",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s17_b1",
+          "text": "\\noindent\\textbf{Ονοματεπώνυμο:} \\underline{\\hspace{6cm}} \\\\[0.5em]",
+          "default": true,
+          "format": "latex"
+        },
+        {
+          "id": "s17_b2",
+          "text": "\\textbf{Σχέση με ασθενή:} \\underline{\\hspace{6cm}} \\\\[0.5em]",
+          "default": true,
+          "format": "latex",
+          "inline": true
+        },
+        {
+          "id": "s17_b3",
+          "text": "\\textbf{Υπογραφή:} \\underline{\\hspace{6cm}}",
+          "default": true,
+          "format": "latex",
+          "inline": true
+        }
+      ],
+      "heading": "Μάρτυρας (εφόσον απαιτείται)",
+      "numbered": true
+    },
+    {
+      "id": "s18",
+      "slot": "import.synainesi.s18",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s18_b1",
+          "text": "Δηλώνω ότι ενημέρωσα πλήρως τον/την ασθενή για τη φύση, τους κινδύνους και τα πιθανά αποτελέσματα της επέμβασης, και απάντησα σε όλες τις ερωτήσεις του/της.",
+          "default": true
+        }
+      ],
+      "heading": "Δήλωση ιατρού",
+      "numbered": true
+    },
+    {
+      "id": "s19",
+      "slot": "import.synainesi.s19",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s19_b1",
+          "text": "\\vspace{1em}",
+          "default": true,
+          "format": "latex"
+        },
+        {
+          "id": "s19_b2",
+          "text": "\\noindent\\textbf{Υπογραφή ιατρού:} \\underline{\\hspace{6cm}} \\hfill \\textbf{Ημερομηνία:} \\underline{\\hspace{3cm}}",
+          "default": true,
+          "format": "latex",
+          "inline": true
+        }
+      ]
+    }
+  ],
+  "needs_review": [
+    "s1_b2: kept as LaTeX: \\DrName, \\DrSpecialty",
+    "s7_b4: kept as LaTeX: Αντίδραση στην Αναισθησία ($<$1\\%)",
+    "s16_b1: kept as LaTeX: \\vspace{1em}",
+    "s16_b2: kept as LaTeX: \\noindent\\textbf{Υπογραφή ασθενούς:} \\underline{\\hspace{6cm}} \\hfill \\",
+    "s17_b1: kept as LaTeX: \\noindent\\textbf{Ονοματεπώνυμο:} \\underline{\\hspace{6cm}} \\\\[0.5em]",
+    "s17_b2: kept as LaTeX: \\textbf{Σχέση με ασθενή:} \\underline{\\hspace{6cm}} \\\\[0.5em]",
+    "s17_b3: kept as LaTeX: \\textbf{Υπογραφή:} \\underline{\\hspace{6cm}}",
+    "s19_b1: kept as LaTeX: \\vspace{1em}",
+    "s19_b2: kept as LaTeX: \\noindent\\textbf{Υπογραφή ιατρού:} \\underline{\\hspace{6cm}} \\hfill \\te"
+  ],
+  "title": "Έντυπο Ενημερωμένης Συγκατάθεσης για Χειρουργική Επέμβαση",
+  "titles": [
+    "Έντυπο Ενημερωμένης Συγκατάθεσης για Χειρουργική Επέμβαση"
+  ],
+  "closing": "",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no"
+}

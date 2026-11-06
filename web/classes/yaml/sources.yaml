@@ -1,0 +1,34 @@
+---
+table:
+  name: sources
+  class: sourcesClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: name
+    type: varchar(190) UNIQUE
+    required: true
+
+  - name: kind
+    type: varchar(16)
+    required: true
+
+  - name: kitpath
+    type: varchar(255)
+    required: true
+
+...
+
+# A source is one named file that can end up in a build (PLAN.md §5.1).
+# - name     stable name, e.g. base/evrtemplate.tex, asset/logo-01.png, type/vevaiosi-mri
+# - kind     base | asset | type | shared | block | module
+# - kitpath  where the file sits in the kit layout inside a compile job, relative to the
+#            job root, e.g. evrtemplate.tex, images/logo-01.png, templates/tpl-vevaiosi-mri.tex

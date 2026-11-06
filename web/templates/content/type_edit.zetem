@@ -1,0 +1,34 @@
+<div class="page-placeholder type-edit">
+  <div class="page-head"><h2>{{{$src['name']}}}</h2><a class="btn" href="{{rel_url('/types')}}">&larr; {{{t('Types')}}}</a></div>
+  <table class="status-table list">
+    <tr><th>v</th><th>{{{t('Status')}}}</th><th>{{{t('By')}}}</th><th>{{{t('Date')}}}</th><th>{{{t('Note')}}}</th><th>{{{t('Documents')}}}</th><th></th></tr>
+    {% foreach($versions as $v): %}
+    <tr>
+      <td><a href="{{rel_url('/types/' . $kind . '/' . $name . '?v=' . $v['version'])}}">v{{{$v['version']}}}</a></td>
+      <td><span class="badge badge-{{{$v['status'] == 'released' ? 'issued' : 'draft'}}}">{{{$v['status']}}}</span></td>
+      <td>{{{$v['cuser']}}}</td><td>{{{$v['cdate']}}}</td><td>{{{$v['note']}}}</td><td>{{{$v['docs']}}}</td>
+      <td>
+        {% if($v['prev_version']): %}<a href="{{rel_url('/types/' . $kind . '/' . $name . '?a=' . $v['prev_version'] . '&b=' . $v['version'])}}">{{{t('diff with previous')}}}</a>{% endif %}
+        {% if($v['status'] == 'draft'): %}
+        <form method="post" action="{{rel_url('/types/' . $kind . '/' . $name)}}" class="inline-form">{{ csrf_field() }}<input type="hidden" name="version" value="{{{$v['version']}}}"><button type="submit" name="action" value="release">{{{t('Release')}}}</button></form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endforeach %}
+  </table>
+
+  {% if($diff): %}
+  <h3>{{{t('Changes')}}} v{{{$diff['a']}}} &rarr; v{{{$diff['b']}}}</h3>
+  <pre class="diff">{% foreach($diff['lines'] as $l): %}<span class="d{{{$l['op'] == '+' ? 'add' : ($l['op'] == '-' ? 'del' : 'ctx')}}}">{{{$l['op']}}} {{{$l['text']}}}</span>
+{% endforeach %}</pre>
+  {% endif %}
+
+  <h3>{{{t('Edit')}}} (v{{{$shown['version']}}} {{{t('as the starting point')}}})</h3>
+  <p class="muted">{{{t('Saving makes a new draft version; nothing changes for new documents until you release it. A type pins its shared components: write "latest" in the shared map to take the latest released version.')}}}</p>
+  <form method="post" action="{{rel_url('/types/' . $kind . '/' . $name)}}">
+    {{ csrf_field() }}
+    <textarea name="text" rows="28" class="code" spellcheck="false">{{{$text}}}</textarea>
+    <label>{{{t('Change note (required)')}}} <input type="text" name="note" maxlength="500" size="60"></label>
+    <div class="actions"><button type="submit" name="action" value="save" class="primary">{{{t('Validate and save as a new version')}}}</button><button type="submit" name="action" value="discard">{{{t('Reset the text')}}}</button></div>
+  </form>
+</div>

@@ -1,0 +1,17 @@
+<?php
+
+class header extends moduleClass {
+    function render($params = array()) {
+      global $kernel;
+        $tit = $kernel->getConfig()['title'];
+        // echo "header module: param title = " . $tit . "\n";
+        return (Renderer::render("header.zetem", ["title" => $kernel->getConfig()['title'] ]));
+    }
+}
+
+
+function register_header_module() {
+  global $kernel;
+
+  $kernel->registerModule( new header(__DIR__, 'header', 'header.zetem'));
+}

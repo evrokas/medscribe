@@ -1,0 +1,65 @@
+<div class="page-placeholder">
+    <h2>{{{t('New document')}}}</h2>
+    <form method="post" action="{{rel_url('/documents/new')}}" class="form-grid">
+        {{ csrf_field() }}
+        <label>{{{t('Document type')}}}
+            <select name="type" required>
+                {% foreach($types as $ty): %}<option value="{{{$ty['name']}}}">{{{$ty['label']}}}</option>{% endforeach %}
+            </select>
+        </label>
+        <fieldset>
+            <legend>{{{t('Patient')}}}</legend>
+            {% if($zpms): %}
+            <div class="patient-search">
+                <label>{{{t('Find in ZPMS')}}} <input type="search" id="patient-q" autocomplete="off" placeholder="{{{t('Name or AMKA')}}}" minlength="2"></label>
+                <ul id="patient-results" class="results" hidden></ul>
+            </div>
+            {% endif %}
+            {% if($zpms_error): %}<p class="notice">{{{t('The patient could not be loaded from ZPMS. You can type the details by hand.')}}}</p>{% endif %}
+            {% if(!empty($prefill['guid'])): %}<p class="muted">{{{t('From ZPMS')}}}: {{{$prefill['name']}}}. <a href="{{rel_url('/documents/new')}}">{{{t('Clear')}}}</a></p>{% endif %}
+            <input type="hidden" name="patient[guid]" value="{{{$prefill['guid'] ?? ''}}}">
+            <input type="hidden" name="patient[dob]" value="{{{$prefill['dob'] ?? ''}}}">
+            <label>{{{t('Name')}}} <input type="text" name="patient[name]" value="{{{$prefill['name'] ?? ''}}}" maxlength="255" {% if(empty($prefill['guid'])): %}autofocus{% endif %}></label>
+            <label>{{{t('Gender')}}}
+                <select name="patient[gender]">
+                    <option value="">-</option>
+                    <option value="M" {% if(($prefill['gender'] ?? '') == 'M'): %}selected{% endif %}>{{{t('Male')}}}</option>
+                    <option value="F" {% if(($prefill['gender'] ?? '') == 'F'): %}selected{% endif %}>{{{t('Female')}}}</option>
+                </select>
+            </label>
+            <label>{{{t('Age')}}} <input type="text" name="patient[age]" value="{{{!empty($prefill['dob']) ? '' : ($prefill['age'] ?? '')}}}" placeholder="{{{!empty($prefill['dob']) ? t('from date of birth') : ''}}}" maxlength="16" size="8"></label>
+            <label>AMKA <input type="text" name="patient[amka]" value="{{{$prefill['amka'] ?? ''}}}" maxlength="11" size="12" inputmode="numeric"></label>
+        </fieldset>
+        <label>{{{t('Clinic')}}}
+            <select name="clinic">{% foreach($clinics as $c): %}<option>{{{$c}}}</option>{% endforeach %}</select>
+        </label>
+        <label>{{{t('Document date')}}} <input type="date" name="date" value="{{{$today}}}"></label>
+        <div class="buttons"><button type="submit">{{{t('Create draft')}}}</button></div>
+    </form>
+</div>
+{% if($zpms): %}
+<script>
+(function () {
+  var q = document.getElementById('patient-q'), ul = document.getElementById('patient-results'), timer = null;
+  var base = '{{{rel_url('/documents/patient-search')}}}', pick = '{{{rel_url('/documents/new')}}}';
+  q.addEventListener('input', function () {
+    clearTimeout(timer);
+    if (q.value.trim().length < 2) { ul.hidden = true; return; }
+    timer = setTimeout(function () {
+      fetch(base + '?q=' + encodeURIComponent(q.value.trim()), {credentials: 'same-origin'}).then(function (r) { return r.json(); }).then(function (j) {
+        ul.textContent = '';
+        if (!j.ok) { var li = document.createElement('li'); li.textContent = '{{{t('ZPMS is not reachable')}}}'; ul.appendChild(li); ul.hidden = false; return; }
+        j.matches.forEach(function (m) {
+          var li = document.createElement('li'), a = document.createElement('a');
+          a.href = pick + '?patient=' + encodeURIComponent(m.guid);
+          a.textContent = m.name + (m.amka ? ' (' + m.amka + ')' : '');
+          li.appendChild(a); ul.appendChild(li);
+        });
+        if (!j.matches.length) { var n = document.createElement('li'); n.textContent = '{{{t('No match')}}}'; ul.appendChild(n); }
+        ul.hidden = false;
+      }).catch(function () {});
+    }, 250);
+  });
+})();
+</script>
+{% endif %}

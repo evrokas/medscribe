@@ -1,0 +1,52 @@
+---
+table:
+  name: document_revisions
+  class: documentRevisionsClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: document_id
+    type: int
+    required: true
+
+  - name: revision
+    type: int
+    required: true
+
+  - name: status
+    type: varchar(16)
+    required: true
+
+  - name: build_id
+    type: int
+    required: true
+
+  - name: tex_sha256
+    type: char(64)
+    required: true
+
+  - name: pdf_sha256
+    type: char(64)
+    required: true
+
+  - name: inputs
+    type: text
+    required: true
+
+  - name: reason
+    type: text
+
+...
+
+# One approved revision of a document (PLAN.md §7.5): the exact .tex and PDF that were sent to DocArc,
+# the inputs they were built from, and the build (manifest) id. Append-only. status: current | superseded.
+# Revision numbers will follow DocArc's version numbers once its versioning exists; until then there is
+# only revision 1 (Revise is deferred, PLAN.md §11 Q15).

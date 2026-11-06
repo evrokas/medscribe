@@ -1,0 +1,40 @@
+---
+table:
+  name: docarc_links
+  class: docarcLinksClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: kind
+    type: varchar(8)
+    required: true
+
+  - name: link_key
+    type: varchar(64)
+    required: true
+
+  - name: docarc_id
+    type: int
+    required: true
+
+  - name: label_seen
+    type: varchar(255)
+
+  - name: code_seen
+    type: varchar(32)
+
+...
+
+# D20: each MedScribe document type links to exactly one DocArc document type (many-to-one), and each
+# \Clinic key to at most one DocArc clinic. DocArc owns both lists; the id is the key, label_seen and
+# code_seen are only what DocArc last said (display).
+# kind = 'type' (link_key = typedef name) | 'clinic' (link_key = \Clinic key). Unique per (kind, link_key),
+# enforced in web/issue.php.

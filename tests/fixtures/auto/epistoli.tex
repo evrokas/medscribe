@@ -1,0 +1,76 @@
+% =====================================================================
+%  TYPE: Administrative letter (no patient-care content)
+%  Request to a lab, a clinic or an insurer: return of paraffin
+%  blocks, procedure coding, etc. Based on 'odigies' and the
+%  trigeminal RF coding request.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{}
+% \providecommand\DocTitle{Αίτημα}
+% \providecommand\DocTitle{Αίτημα Νέων Υπηρεσιών}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{Ο ιατρός}
+% \providecommand\DocClosing{Με εκτίμηση,}
+% \providecommand\DocClosing{}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+%%%%%%%%%%%%%%%%%%%%% Recipient (empty = no recipient block)
+\providecommand\Recipient{Προς: Δοκιμαστικό Εργαστήριο}
+% \providecommand\Recipient{}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\ifthenelse{\equal{\Recipient}{}}{}{\noindent\Recipient\par}
+
+% Patient line (delete if the letter is not about a patient)
+\noindent\textbf{Αφορά:} [ασθενή \PatientName / θέμα]
+
+Τιμή 2
+
+% Coding request (from the trigeminal RF letter): describe the procedure,
+% then propose the category:
+% Όσον αφορά την κατηγοριοποίηση, θεωρώ ότι η επέμβαση ανήκει στην ίδια κατηγορία με Τιμή 3, με \textbf{κωδικό Τιμή 4} σύμφωνα με την κατηγοριοποίηση που χρησιμοποιείται στην κλινική. Ο κωδικός αυτός ανήκει στις επεμβάσεις \textbf{Τιμή 5}.
+
+Ευχαριστώ.
+
+\end{document}

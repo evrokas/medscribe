@@ -1,0 +1,93 @@
+% =====================================================================
+%  TYPE: Operative note
+%  Based on praktika/panagidis (craniotomy, 2026).
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Πρακτικό Χειρουργείου}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{}
+% \providecommand\DocClosing{Ο ιατρός}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+  \Info{Ημερομηνία}{10-01-2026}
+  \Info{Χειρουργός}{Τιμή 2}
+  \Info{Βοηθός χειρουργού}{Τιμή 3}
+  \Info{Αναισθησιολόγος}{Τιμή 4}
+  \Info{Αναισθησία}{Τιμή 5}
+  \Info{Διάρκεια}{Τιμή 6}
+  \Info{Προεγχ.\ διάγνωση}{Τιμή 7}
+  \Info{Μετεγχ.\ διάγνωση}{Τιμή 8}
+  \Info{Επέμβαση}{Τιμή 9}
+\end{PatientInfo}
+
+\subsection*{Περιγραφή επέμβασης}
+Τιμή 10
+
+Τιμή 11
+
+Τιμή 12
+
+Τιμή 13
+
+Τιμή 14
+
+\subsection*{Εμφυτεύματα και υλικά}
+Τιμή 15
+
+\subsection*{Δείγματα}
+Τιμή 16
+
+\subsection*{Επιπλοκές}
+Τιμή 17
+
+\subsection*{Κατάσταση ασθενούς κατά το πέρας της επέμβασης}
+Τιμή 18
+
+\vspace{2em}
+\noindent [Ονοματεπώνυμο χειρουργού]\newline
+Τιμή 20
+
+\end{document}

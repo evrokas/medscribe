@@ -1,0 +1,37 @@
+<div class="page-placeholder">
+    <h2>{{{t('Document types')}}}</h2>
+    <p class="muted">{{{t('Template store (M0): sources imported from the evrdocs kit. The editor comes in M4.')}}}</p>
+
+    <p><a class="btn" href="{{rel_url('/types/links')}}">{{{t('DocArc links')}}}</a></p>
+    <h3>{{{t('Base release')}}}{% if($release): %} B{{{$release['number']}}}{% endif %}</h3>
+    {% if($release): %}
+    <table class="status-table">
+        {% foreach($base as $b): %}
+        <tr><td>{{{$b['name']}}}</td><td>v{{{$b['version']}}}</td><td><code>{{{substr($b['sha256'], 0, 12)}}}</code></td></tr>
+        {% endforeach %}
+    </table>
+    {% else: %}
+    <p>{{{t('No base release yet. Run bin/import_kit.php.')}}}</p>
+    {% endif %}
+
+    <h3>{{{t('Type definitions and shared components')}}} ({{{count($defs)}}})</h3>
+    <table class="status-table">
+        {% foreach($defs as $d): %}
+        <tr><td><a href="{{rel_url('/types/' . $d['kind'] . '/' . substr($d['name'], strlen($d['kind']) + 1))}}">{{{$d['name']}}}</a></td><td>v{{{$d['version']}}}</td><td>{{{$d['status']}}}</td><td><code>{{{$d['sha']}}}</code></td></tr>
+        {% endforeach %}
+    </table>
+
+    <h3>{{{t('Imported kit templates (reference)')}}} ({{{count($types)}}})</h3>
+    <table class="status-table">
+        {% foreach($types as $ty): %}
+        <tr><td>{{{$ty['name']}}}</td><td>v{{{$ty['version']}}}</td><td>{{{$ty['status']}}}</td><td><code>{{{$ty['sha']}}}</code></td></tr>
+        {% endforeach %}
+    </table>
+
+    <h3>{{{t('Latest builds')}}}</h3>
+    <table class="status-table">
+        {% foreach($builds as $bd): %}
+        <tr><td>#{{{$bd['id']}}}</td><td>{{{$bd['purpose']}}}</td><td>{{{$bd['status']}}}</td><td><code>{{{$bd['sha']}}}</code></td><td>{{{$bd['cdate']}}}</td></tr>
+        {% endforeach %}
+    </table>
+</div>

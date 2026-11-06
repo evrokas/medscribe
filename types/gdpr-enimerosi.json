@@ -1,0 +1,39 @@
+{
+  "format": 1,
+  "name": "gdpr-enimerosi",
+  "label": "Ενημέρωση GDPR",
+  "lang": "gr",
+  "paper": "a4",
+  "title": "Ενημέρωση για την Επεξεργασία Προσωπικών Δεδομένων",
+  "titles": [
+    "Ενημέρωση για την Επεξεργασία Προσωπικών Δεδομένων"
+  ],
+  "closing": "",
+  "closings": [
+    "",
+    "Ο ιατρός"
+  ],
+  "stamp": "no",
+  "draft": true,
+  "needs_review": [
+    "New type (PLAN.md D12, M8): the structure is a skeleton; the doctor writes the wording and reviews before release."
+  ],
+  "shared": {},
+  "has_patient": false,
+  "fields": {},
+  "sections": [
+    {
+      "id": "body",
+      "slot": "practice.gdpr-enimerosi",
+      "layout": "paragraphs",
+      "blocks": []
+    },
+    {
+      "id": "items",
+      "slot": "practice.gdpr-enimerosi.items",
+      "heading": "",
+      "layout": "itemize",
+      "blocks": []
+    }
+  ]
+}

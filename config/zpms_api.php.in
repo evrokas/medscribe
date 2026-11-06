@@ -1,0 +1,12 @@
+<?php
+// How MedScribe reaches ZPMS (patient search and fetch by guid). Copy to zpms_api.php (gitignored).
+//
+// ZPMS_API_URL  ZPMS's base address, no trailing slash.
+// ZPMS_API_KEY  the key sent as X-MedScribe-Api-Key; must equal MEDSCRIBE_API_KEY in ZPMS's
+//               config/medscribe_api.php. Generate one with:
+//                 php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
+//
+// The key stays on the server: the browser only ever talks to MedScribe. Leave the file absent (or
+// the key blank) and the ZPMS features switch off quietly; patients can still be typed by hand.
+define('ZPMS_API_URL', 'https://<<zpms-host>>');
+define('ZPMS_API_KEY', '<<key>>');

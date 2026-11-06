@@ -1,0 +1,161 @@
+% =====================================================================
+%  TYPE: Postoperative instructions -- craniotomy / stereotactic biopsy
+%  Sections: patient block, instructions, follow-up, emergency
+%  box, when to call, medication page. Based on Panagidis 2025-10 and Georgiadis 2025-10.
+%  Converted from the old 'Αγαπητέ ασθενή' letter style.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Μετεγχειρητικές Οδηγίες}
+% \providecommand\DocTitle{Ενημερωτικό Σημείωμα για τον Ασθενή}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{Ο ιατρός}
+% \providecommand\DocClosing{}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+  \Info{Διάγνωση}{Τιμή 1}
+  \Info{Χειρουργείο}{(10/01/2026) Τιμή 2}
+  \Info{Ημ. Εξιτηρίου}{10-01-2026}
+\end{PatientInfo}
+
+% Short course of the admission (optional, from the old letters):
+% Μετά την επέμβαση παραμείνατε για Τιμή 5 ημέρες στη ΜΕΘ, όπου η μετεγχειρητική πορεία ήταν Τιμή 6. Στις Τιμή 7 μεταφερθήκατε στον όροφο, όπου παραμείνατε έως τις Τιμή 8, οπότε και λάβατε εξιτήριο.
+
+Ακολουθούν οδηγίες για την ομαλή σας ανάρρωση:
+
+\section*{Γενικές Οδηγίες}
+\begin{enumerate}[label=\arabic*.]
+\setlength{\parskip}{6pt}
+\item \textbf{Τομή:} Μην βρέξετε το τραύμα (λουτρό/πισίνα) μέχρι την αφαίρεση ραμμάτων ή την επανεξέταση.
+\item \textbf{Φροντίδα Τραύματος:} Το τραύμα πρέπει να παραμένει καθαρό και στεγνό. Αλλάξτε επίδεσμο όπως σας έχει υποδειχθεί.
+\item \textbf{Αλλαγές:} Αλλαγή τραύματος κάθε 2 ημέρες με αυτοκόλλητα γαζάκια για 7 ημέρες. Μετά μπορεί να χρησιμοποιείται spray τύπου Pulvo47 / Vioplex-T ή άλλο αντίστοιχο, 2 φορές την ημέρα.
+\item \textbf{Διατροφή:} Ελαφριά και πλούσια σε πρωτεΐνες και φυτικές ίνες, με επαρκή ενυδάτωση.
+\end{enumerate}
+
+\section*{Επανέλεγχοι}
+\begin{itemize}
+\item Σε 7--10 ημέρες για κλινική επανεξέταση και αφαίρεση ραμμάτων.
+\item Σε Τιμή 9 ημέρες λήψη αίματος για αιματολογικές εξετάσεις: γενική αίματος, ουρία, κρεατινίνη, νάτριο, κάλιο, CRP.
+% \item Εντός Τιμή 10 εβδομάδων θα ξεκινήσουν συνεδρίες χημειοθεραπείας και ακτινοθεραπείας, σε συνεννόηση με τον ογκολόγο.
+\end{itemize}
+
+% Emergency box: not in the old letters. Review before enabling.
+% \begin{UrgentBox}
+% \item \textbf{Επιληπτική κρίση}.
+% \item \textbf{Επιδείνωση του επιπέδου συνείδησης}, έντονη υπνηλία ή σύγχυση.
+% \end{UrgentBox}
+
+\textbf{Επικοινωνήστε άμεσα με τον ιατρό εάν εμφανίσετε:}
+\begin{itemize}
+\item Έντονο ή αυξανόμενο πόνο.
+\item Εμέτους, θολή όραση ή διπλωπία.
+\item Πυρετό.
+\item Ερυθρότητα ή εκροή από την τομή.
+\item Αδυναμία ή αιμωδίες στο σώμα που δεν προϋπήρχαν.
+\end{itemize}
+
+\newpage
+\begin{center}
+\LARGE\textbf{Οδηγίες Φαρμακευτικής Αγωγής}
+\end{center}
+\vspace{0.5cm}
+
+\begin{MedTable}
+\DrugEntry{inj Fraxiparine}{2850IU}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+\DrugEntry{tb Klaricid}{500mg}{1 x 2}{7}{αντιβίωση}
+\DrugEntry{tb Keppra}{1000mg}{1 x 3}{}{}
+\DrugEntry{tb Dexamethasone}{4mg}{1 x 3}{}{μετά το φαγητό}
+\DrugEntry{caps Omeprazole}{40mg}{1 x 2}{10}{προ φαγητού}
+\DrugEntry{tb Paracetamol}{1000mg}{1 x 3}{10}{}
+\DrugEntry{spray Vioplex-T ή Pulvo47}{}{1 x 2}{}{στο τραύμα, και να καλύπτεται μετά}
+% ---- Drug library: uncomment the lines you need ---------------------
+% -- Analgesics
+% \DrugEntry{tb Paracetamol}{1000mg}{1 x 3}{10}{}
+% \DrugEntry{tb Apotel}{1000mg}{2 ή 3 την ημέρα}{}{παυσίπονο, μέγιστη δόση 3 δισκία το 24ωρο}
+% \DrugEntry{tb Depon}{500mg}{1 ή 2, έως 3 φορές την ημέρα}{}{εφόσον υπάρχει πόνος -- μέγιστο 3g το 24ωρο}
+% \DrugEntry{tb Tramal}{50mg}{1 x 2 ή 3}{6}{}
+% \DrugEntry{tb Zaldiar}{}{2 ή 3 την ημέρα}{}{εφόσον υπάρχει έντονος πόνος}
+% -- NSAIDs
+% \DrugEntry{tb Movatec}{7.5mg}{1 x 2}{10}{μετά το φαγητό}
+% \DrugEntry{tb Movatec}{15mg}{1 x 1}{1}{μετά το φαγητό}
+% \DrugEntry{tb Naprosyn}{500mg}{1 x 2}{6}{μετά το φαγητό}
+% -- Steroids (tapers)
+% \DrugEntry{tb Medrol}{4mg}{1 x 3\newline 1 x 2\newline 1 x 1\newline STOP}{}{για 5 ημέρες\newline για 5 ημέρες\newline για 5 ημέρες}
+% \DrugEntry{tb Medrol}{4mg}{2 x 3\newline 1 x 3\newline 1 x 2\newline 1 x 1\newline STOP}{}{για 3 ημέρες\newline για 3 ημέρες\newline για 3 ημέρες\newline για 3 ημέρες}
+% \DrugEntry{syr Dexaton}{2mg/5ml}{10cc x 3}{10}{μετά το φαγητό}
+% \DrugEntry{tb Dexamethasone}{4mg}{1 x 3}{}{μετά το φαγητό}
+% -- Antibiotics
+% \DrugEntry{tb Zinadol}{500mg}{1 x 2}{5}{αντιβίωση}
+% \DrugEntry{tb Klaricid}{500mg}{1 x 2}{7}{αντιβίωση}
+% \DrugEntry{caps Amoxicillin}{500mg}{1 x 3}{7}{μετά το φαγητό}
+% -- Gastroprotection
+% \DrugEntry{caps Omeprazole}{40mg}{1 x 2}{10}{προ φαγητού}
+% \DrugEntry{caps Omeprazole}{20mg}{1 x 2}{10}{15 λεπτά πριν το φαγητό}
+% \DrugEntry{caps Mostrelan}{40mg}{1 x 1}{10}{προ φαγητού}
+% -- Anticoagulants
+% \DrugEntry{inj Clexane}{4000IU}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+% \DrugEntry{inj Innohep}{0,45ml}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+% \DrugEntry{inj Fraxiparine}{2850IU}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+% -- Neuropathic pain, antiepileptics
+% \DrugEntry{tb Lyrica}{50mg}{1 x 1 (βράδυ)}{4}{μετά την 4η ημέρα, 1 x 2}
+% \DrugEntry{caps Lyrica}{150mg}{1 x 2}{}{πρωί -- βράδυ, με τροφή. Μην διακόπτεται απότομα}
+% \DrugEntry{tb Neurontin}{400mg}{2 x 2}{}{}
+% \DrugEntry{tb Tegretol}{200mg}{1 x 3}{}{με τροφή, σταθερές ώρες. \textbf{Μην διακόπτεται απότομα}}
+% \DrugEntry{caps Cymbalta}{60mg}{1 x 2}{}{}
+% \DrugEntry{tb Keppra}{1000mg}{1 x 3}{}{}
+% \DrugEntry{tb Depakine}{400mg}{1 x 3}{}{θα γίνει προοδευτική μείωση σε συνεννόηση με τον θεράποντα ιατρό}
+% -- Other
+% \DrugEntry{sir Duphalac}{5ml}{1 ή 2 την ημέρα}{}{καθαρτικό, ανάλογα με τη λειτουργία του εντέρου -- στόχος: μαλακές κενώσεις χωρίς προσπάθεια}
+% \DrugEntry{tb Xanax}{0,25mg}{1 x 2-3}{}{μέχρι 3 την ημέρα επί εκνευρισμού}
+% \DrugEntry{tb Escitalopram}{10mg}{1 x 1}{}{}
+% \DrugEntry{spray Vioplex-T ή Pulvo47}{}{1 x 2}{}{στο τραύμα, και να καλύπτεται μετά}
+% ---------------------------------------------------------------------
+\end{MedTable}
+
+% Notes under the table (uncomment the ones you need)
+\textbf{Σημείωση:} Μην διακόψετε και μην μειώσετε μόνος/μόνη σας τα Τιμή 11. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.
+% \textbf{Σημείωση:} Μην λαμβάνετε αντιφλεγμονώδη φάρμακα (π.χ.\ Voltaren, Brufen, Ponstan, Naprosyn) χωρίς ιατρική οδηγία.
+
+\end{document}

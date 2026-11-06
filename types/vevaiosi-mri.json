@@ -1,0 +1,82 @@
+{
+  "format": 1,
+  "name": "vevaiosi-mri",
+  "label": "Βεβαίωση συμβατότητας MRI",
+  "lang": "gr",
+  "paper": "a4",
+  "title": "Ιατρική Βεβαίωση",
+  "closing": "Ο ιατρός",
+  "stamp": "no",
+  "fields": {
+    "surgery_date": {
+      "type": "date",
+      "label": "Ημερομηνία χειρουργείου",
+      "required": true
+    },
+    "procedure": {
+      "type": "text",
+      "label": "Επέμβαση",
+      "default": "διαδερμική σπονδυλοδεσία ΟΜΣΣ με χρήση νευροπλοηγού",
+      "required": true
+    },
+    "material": {
+      "type": "text",
+      "label": "Υλικό",
+      "default": "τιτάνιο / PEEK",
+      "required": true
+    }
+  },
+  "sections": [
+    {
+      "id": "patient",
+      "slot": "certificate.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "surgery_row",
+          "label": "Ημ. Χειρουργείου",
+          "text": "@surgery_date",
+          "datefmt": "d-m-Y",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "operation",
+      "slot": "certificate.operation",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "operation",
+          "text": "{Ο|Η} ασθενής υποβλήθηκε στις @surgery_date σε @procedure.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "materials",
+      "slot": "certificate.materials",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "materials",
+          "text": "Βεβαιώνεται ότι τα υλικά που χρησιμοποιήθηκαν είναι από παραμαγνητικό υλικό, και συγκεκριμένα @material, που είναι απόλυτα συμβατά με Μαγνητικό Τομογράφο. Επομένως {ο|η} ασθενής μπορεί να υποβληθεί σε μαγνητική τομογραφία με ασφάλεια.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "slot": "certificate.purpose",
+      "layout": "paragraphs",
+      "use": "purpose",
+      "default_block": "purpose_center"
+    }
+  ],
+  "shared": {
+    "purpose": "latest"
+  },
+  "titles": [
+    "Ιατρική Βεβαίωση"
+  ]
+}

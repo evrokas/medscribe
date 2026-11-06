@@ -1,0 +1,93 @@
+% =====================================================================
+%  TYPE: Clinical summary (admission, course, status, plan)
+%  For transfer to another hospital / rehab, or for the family and
+%  the next doctor. Based on Toubi 2026-04, Georgiadis 2025, Karmpoula.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Ενημερωτικό}
+% \providecommand\DocTitle{Ιατρική Έκθεση}
+% \providecommand\DocTitle{Ενημερωτικό Σημείωμα}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{Ο ιατρός}
+% \providecommand\DocClosing{}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+  \Info{Ημ. Εισαγωγής}{10-01-2026}
+  \Info{Ημ. Εξιτηρίου}{10-01-2026}
+%   \Info{Ημ. Χειρουργείου}{10-01-2026}
+\end{PatientInfo}
+
+\section*{Ιστορικό}
+Ο ασθενής Τιμή 4 στις 10/01/2026 λόγω Τιμή 6.
+% Η ασθενής ...
+Από το ατομικό αναμνηστικό: Τιμή 7.
+
+\section*{Κλινική εικόνα και απεικονιστικός έλεγχος}
+Κατά την εισαγωγή ο ασθενής παρουσίαζε Τιμή 8.
+Από τον απεικονιστικό έλεγχο με Τιμή 9 διαπιστώθηκε Τιμή 10.
+
+\section*{Πορεία}
+Τιμή 11
+
+\section*{Παρούσα κατάσταση}
+Τιμή 12
+
+\section*{Σχέδιο}
+Τιμή 13
+% Ο ασθενής, κατόπιν επιθυμίας των συγγενών, θα μεταφερθεί με ασθενοφόρο σε Τιμή 14 για περαιτέρω νοσηλεία.
+
+% Medication: short list, or the full table (delete the one you don't use)
+\textbf{Φαρμακευτική αγωγή:}
+\begin{itemize}[nosep]
+\item Τιμή 15
+\item Τιμή 16
+\end{itemize}
+% \begin{MedTable}
+% \DrugEntry{...}{...}{...}{...}{...}
+% \end{MedTable}
+% Η φαρμακευτική αγωγή επισυνάπτεται.
+
+\end{document}

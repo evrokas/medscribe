@@ -1,0 +1,15 @@
+---
+table:
+  name: base_release_files
+  class: baseReleaseFilesClass
+
+  fields:
+  - name: release_id
+    type: int
+    required: true
+
+  - name: source_version_id
+    type: int
+    required: true
+
+...

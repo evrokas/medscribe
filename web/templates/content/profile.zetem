@@ -1,0 +1,10 @@
+<div class="page-placeholder">
+    <h2>{{{t('My profile')}}}</h2>
+    <dl class="kv">
+        <dt>{{{t('Username')}}}</dt><dd>{{{$username}}}</dd>
+        <dt>{{{t('Name')}}}</dt><dd>{{{$name}}}</dd>
+        <dt>Email</dt><dd>{{{$email}}}</dd>
+        <dt>{{{t('Roles')}}}</dt><dd>{{{$roles}}}</dd>
+    </dl>
+    <p><a href="{{rel_url('/logout')}}">{{{t('Log out')}}}</a></p>
+</div>

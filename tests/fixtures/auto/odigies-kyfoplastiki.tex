@@ -1,0 +1,203 @@
+% =====================================================================
+%  TYPE: Postoperative instructions -- kyphoplasty / vertebroplasty
+%  Sections: patient block, instructions, follow-up, emergency
+%  box, when to call, medication page. Based on Dionysopoulou 2025-12.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Μετεγχειρητικές Οδηγίες}
+% \providecommand\DocTitle{Ενημερωτικό Σημείωμα για τον Ασθενή}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{Ο ιατρός}
+% \providecommand\DocClosing{}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+  \Info{Διάγνωση}{Τιμή 1}
+  \Info{Χειρουργείο}{(10/01/2026) κυφοπλαστική Τιμή 2}
+\end{PatientInfo}
+
+Ακολουθούν οδηγίες για την ομαλή σας ανάρρωση:
+
+\section*{Γενικές Οδηγίες}
+\begin{enumerate}[label=\arabic*.]
+\setlength{\parskip}{6pt}
+  \item \textbf{Κινητοποίηση}
+       \begin{itemize}
+\item Παραμείνετε κλινήρης για Τιμή 4 ημέρες, όπως σας υποδείχθηκε από τον θεράποντα ιατρό.
+\item Χρησιμοποιείτε \textbf{πάντα} τη ζώνη οσφύος κατά την όρθια στάση ή βάδιση.
+\item Αποφύγετε για τουλάχιστον 6 εβδομάδες: κάμψεις, στροφές κορμού και άρση βάρους.
+\item Μετά την επανεξέταση προτείνεται ήπιο περπάτημα με σταδιακή αύξηση.
+    \end{itemize}
+  \item \textbf{Πόνος -- Φάρμακα}
+      \begin{itemize}
+\item Λαμβάνετε τα παυσίπονα όπως έχουν συνταγογραφηθεί.
+\item Επιδείνωση ή αλλαγή του χαρακτήρα του πόνου πρέπει να αναφέρεται άμεσα.
+% \item \textbf{Μην λαμβάνετε αντιφλεγμονώδη} (π.χ.\ Voltaren, Ponstan, Naprosyn, Brufen) χωρίς ιατρική οδηγία.
+    \end{itemize}
+  \item \textbf{Φροντίδα Τραύματος}
+      \begin{itemize}
+\item Το τραύμα πρέπει να παραμένει καθαρό και στεγνό.
+\item Αλλαγή τραύματος κάθε 2 ημέρες με αυτοκόλλητα γαζάκια για 5 ημέρες.
+\item Έπειτα μπορεί να χρησιμοποιείται spray τύπου Pulvo47 ή αντίστοιχο, 2 φορές την ημέρα.
+\item Αποφύγετε διαβροχή της περιοχής όσο υπάρχουν γάζες.
+\item Μην εφαρμόζετε κρέμες ή αλοιφές χωρίς οδηγία.
+    \end{itemize}
+  \item \textbf{Διατροφή}
+    \begin{itemize}
+\item Ελαφριά διατροφή, πλούσια σε πρωτεΐνες και φυτικές ίνες.
+\item Επαρκής ενυδάτωση ημερησίως.
+    \end{itemize}
+\end{enumerate}
+
+\section*{Εξειδικευμένες Οδηγίες}
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Ζώνη οσφύος}
+      \begin{itemize}
+\item Χρήση μόνο κατά την κινητοποίηση.
+\item Δεν απαιτείται κατά την κατάκλιση ή τον ύπνο.
+    \end{itemize}
+  \item \textbf{Φυσικοθεραπεία}
+      \begin{itemize}
+\item Δεν απαιτείται άμεσα μετά το χειρουργείο.
+\item Τον πρώτο μήνα αρκεί ήπια δραστηριότητα και περπάτημα.
+\item Μετά την πρώτη επανεξέταση θα δοθούν περαιτέρω οδηγίες, εφόσον χρειάζεται.
+    \end{itemize}
+  \item \textbf{Αντιθρομβωτική αγωγή}
+      \begin{itemize}
+\item Κάθε ημέρα Τιμή 5 υποδορίως, για Τιμή 6 ημέρες, την ίδια ώρα.
+\item Αποφύγετε μάλαξη στο σημείο ένεσης.
+% \item Η τακτική ήπια βάδιση συμβάλλει στην πρόληψη θρόμβωσης.
+    \end{itemize}
+    \item \textbf{Μπάνιο -- Υγιεινή}
+        \begin{itemize}
+\item Μπάνιο επιτρέπεται με χρήση αδιάβροχων αυτοκόλλητων γαζών. Αποφύγετε τη διαβροχή του τραύματος. Εάν αυτό συμβεί, στεγνώστε καλά με αποστειρωμένες γάζες και καλύψτε με αυτοκόλλητο.
+\item Ολοκληρωτικό ντους επιτρέπεται μετά από 10 ημέρες και μετά από σύσταση του ιατρού.
+% \item \textbf{Απαγορεύεται} το μπάνιο σε μπανιέρα, πισίνα ή θάλασσα.
+        \end{itemize}
+\end{enumerate}
+
+\section*{Επανέλεγχοι}
+\begin{description}
+\item[Σε 10 ημέρες:] κλινική εξέταση και αφαίρεση ραμμάτων.
+\item[Σε 1 μήνα:] επανεκτίμηση και οδηγίες για δραστηριότητες / φυσικοθεραπεία.
+\end{description}
+
+% Emergency box: not in the old letter. Review before enabling.
+% \begin{UrgentBox}
+% \item \textbf{Ακράτεια ούρων/κοπράνων} ή \textbf{αδυναμία ούρησης}.
+% \item \textbf{Νέα ή ταχέως επιδεινούμενη αδυναμία} στα κάτω άκρα.
+% \end{UrgentBox}
+
+\textbf{Επικοινωνήστε άμεσα με τον ιατρό εάν εμφανίσετε:}
+\begin{itemize}
+\item Έντονο ή επιδεινούμενο πόνο.
+\item Πυρετό (Θερμοκρασία $>$ 38\textdegree{}C).
+\item Ερυθρότητα, οίδημα ή εκροή από το τραύμα.
+\item Αδυναμία ή αιμωδίες στα κάτω άκρα.
+\item Ακράτεια ούρων/κοπράνων ή αδυναμία ούρησης.
+\end{itemize}
+
+\newpage
+\begin{center}
+\LARGE\textbf{Οδηγίες Φαρμακευτικής Αγωγής}
+\end{center}
+\vspace{0.5cm}
+
+\begin{MedTable}
+\DrugEntry{inj Clexane}{4000IU}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+\DrugEntry{tb Zinadol}{500mg}{1 x 2}{5}{αντιβίωση}
+\DrugEntry{tb Paracetamol}{1000mg}{1 x 3}{10}{}
+\DrugEntry{tb Zaldiar}{}{2 ή 3 την ημέρα}{}{εφόσον υπάρχει έντονος πόνος}
+% ---- Drug library: uncomment the lines you need ---------------------
+% -- Analgesics
+% \DrugEntry{tb Paracetamol}{1000mg}{1 x 3}{10}{}
+% \DrugEntry{tb Apotel}{1000mg}{2 ή 3 την ημέρα}{}{παυσίπονο, μέγιστη δόση 3 δισκία το 24ωρο}
+% \DrugEntry{tb Depon}{500mg}{1 ή 2, έως 3 φορές την ημέρα}{}{εφόσον υπάρχει πόνος -- μέγιστο 3g το 24ωρο}
+% \DrugEntry{tb Tramal}{50mg}{1 x 2 ή 3}{6}{}
+% \DrugEntry{tb Zaldiar}{}{2 ή 3 την ημέρα}{}{εφόσον υπάρχει έντονος πόνος}
+% -- NSAIDs
+% \DrugEntry{tb Movatec}{7.5mg}{1 x 2}{10}{μετά το φαγητό}
+% \DrugEntry{tb Movatec}{15mg}{1 x 1}{1}{μετά το φαγητό}
+% \DrugEntry{tb Naprosyn}{500mg}{1 x 2}{6}{μετά το φαγητό}
+% -- Steroids (tapers)
+% \DrugEntry{tb Medrol}{4mg}{1 x 3\newline 1 x 2\newline 1 x 1\newline STOP}{}{για 5 ημέρες\newline για 5 ημέρες\newline για 5 ημέρες}
+% \DrugEntry{tb Medrol}{4mg}{2 x 3\newline 1 x 3\newline 1 x 2\newline 1 x 1\newline STOP}{}{για 3 ημέρες\newline για 3 ημέρες\newline για 3 ημέρες\newline για 3 ημέρες}
+% \DrugEntry{syr Dexaton}{2mg/5ml}{10cc x 3}{10}{μετά το φαγητό}
+% \DrugEntry{tb Dexamethasone}{4mg}{1 x 3}{}{μετά το φαγητό}
+% -- Antibiotics
+% \DrugEntry{tb Zinadol}{500mg}{1 x 2}{5}{αντιβίωση}
+% \DrugEntry{tb Klaricid}{500mg}{1 x 2}{7}{αντιβίωση}
+% \DrugEntry{caps Amoxicillin}{500mg}{1 x 3}{7}{μετά το φαγητό}
+% -- Gastroprotection
+% \DrugEntry{caps Omeprazole}{40mg}{1 x 2}{10}{προ φαγητού}
+% \DrugEntry{caps Omeprazole}{20mg}{1 x 2}{10}{15 λεπτά πριν το φαγητό}
+% \DrugEntry{caps Mostrelan}{40mg}{1 x 1}{10}{προ φαγητού}
+% -- Anticoagulants
+% \DrugEntry{inj Clexane}{4000IU}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+% \DrugEntry{inj Innohep}{0,45ml}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+% \DrugEntry{inj Fraxiparine}{2850IU}{1 x 1}{10}{αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα}
+% -- Neuropathic pain, antiepileptics
+% \DrugEntry{tb Lyrica}{50mg}{1 x 1 (βράδυ)}{4}{μετά την 4η ημέρα, 1 x 2}
+% \DrugEntry{caps Lyrica}{150mg}{1 x 2}{}{πρωί -- βράδυ, με τροφή. Μην διακόπτεται απότομα}
+% \DrugEntry{tb Neurontin}{400mg}{2 x 2}{}{}
+% \DrugEntry{tb Tegretol}{200mg}{1 x 3}{}{με τροφή, σταθερές ώρες. \textbf{Μην διακόπτεται απότομα}}
+% \DrugEntry{caps Cymbalta}{60mg}{1 x 2}{}{}
+% \DrugEntry{tb Keppra}{1000mg}{1 x 3}{}{}
+% \DrugEntry{tb Depakine}{400mg}{1 x 3}{}{θα γίνει προοδευτική μείωση σε συνεννόηση με τον θεράποντα ιατρό}
+% -- Other
+% \DrugEntry{sir Duphalac}{5ml}{1 ή 2 την ημέρα}{}{καθαρτικό, ανάλογα με τη λειτουργία του εντέρου -- στόχος: μαλακές κενώσεις χωρίς προσπάθεια}
+% \DrugEntry{tb Xanax}{0,25mg}{1 x 2-3}{}{μέχρι 3 την ημέρα επί εκνευρισμού}
+% \DrugEntry{tb Escitalopram}{10mg}{1 x 1}{}{}
+% \DrugEntry{spray Vioplex-T ή Pulvo47}{}{1 x 2}{}{στο τραύμα, και να καλύπτεται μετά}
+% ---------------------------------------------------------------------
+\end{MedTable}
+
+% Notes under the table (uncomment the ones you need)
+\textbf{Σημείωση:} Μην λαμβάνετε αντιφλεγμονώδη φάρμακα (π.χ.\ Voltaren, Brufen, Ponstan, Naprosyn) χωρίς ιατρική οδηγία.
+% \textbf{Σημείωση:} Μην διακόψετε και μην μειώσετε μόνος/μόνη σας τα Τιμή 7. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.
+% \textbf{Σημείωση:} Ενημερώστε κάθε ιατρό και φαρμακοποιό ότι λαμβάνετε Τιμή 8, πριν από τη χορήγηση οποιουδήποτε νέου φαρμάκου.
+% \textbf{Σημείωση:} Η υπόλοιπη φαρμακευτική σας αγωγή (π.χ.\ αντιυπερτασική) συνεχίζεται \textbf{αμετάβλητη}.
+
+\end{document}

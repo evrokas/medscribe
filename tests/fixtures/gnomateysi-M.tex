@@ -1,0 +1,85 @@
+% =====================================================================
+%  TYPE: Referral / opinion for examinations or therapy
+%  MRI, MRA, EMG, X-rays, physiotherapy; for the insurer or the
+%  public fund. Based on Tsilia / Seisoglou / Kapetanakis 2026.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Ιατρική Γνωμάτευση}
+% \providecommand\DocTitle{Ιατρική Βεβαίωση}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{}
+% \providecommand\DocClosing{Ο ιατρός}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+\end{PatientInfo}
+
+% 1. Diagnosis / reason for the visit
+Ο ασθενής πάσχει από εκφυλιστική δισκοπάθεια με ριζιτική συμμετοχή της Αυχενικής Μοίρας της Σπονδυλικής Στήλης.
+% Η ασθενής πάσχει από ...
+% Ο ασθενής εξετάσθηκε σήμερα λόγω [παρετικής οσφυοϊσχιαλγίας δεξιά, με αδυναμία τετρακεφάλου].
+% Ο ασθενής αναφέρει [πτώση εξ ιδίου ύψους προ ολίγων ημερών, με κάκωση στη ράχη].
+% Ο ασθενής χειρουργήθηκε στις [DD/MM/YYYY] στην [Κλινική] για [πάθηση].
+Ευρήματα από την κλινική εξέταση και τον απεικονιστικό έλεγχο.
+
+% 2. What is requested: keep the ones that apply
+Χρήζει ελέγχου με \textbf{Μαγνητική Τομογραφία ΑΜΣΣ προ και μετά τη χορήγηση σκιαγραφικής ουσίας}.
+% Προκειμένου να προγραμματισθεί η έκταση της επέμβασης, θα πρέπει να πραγματοποιηθεί νέα \textbf{[MRI ΑΜΣΣ προ και μετά τη χορήγηση σκιαγραφικής ουσίας]}.
+% Στο πλαίσιο του τακτικού μετεγχειρητικού ελέγχου, χρήζει πραγματοποίησης \textbf{[Μαγνητικής Τομογραφίας ΑΜΣΣ και ΘΜΣΣ]} προ και μετά τη χορήγηση σκιαγραφικής ουσίας.
+% Χρήζει ελέγχου με \textbf{Μαγνητική Αγγειογραφία Εγκεφαλικών Αγγείων (αρτηριών και φλεβών)}.
+% Ζητήθηκε η διενέργεια \textbf{[δυναμικών ακτινογραφιών ΟΜΣΣ σε κάμψη και έκταση]} και \textbf{[ΗΜΓ κάτω άκρων]}, και επανεξέταση.
+% Συνιστάται η πραγματοποίηση \textbf{[10 (δέκα)] συνεδριών φυσικοθεραπείας/εργοθεραπείας} για [ενδυνάμωση των κάτω άκρων].
+% Χρήζει εντατικών συνεδριών φυσικοθεραπείας, προσανατολισμένων στην αντιμετώπιση [του συνδρόμου απιοειδούς μυός], από εξειδικευμένο φυσικοθεραπευτικό κέντρο. Ο προτεινόμενος αριθμός συνεδριών είναι αρχικά [10 (δέκα)].
+
+% Purpose (for a female patient: "της ασθενούς", "της")
+Το παρόν χορηγείται για χρήση στην ασφαλιστική εταιρεία του ασθενούς.
+% Το παρόν χορηγείται για χρήση από τον ασφαλιστικό φορέα του ασθενούς.
+% Το παρόν χορηγείται για την εργασία του ασθενούς.
+% Το παρόν χορηγείται μετά από αίτηση του ασθενούς, για την υπηρεσία του.
+% Το παρόν χορηγείται για χρήση στο διαγνωστικό κέντρο.
+% Το παρόν χορηγείται για κάθε νόμιμη χρήση.
+% Η παρούσα βεβαίωση δίνεται κατόπιν επιθυμίας του ασθενούς.
+
+\end{document}

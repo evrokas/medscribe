@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-MedScribe is in design: the repo has `README.md`, `LICENSE` (Apache-2.0) and **`PLAN.md`**, the design
+MedScribe is in design, with a **pre-M0 shell** running (login, roles, placeholder pages; see "Pre-M0 shell"
+below). The repo has `README.md`, `LICENSE` (Apache-2.0) and **`PLAN.md`**, the design
 plan (goals, decisions D1–D19, versioning, content reuse model, milestones, open questions, and the
-directory layout in §14). There is no code, build, lint or test setup yet. Read `PLAN.md` before
-building anything. Update this file as soon as real structure and commands exist; don't invent
+directory layout in §14). The template store, compile service and test runner of M0 exist (see below). Read `PLAN.md` before building anything. Update this file as soon as real structure and commands exist; don't invent
 conventions that aren't in the code or the plan.
 
 ## What it is
@@ -81,10 +81,11 @@ the generation layer. MedScribe should drive this kit, not rewrite it.
     files). It copies the kit into a temp dir, runs `xelatex -interaction=nonstopmode -halt-on-error`
     2–4 times until no "Rerun" message appears, and copies the PDF out. MedScribe's compile step
     should behave the same way: an isolated temp dir per job and never writing into the kit. Two
-    traps found in review (`PLAN.md` §5.4, §7.2): this TeX Live has `openin_any = a`, so jobs must
-    run with `openin_any=p` (or LaTeX in a block can `\input` server files such as API-key
-    configs); and `evrtemplate.tex` defaults `\DocDate` to `\today`, which a fixed
-    `SOURCE_DATE_EPOCH` overrides, so MedScribe must always set `\DocDate` explicitly.
+    traps found in review (`PLAN.md` §5.4, §7.2): TeX Live's `openin_any=p` does **not** stop `\input` of
+    server files here (checked 2026-11-06: absolute and `../` paths are still read), so compile jobs run
+    in `bin/tex-sandbox.sh` (private root with only `/usr`, fonts and the job folder, no network); and
+    `evrtemplate.tex` defaults `\DocDate` to `\today`, which a fixed `SOURCE_DATE_EPOCH` overrides, so
+    MedScribe must always set `\DocDate` explicitly.
   - **Two A5 pages per A4 sheet:** `scripts/a5-2up.sh [--dup] [-c] <a5.pdf|.tex>` (pdfpages), or
     `latexmk -xelatex templates/tpl-a5-2up.tex`.
 - **Content rules from the kit:** templates contain placeholders only, never real patient data.
@@ -259,3 +260,162 @@ structure rather than inventing a new one:
     contain "test" (`config/db.test.php`).
   - **Test code:** helpers are in `tests/lib/`, and the runner picks up every file under
     `tests/{static,functional}/`.
+
+## Pre-M0 shell (2026-11-06)
+
+A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` templates, `web/index.php`,
+`web/pages.php` (route handlers, all placeholders), `web/ClassesEx.php` (`usersClassEx`), `.zetem` templates,
+`css/styles.css`. Roles `administrator` (superuser), `doctor`, `secretary` come from `bin/seed_users.php`.
+
+- **Set up a checkout:** `sql/admin.sql` + `config/db.php` from the `.in` files (database and user `medscribe`);
+  create them with the MySQL root account (`sudo mysql < sql/admin.sql`); then
+  `fw/bin/update.sh --core-tables=all --web-tables=all --core-diff=yes --web-diff=yes --content=no --forms=no --generate-feeders=no --non-interactive`,
+  then `php bin/seed_users.php --user=NAME --role=doctor` (asks for the password).
+- **Try it without Apache:** `php -S 127.0.0.1:8099 -t web router.php` (`router.php` is dev-only and emulates
+  `.htaccess`). Production needs its own vhost with `DocumentRoot .../medscribe/web`, like `pms.erns.eu`
+  (see `deploy/apache-vhost.conf.sample`).
+- Strings are English only for now; there is no `config/dictionary.gr.php` yet.
+
+## M0 foundations (2026-11-06)
+
+- **Store** (`web/store.php`): sources with linear immutable versions, bytes in `web/files/store/objects/`
+  keyed by SHA-256 (verified on read), base releases B1, B2, … Tables: `sources`, `source_versions`,
+  `base_releases`, `base_release_files`, `builds` (entities in `web/classes/yaml/`).
+- **Compile** (`web/compile.php` + `bin/tex-sandbox.sh`): job folder filled from hashes, XeLaTeX in a
+  namespace sandbox (user/mount/net/pid, chroot with `/usr` read-only), 2–4 passes, fixed
+  `SOURCE_DATE_EPOCH`, manifest recorded in `builds`, `compile_from_manifest()` for rebuilds. Needs
+  unprivileged user namespaces (works for `www-data` on this server; tested with `setpriv`).
+- **Import:** `php bin/import_kit.php` loads `~/devel/docs/template-kit` (base + assets → a new base release
+  if changed; `templates/*.tex` → draft type versions). Idempotent.
+- **Tests:** `bin/run_tests.sh` (`--static-only`, `--tex-only`) runs lint/YAML/route checks and
+  `bin/check_m0.php`, the M0 acceptance check: store build is byte-identical to `build.sh`, manifest
+  rebuild, old-build rebuild, and the `\input` isolation test (plain-text secret, not PHP).
+- **Kit change (uncommitted in `~/devel/docs`):** `\DocDraft` and `\DocRevision` added to
+  `evrtemplate.tex` (Q6); with both empty the PDF is unchanged.
+- CLI scripts boot through `bin/lib/cli_boot.php`, which must call `dbConnection::init()` itself.
+
+## M1 engine and first type (2026-11-06)
+
+- **Type definitions** are JSON in `types/*.json`, imported as released `typedef/<name>` sources by
+  `php bin/import_types.php --release` (validated first). The format, the block markup (`{Ο|Η}` gender,
+  `@field`, `{v:L4-5}`, `**bold**`) and the document inputs are described in the header comment of
+  `web/render.php`. Everything else a user types is escaped, so text cannot break the build.
+- **`web/render.php`**: pure functions (no DB): `render_document()` → `[tex, issues]`,
+  `render_checks()`, `render_validate_type()`. Unit tests: `tests/static/render_test.php`.
+- **`web/documents.php`**: list, new (patient typed by hand), composer (form + PDF preview in an
+  iframe), draft delete. Table `documents` (inputs as JSON). Preview = compile with `\DocDraft` and a
+  placeholder QR (takes ~12 s: the pure-TeX QR codes dominate).
+- **G3 regression:** `bin/check_m1.php` compiles the generated document and the hand-filled kit
+  template (`tests/fixtures/mri-handfilled-{M,F}.tex`) and requires byte-identical PDFs.
+- Wording of `types/vevaiosi-mri.json` is copied verbatim from the kit; only the doctor edits it.
+- `store_mkdir()` sets 02770 on every folder it creates: the CLI user and Apache's user both write
+  under `web/files`.
+
+## M2 ZPMS link (2026-11-06)
+
+- **MedScribe side:** `web/zpms_client.php` (fail-closed cURL client: 3 s timeouts, field-by-field
+  validation through `web/patient.php`, off when `config/zpms_api.php` is absent), the patient search box
+  and `?patient=<guid>` prefill on `/documents/new`, `/documents/patient-search` (session-gated proxy:
+  the key never reaches the browser). A document keeps a **snapshot** (`inputs.patient`: name, gender,
+  age at the document date, AMKA, plus `guid` and `dob`); it is editable on the document and never
+  written back. Without ZPMS the patient is typed by hand (D23).
+- **Tests:** `tests/static/patient_test.php` (age at a date, row cleaning) and `bin/check_m2.php`
+  (the client against `tests/lib/mock_zpms.php`: 401/404/503, malformed JSON, 3 s timeout, wrong types).
+- **ZPMS side (separate repo, NOT live yet):** branch `medscribe-api` in the git worktree
+  `~/devel/zpms-medscribe` (based on the live checkout's commit 1fab362): `config/medscribe_api.php.in`,
+  `GET /api/v1/patients/{guid}` (MedScribe key only; name, dob, gender, AMKA; 404 for deleted), the
+  search endpoint also accepting `X-MedScribe-Api-Key`, a "New document" button on the patient page,
+  audit rows (`patient_get_api`), and `tests/functional/medscribe_api.php` (7/7 pass). To go live:
+  merge that branch into ZPMS, create `config/medscribe_api.php` there (key and `MEDSCRIBE_BASE_URL`),
+  put the same key into MedScribe's `config/zpms_api.php`. Four unrelated ZPMS tests fail in the
+  worktree (mail template path and `sudo`; environment, not this change).
+
+## M3 DocArc and the document lifecycle (2026-11-06)
+
+- **DocArc side (separate repo, NOT live yet):** a clone at `~/devel/docarc`, branch `medscribe-api` (cloned from
+  `/media/repos/docarc.git`; DocArc is not deployed on this machine): `public/api.php` +
+  `includes/api_medscribe.php`, key in `config/medscribe_api.php`, `records.api_idempotency_key`, tests
+  `php tests/api_medscribe.php`. Its `CLAUDE.md` has a "MedScribe API" section. To go live: merge, create the
+  key file there, put the same key in MedScribe's `config/docarc_api.php`, and make sure DocArc's QR base URL
+  setting equals the kit's `\QRBaseURL` (MedScribe refuses a code whose URL differs from what would be printed).
+- **MedScribe:** `web/docarc_client.php` (never throws; 3 s lookups, `DOCARC_UPLOAD_TIMEOUT` for uploads),
+  `web/issue.php` (the state machine: draft/review → code_reserved → final_compiled → approved → pdf_sent →
+  issued → withdrawn; every transition is a compare-and-swap on `status`, steps take `busy_until` first, a
+  failed step resumes with the same call, DocArc calls are idempotent), `web/issue_pages.php` (issue page,
+  history, revision files, `/types/links` for D20), `web/audit.php` (basic audit: who/when/what/document/revision,
+  never patient data or reasons). Only the doctor issues, withdraws, deletes and rebuilds (D21).
+- **Abandoned drafts:** the empty DocArc record is deleted; if DocArc is down the job is queued in
+  `docarc_cleanup` (`issue_cleanup_run()`, to be run by `bin/retry_cleanups.php`), and a job never deletes a
+  record that has a document.
+- **Previews:** only the latest preview build of a document is kept (`builds.document_id`); deleting a document
+  removes its builds and the store objects nothing else references (`issue_gc_object()`).
+- **Not built:** Revise (waits for DocArc's versioning, PLAN.md Q15); the secretary's "ready for review" shows on
+  the list only as a status badge, not yet on the doctor's Home.
+- **Tests:** `bin/check_m3.php` runs the whole lifecycle against a real DocArc started with `php -S` on throw-away
+  folders (`DOCARC_DIR`, default `~/devel/docarc`; skipped if absent), including G5 (rebuild after a new base
+  release gives the same PDF hash). It leaves one extra base release (B-next with a `% m3-test` comment) in the dev DB.
+
+## M4 types, type editor and content pool (2026-11-06)
+
+- **Types:** `vevaiosi-mri`, `vevaiosi-ylikon`, `adeia`, `vevaiosi-amoivis`, `gnomateysi-exetaseon` in
+  `types/*.json`, wording copied verbatim from the kit. The seven "purpose" sentences are a **shared component**
+  (`types/shared/purpose.json`, source `shared/purpose`); a type lists `"shared": {"purpose": "latest"}` and
+  `bin/import_types.php` pins "latest" to the component's SHA-256, so a type version always means the same text.
+  New engine features, all in `web/render.php`'s header comment: `inline` blocks (continue the previous paragraph),
+  `heading_level`, list `intro`/`list_options`, one item per line for list free text, field `placeholder`,
+  `titles`/`closings`, `\ ` (control space), a single newline is a space.
+- **G3 regression for all of them:** `tests/fixtures/cases.php` + the hand-filled kit templates in
+  `tests/fixtures/*.tex`; `bin/check_m1.php` requires byte-identical PDFs (male and female, defaults and variants).
+- **Type editor** (`web/types.php`, `/types/{typedef|shared}/{name}`, doctor): JSON editor that validates before
+  saving, change note required, new versions are drafts until released, diff between versions (`web/diff.php`).
+  A document uses the latest *released* version at creation and keeps it.
+- **Letterhead version per document (D10):** a select in the composer (any released base release).
+- **Content pool** (`web/pool.php`, D8/D16): at issue, text the doctor wrote or edited (local edits and free text,
+  not unchanged type blocks) is stored per slot with the patient's name, AMKA, field values and dates turned back
+  into `@tokens` (swap on insertion); withdrawing removes it. The composer offers suggestions per section (same
+  slot first, then same family) and a token palette; `/library` lists the pool (promote, demote, hide).
+  **Not built from M4:** merge in the library, ranking by case features (M6), the "other patient's name left in the
+  text" check (§7.3).
+- **Bug found by `bin/check_web.php`:** a new document used to start with every standalone block switched off;
+  `check_web.php` (real HTTP, temporary doctor + secretary accounts) now guards that, role access and CSRF.
+
+## M5 prescriptions (2026-11-06)
+
+- `medtable` layout: rows in `inputs.meds[section]`, chosen from the shared **drug library**
+  (`types/shared/drug-library.json`, the kit's 32 entries; a section says `"library": "drug-library"`), editable in
+  the composer; cells use the block markup, `{br}` = line break inside a cell. Types `syntagi` (A4) and
+  `syntagi-a5`; `page_numbers` is a type default and a document setting.
+- **Two A5 per A4 sheet** (`web/print.php`, `/documents/{id}/print.pdf?mode=seq|dup`): imposition with pdfpages from the
+  document's latest PDF, same sandbox; a printing aid, not archived.
+- **Not built:** medication rows proposed by case modules (M6) and the "confirm each proposed row" rule.
+- **M5 verified (2026-11-06):** `bin/check_m1.php` passes for `syntagi` (A4) and `syntagi-a5` (byte-identical to the
+  hand-filled kit templates; fixture row order = library order) and for two-up printing (a 64-row prescription →
+  8 A5 pages → 4 sheets in order, 8 with each page twice, landscape A4).
+
+## M6–M8 (2026-11-06, partly)
+
+- **Importer** `tools/kit_import.py <name>...` (Python, one-off, run from the app root): proposes `types/<name>.json`
+  from a kit template (`tpl-<name>.tex`) and writes its regression fixture (`tests/fixtures/auto/<name>.tex`, the kit file
+  with every `[placeholder]` filled) plus `tests/fixtures/auto/cases.json`. Uncommented lines become blocks that are on,
+  commented ones blocks that are off; `[text]` becomes a field (dates by shape); gender is made agreeing; the seven purpose
+  sentences become the shared component; anything it cannot express as markup becomes a trusted `format: latex` block
+  and is listed in the type's `needs_review`. Imported: `proegkrisi`, `enimerotiko`, `gnomateysi-farmakon`,
+  `iatrodikastiki`, `synainesi`, `praktiko`, `epistoli`, `recommendation-en` (English), and the postop types
+  `odigies-osfyiki|kranio|kyfoplastiki`. They are released, but **the doctor has not reviewed them**
+  (each is a proposal from the kit file); review in the type editor, one per sitting.
+- **Engine additions:** `topics` layout (enumerated topics with bullets, one slot per topic), `medtable` `default_rows` and
+  `title_page`, list `bullet`/`list_options`/`list_preamble`, numbered headings, `recipient` setting,
+  `has_patient: false` (practice documents), **case features** (`features` in a type; chips whose operations
+  enable/disable/set/add and are undone exactly on removal; unit-tested; composer chips; **no feature is shipped yet**:
+  modules hold clinical wording, which is the doctor's to write).
+- **Regression of imported types** (`bin/check_m1.php`, "auto"): PDF text equal to the filled kit template (blank lines
+  ignored; a few differ in sub-pixel spacing only). `php bin/check_auto.php <name>` shows the differences for one type.
+- **M8 types** (`ikanotita-work|driving|travel`, `preop-odigies`, `gdpr-enimerosi`, `timokatalogos`, `fylladio`) are
+  **drafts** (`"draft": true` is kept out of release by `import_types.php`): skeletons whose wording the doctor writes;
+  the three practice documents have no patient. Release them from the type editor after review.
+- **Archive seeding (D15):** `bin/seed_archive.php <folder> [--dry-run]` (unit-tested on synthetic letters only). It has
+  **not** been run on the real archive: those letters hold real patients' details, so the doctor runs it.
+- **Not done:** modules for the postop types, the rest of the §12.3 operations (SWAP, PROPOSE MEDROW with confirmation),
+  M9 (scales, deferred by the plan).
+- **`odigies-auxeniki` and `odigies-tridymo` are drafts**: the importer flattens nested bullet lists inside a topic, so they
+  do not match the kit template yet (their earlier released versions are retired). Fix by hand in the type editor or improve the importer.

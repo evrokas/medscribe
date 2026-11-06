@@ -1,0 +1,27 @@
+<div class="page-placeholder">
+  <h2>{{{t('Library')}}}</h2>
+  <p class="muted">{{{t('Text from your issued documents (written or edited by you), by slot. Patient details are stored as @fields so they take the next document\'s values. Promote the good ones; hide what should not be suggested. Withdrawn documents leave the pool.')}}}</p>
+  <p>
+    <a class="btn {{{$slot == '' ? 'primary' : ''}}}" href="{{rel_url('/library')}}">{{{t('All')}}}</a>
+    {% foreach($slots as $sl): %}<a class="btn {{{$slot == $sl['slot'] ? 'primary' : ''}}}" href="{{rel_url('/library?slot=' . rawurlencode($sl['slot']))}}">{{{$sl['slot']}}} ({{{$sl['n']}}})</a> {% endforeach %}
+  </p>
+  {% if(count($blocks) == 0): %}
+  <p class="muted">{{{t('Nothing yet. Text you write or edit in a document joins the pool when that document is issued.')}}}</p>
+  {% else: %}
+  <table class="status-table list">
+    <tr><th>{{{t('Slot')}}}</th><th>{{{t('Text')}}}</th><th>{{{t('Uses')}}}</th><th>{{{t('Last used')}}}</th><th>{{{t('Tier')}}}</th><th></th></tr>
+    {% foreach($blocks as $b): %}
+    <tr class="{{{$b['hidden'] ? 'off' : ''}}}">
+      <td><code>{{{$b['slot']}}}</code></td><td>{{{$b['text']}}}</td><td>{{{$b['uses']}}}</td><td>{{{$b['last_used']}}}</td>
+      <td><span class="badge badge-{{{$b['tier'] == 'library' ? 'issued' : 'draft'}}}">{{{$b['tier']}}}</span>{% if($b['hidden']): %} <span class="badge">{{{t('hidden')}}}</span>{% endif %}</td>
+      <td>
+        <form method="post" action="{{rel_url('/library')}}" class="inline-form">{{ csrf_field() }}<input type="hidden" name="id" value="{{{$b['id']}}}"><input type="hidden" name="slot" value="{{{$slot}}}">
+          {% if($b['tier'] == 'history'): %}<button name="action" value="promote">{{{t('Promote')}}}</button>{% else: %}<button name="action" value="demote">{{{t('Demote')}}}</button>{% endif %}
+          {% if($b['hidden']): %}<button name="action" value="show">{{{t('Show')}}}</button>{% else: %}<button name="action" value="hide">{{{t('Hide')}}}</button>{% endif %}
+        </form>
+      </td>
+    </tr>
+    {% endforeach %}
+  </table>
+  {% endif %}
+</div>

@@ -1,0 +1,465 @@
+{
+  "format": 1,
+  "name": "odigies-kyfoplastiki",
+  "label": "odigies-kyfoplastiki",
+  "lang": "gr",
+  "paper": "a4",
+  "imported": "kit tpl-odigies-kyfoplastiki.tex",
+  "shared": {
+    "purpose": "latest",
+    "drug-library": "latest"
+  },
+  "fields": {
+    "f1": {
+      "type": "text",
+      "label": "οστεοπορωτικό κάταγμα Θ12",
+      "placeholder": "οστεοπορωτικό κάταγμα Θ12"
+    },
+    "f2": {
+      "type": "text",
+      "label": "Θ\\textsubscript{12}",
+      "placeholder": "Θ\\textsubscript{12}"
+    },
+    "f3": {
+      "type": "date",
+      "label": "DD/MM/YYYY",
+      "placeholder": "DD/MM/YYYY"
+    },
+    "f4": {
+      "type": "text",
+      "label": "3",
+      "placeholder": "3"
+    },
+    "f5": {
+      "type": "text",
+      "label": "Clexane 4000IU",
+      "placeholder": "Clexane 4000IU"
+    },
+    "f6": {
+      "type": "text",
+      "label": "10",
+      "placeholder": "10"
+    },
+    "f7": {
+      "type": "text",
+      "label": "Tegretol / Lyrica / Keppra",
+      "placeholder": "Tegretol / Lyrica / Keppra"
+    },
+    "f8": {
+      "type": "text",
+      "label": "φάρμακο",
+      "placeholder": "φάρμακο"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "slot": "import.odigies-kyfoplastiki.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "s1_b1",
+          "text": "@f1",
+          "default": true,
+          "label": "Διάγνωση",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b2",
+          "text": "(@f3) κυφοπλαστική @f2",
+          "default": true,
+          "label": "Χειρουργείο",
+          "datefmt": "d/m/Y"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "slot": "import.odigies-kyfoplastiki.s2",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s2_b1",
+          "text": "Ακολουθούν οδηγίες για την ομαλή σας ανάρρωση:",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "slot": "import.odigies-kyfoplastiki.s3",
+      "layout": "topics",
+      "heading": "Γενικές Οδηγίες",
+      "list_options": "[label=\\arabic*.]",
+      "list_preamble": "\\setlength{\\parskip}{6pt}",
+      "topics": [
+        {
+          "id": "s3_t1",
+          "title": "Κινητοποίηση",
+          "style": "itemize",
+          "blocks": [
+            {
+              "id": "s3_t1_b1",
+              "text": "Παραμείνετε κλινήρης για @f4 ημέρες, όπως σας υποδείχθηκε από τον θεράποντα ιατρό.",
+              "default": true
+            },
+            {
+              "id": "s3_t1_b2",
+              "text": "Χρησιμοποιείτε **πάντα** τη ζώνη οσφύος κατά την όρθια στάση ή βάδιση.",
+              "default": true
+            },
+            {
+              "id": "s3_t1_b3",
+              "text": "Αποφύγετε για τουλάχιστον 6 εβδομάδες: κάμψεις, στροφές κορμού και άρση βάρους.",
+              "default": true
+            },
+            {
+              "id": "s3_t1_b4",
+              "text": "Μετά την επανεξέταση προτείνεται ήπιο περπάτημα με σταδιακή αύξηση.",
+              "default": true
+            }
+          ],
+          "slot": "import.odigies-kyfoplastiki.s3_t1"
+        },
+        {
+          "id": "s3_t2",
+          "title": "Πόνος -- Φάρμακα",
+          "style": "itemize",
+          "blocks": [
+            {
+              "id": "s3_t2_b1",
+              "text": "Λαμβάνετε τα παυσίπονα όπως έχουν συνταγογραφηθεί.",
+              "default": true
+            },
+            {
+              "id": "s3_t2_b2",
+              "text": "Επιδείνωση ή αλλαγή του χαρακτήρα του πόνου πρέπει να αναφέρεται άμεσα.",
+              "default": true
+            },
+            {
+              "id": "s3_t2_b3",
+              "text": "**Μην λαμβάνετε αντιφλεγμονώδη** (π.χ.\\ Voltaren, Ponstan, Naprosyn, Brufen) χωρίς ιατρική οδηγία.",
+              "default": false
+            }
+          ],
+          "slot": "import.odigies-kyfoplastiki.s3_t2"
+        },
+        {
+          "id": "s3_t3",
+          "title": "Φροντίδα Τραύματος",
+          "style": "itemize",
+          "blocks": [
+            {
+              "id": "s3_t3_b1",
+              "text": "Το τραύμα πρέπει να παραμένει καθαρό και στεγνό.",
+              "default": true
+            },
+            {
+              "id": "s3_t3_b2",
+              "text": "Αλλαγή τραύματος κάθε 2 ημέρες με αυτοκόλλητα γαζάκια για 5 ημέρες.",
+              "default": true
+            },
+            {
+              "id": "s3_t3_b3",
+              "text": "Έπειτα μπορεί να χρησιμοποιείται spray τύπου Pulvo47 ή αντίστοιχο, 2 φορές την ημέρα.",
+              "default": true
+            },
+            {
+              "id": "s3_t3_b4",
+              "text": "Αποφύγετε διαβροχή της περιοχής όσο υπάρχουν γάζες.",
+              "default": true
+            },
+            {
+              "id": "s3_t3_b5",
+              "text": "Μην εφαρμόζετε κρέμες ή αλοιφές χωρίς οδηγία.",
+              "default": true
+            }
+          ],
+          "slot": "import.odigies-kyfoplastiki.s3_t3"
+        },
+        {
+          "id": "s3_t4",
+          "title": "Διατροφή",
+          "style": "itemize",
+          "blocks": [
+            {
+              "id": "s3_t4_b1",
+              "text": "Ελαφριά διατροφή, πλούσια σε πρωτεΐνες και φυτικές ίνες.",
+              "default": true
+            },
+            {
+              "id": "s3_t4_b2",
+              "text": "Επαρκής ενυδάτωση ημερησίως.",
+              "default": true
+            }
+          ],
+          "slot": "import.odigies-kyfoplastiki.s3_t4"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "slot": "import.odigies-kyfoplastiki.s4",
+      "layout": "topics",
+      "heading": "Εξειδικευμένες Οδηγίες",
+      "list_options": "[label=\\arabic*.]",
+      "topics": [
+        {
+          "id": "s4_t1",
+          "title": "Ζώνη οσφύος",
+          "style": "itemize",
+          "blocks": [
+            {
+              "id": "s4_t1_b1",
+              "text": "Χρήση μόνο κατά την κινητοποίηση.",
+              "default": true
+            },
+            {
+              "id": "s4_t1_b2",
+              "text": "Δεν απαιτείται κατά την κατάκλιση ή τον ύπνο.",
+              "default": true
+            }
+          ],
+          "slot": "import.odigies-kyfoplastiki.s4_t1"
+        },
+        {
+          "id": "s4_t2",
+          "title": "Φυσικοθεραπεία",
+          "style": "itemize",
+          "blocks": [
+            {
+              "id": "s4_t2_b1",
+              "text": "Δεν απαιτείται άμεσα μετά το χειρουργείο.",
+              "default": true
+            },
+            {
+              "id": "s4_t2_b2",
+              "text": "Τον πρώτο μήνα αρκεί ήπια δραστηριότητα και περπάτημα.",
+              "default": true
+            },
+            {
+              "id": "s4_t2_b3",
+              "text": "Μετά την πρώτη επανεξέταση θα δοθούν περαιτέρω οδηγίες, εφόσον χρειάζεται.",
+              "default": true
+            }
+          ],
+          "slot": "import.odigies-kyfoplastiki.s4_t2"
+        },
+        {
+          "id": "s4_t3",
+          "title": "Αντιθρομβωτική αγωγή",
+          "style": "itemize",
+          "blocks": [
+            {
+              "id": "s4_t3_b1",
+              "text": "Κάθε ημέρα @f5 υποδορίως, για @f6 ημέρες, την ίδια ώρα.",
+              "default": true
+            },
+            {
+              "id": "s4_t3_b2",
+              "text": "Αποφύγετε μάλαξη στο σημείο ένεσης.",
+              "default": true
+            },
+            {
+              "id": "s4_t3_b3",
+              "text": "Η τακτική ήπια βάδιση συμβάλλει στην πρόληψη θρόμβωσης.",
+              "default": false
+            }
+          ],
+          "slot": "import.odigies-kyfoplastiki.s4_t3"
+        },
+        {
+          "id": "s4_t4",
+          "title": "Μπάνιο -- Υγιεινή",
+          "style": "itemize",
+          "blocks": [
+            {
+              "id": "s4_t4_b1",
+              "text": "Μπάνιο επιτρέπεται με χρήση αδιάβροχων αυτοκόλλητων γαζών. Αποφύγετε τη διαβροχή του τραύματος. Εάν αυτό συμβεί, στεγνώστε καλά με αποστειρωμένες γάζες και καλύψτε με αυτοκόλλητο.",
+              "default": true
+            },
+            {
+              "id": "s4_t4_b2",
+              "text": "Ολοκληρωτικό ντους επιτρέπεται μετά από 10 ημέρες και μετά από σύσταση του ιατρού.",
+              "default": true
+            },
+            {
+              "id": "s4_t4_b3",
+              "text": "**Απαγορεύεται** το μπάνιο σε μπανιέρα, πισίνα ή θάλασσα.",
+              "default": false
+            }
+          ],
+          "slot": "import.odigies-kyfoplastiki.s4_t4"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "slot": "import.odigies-kyfoplastiki.s5",
+      "layout": "description",
+      "blocks": [
+        {
+          "id": "s5_b1",
+          "text": "κλινική εξέταση και αφαίρεση ραμμάτων.",
+          "default": true,
+          "label": "Σε 10 ημέρες:"
+        },
+        {
+          "id": "s5_b2",
+          "text": "επανεκτίμηση και οδηγίες για δραστηριότητες / φυσικοθεραπεία.",
+          "default": true,
+          "label": "Σε 1 μήνα:"
+        }
+      ],
+      "heading": "Επανέλεγχοι"
+    },
+    {
+      "id": "s6",
+      "slot": "import.odigies-kyfoplastiki.s6",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s6_b1",
+          "text": "\\item \\textbf{Ακράτεια ούρων/κοπράνων} ή \\textbf{αδυναμία ούρησης}.",
+          "default": false,
+          "format": "latex"
+        },
+        {
+          "id": "s6_b2",
+          "text": "\\item \\textbf{Νέα ή ταχέως επιδεινούμενη αδυναμία} στα κάτω άκρα.",
+          "default": false,
+          "format": "latex",
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "slot": "import.odigies-kyfoplastiki.s7",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s7_b1",
+          "text": "**Επικοινωνήστε άμεσα με τον ιατρό εάν εμφανίσετε:**",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s8",
+      "slot": "import.odigies-kyfoplastiki.s8",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s8_b1",
+          "text": "Έντονο ή επιδεινούμενο πόνο.",
+          "default": true
+        },
+        {
+          "id": "s8_b2",
+          "text": "Πυρετό (Θερμοκρασία $>$ 38\\textdegree{}C).",
+          "default": true,
+          "format": "latex"
+        },
+        {
+          "id": "s8_b3",
+          "text": "Ερυθρότητα, οίδημα ή εκροή από το τραύμα.",
+          "default": true
+        },
+        {
+          "id": "s8_b4",
+          "text": "Αδυναμία ή αιμωδίες στα κάτω άκρα.",
+          "default": true
+        },
+        {
+          "id": "s8_b5",
+          "text": "Ακράτεια ούρων/κοπράνων ή αδυναμία ούρησης.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s9",
+      "slot": "import.odigies-kyfoplastiki.medications",
+      "layout": "medtable",
+      "blocks": [],
+      "library": "drug-library",
+      "default_rows": [
+        {
+          "name": "inj Clexane",
+          "dose": "4000IU",
+          "freq": "1 x 1",
+          "days": "10",
+          "notes": "αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα"
+        },
+        {
+          "name": "tb Zinadol",
+          "dose": "500mg",
+          "freq": "1 x 2",
+          "days": "5",
+          "notes": "αντιβίωση"
+        },
+        {
+          "name": "tb Paracetamol",
+          "dose": "1000mg",
+          "freq": "1 x 3",
+          "days": "10",
+          "notes": ""
+        },
+        {
+          "name": "tb Zaldiar",
+          "dose": "",
+          "freq": "2 ή 3 την ημέρα",
+          "days": "",
+          "notes": "εφόσον υπάρχει έντονος πόνος"
+        }
+      ],
+      "title_page": "Οδηγίες Φαρμακευτικής Αγωγής"
+    },
+    {
+      "id": "s10",
+      "slot": "import.odigies-kyfoplastiki.s10",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s10_b1",
+          "text": "**Σημείωση:** Μην λαμβάνετε αντιφλεγμονώδη φάρμακα (π.χ.\\ Voltaren, Brufen, Ponstan, Naprosyn) χωρίς ιατρική οδηγία.",
+          "default": true
+        },
+        {
+          "id": "s10_b2",
+          "text": "**Σημείωση:** Μην διακόψετε και μην μειώσετε μόνος/μόνη σας τα @f7. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "s10_b3",
+          "text": "**Σημείωση:** Ενημερώστε κάθε ιατρό και φαρμακοποιό ότι λαμβάνετε @f8, πριν από τη χορήγηση οποιουδήποτε νέου φαρμάκου.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "s10_b4",
+          "text": "**Σημείωση:** Η υπόλοιπη φαρμακευτική σας αγωγή (π.χ.\\ αντιυπερτασική) συνεχίζεται **αμετάβλητη**.",
+          "default": false,
+          "inline": true
+        }
+      ]
+    }
+  ],
+  "needs_review": [
+    "s6_b1: kept as LaTeX: \\item \\textbf{Ακράτεια ούρων/κοπράνων} ή \\textbf{αδυναμία ούρησης}.",
+    "s6_b2: kept as LaTeX: \\item \\textbf{Νέα ή ταχέως επιδεινούμενη αδυναμία} στα κάτω άκρα.",
+    "s8_b2: kept as LaTeX: Πυρετό (Θερμοκρασία $>$ 38\\textdegree{}C)."
+  ],
+  "title": "Μετεγχειρητικές Οδηγίες",
+  "titles": [
+    "Μετεγχειρητικές Οδηγίες",
+    "Ενημερωτικό Σημείωμα για τον Ασθενή"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no"
+}

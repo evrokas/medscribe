@@ -1,0 +1,37 @@
+---
+table:
+  name: docarc_cleanup
+  class: docarcCleanupClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: doc_code
+    type: varchar(64)
+    required: true
+
+  - name: mode
+    type: varchar(8)
+    required: true
+
+  - name: attempts
+    type: int
+    default: 0
+
+  - name: last_error
+    type: varchar(255)
+
+  - name: done
+    type: datetime
+
+...
+
+# A DocArc record that must be deleted but could not be yet (PLAN.md §7.4: "a failed delete is logged and
+# retried, never ignored"): the empty record of an abandoned draft. Worked off by bin/retry_cleanups.php.

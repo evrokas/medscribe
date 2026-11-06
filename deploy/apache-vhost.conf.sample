@@ -1,0 +1,10 @@
+<VirtualHost *:80>
+	ServerName medscribe.erns.eu
+	DocumentRoot /var/www/shtml/apps/medscribe/web
+
+	<Directory /var/www/shtml/apps/medscribe/web/>
+		Options +FollowSymlinks
+		AllowOverride All
+		Require all granted
+	</Directory>
+</VirtualHost>

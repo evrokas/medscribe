@@ -1,0 +1,48 @@
+---
+table:
+  name: source_versions
+  class: sourceVersionsClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: source_id
+    type: int
+    required: true
+
+  - name: version
+    type: int
+    required: true
+
+  - name: sha256
+    type: char(64)
+    required: true
+
+  - name: size
+    type: int
+    required: true
+
+  - name: status
+    type: varchar(16)
+    required: true
+
+  - name: note
+    type: text
+
+  - name: prev_version
+    type: int
+
+...
+
+# Immutable, linear versions of a source (PLAN.md §5.2). The bytes live in the
+# content-addressed store (web/files/store/objects/ab/cdef...), keyed by sha256.
+# - status  draft | released | retired. A released version never changes.
+# - (source_id, version) is unique by construction (store.php allocates the number
+#   inside a transaction).

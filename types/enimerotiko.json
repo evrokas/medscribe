@@ -1,0 +1,270 @@
+{
+  "format": 1,
+  "name": "enimerotiko",
+  "label": "enimerotiko",
+  "lang": "gr",
+  "paper": "a4",
+  "imported": "kit tpl-enimerotiko.tex",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "f1": {
+      "type": "date",
+      "label": "DD-MM-YYYY",
+      "placeholder": "DD-MM-YYYY"
+    },
+    "f2": {
+      "type": "date",
+      "label": "DD-MM-YYYY",
+      "placeholder": "DD-MM-YYYY"
+    },
+    "f3": {
+      "type": "date",
+      "label": "DD-MM-YYYY",
+      "placeholder": "DD-MM-YYYY"
+    },
+    "f4": {
+      "type": "text",
+      "label": "διακομίσθηκε στα ΤΕΠ της κλινικής / εξετάσθηκε για πρώτη φορ",
+      "placeholder": "διακομίσθηκε στα ΤΕΠ της κλινικής / εξετάσθηκε για πρώτη φορά"
+    },
+    "f5": {
+      "type": "date",
+      "label": "DD/MM/YYYY",
+      "placeholder": "DD/MM/YYYY"
+    },
+    "f6": {
+      "type": "text",
+      "label": "συμπτώματα",
+      "placeholder": "συμπτώματα"
+    },
+    "f7": {
+      "type": "text",
+      "label": "παθήσεις, αντιπηκτική αγωγή, βηματοδότης, αλλεργίες",
+      "placeholder": "παθήσεις, αντιπηκτική αγωγή, βηματοδότης, αλλεργίες"
+    },
+    "f8": {
+      "type": "text",
+      "label": "GCS 15, νευρολογική εξέταση",
+      "placeholder": "GCS 15, νευρολογική εξέταση"
+    },
+    "f9": {
+      "type": "text",
+      "label": "CT / MRI",
+      "placeholder": "CT / MRI"
+    },
+    "f10": {
+      "type": "text",
+      "label": "ευρήματα",
+      "placeholder": "ευρήματα"
+    },
+    "f11": {
+      "type": "text",
+      "label": "Θεραπεία, χειρουργείο (ημερομηνία, κλινική, είδος), μετεγχει",
+      "placeholder": "Θεραπεία, χειρουργείο (ημερομηνία, κλινική, είδος), μετεγχειρητική πορεία, επιπλοκές, εξετάσεις κατά τη νοσηλεία."
+    },
+    "f12": {
+      "type": "text",
+      "label": "Νευρολογική εικόνα κατά το εξιτήριο, κινητοποίηση, αυτοεξυπη",
+      "placeholder": "Νευρολογική εικόνα κατά το εξιτήριο, κινητοποίηση, αυτοεξυπηρέτηση, καθετήρες."
+    },
+    "f13": {
+      "type": "text",
+      "label": "π.χ.\\ Μεταφέρεται κατόπιν συνεννόησης σε κέντρο αποκατάσταση",
+      "placeholder": "π.χ.\\ Μεταφέρεται κατόπιν συνεννόησης σε κέντρο αποκατάστασης για εντατικό πρόγραμμα ενδυνάμωσης. / Θα ξεκινήσουν συνεδρίες χημειοθεραπείας και ακτινοθεραπείας σε συνεννόηση με τον ογκολόγο."
+    },
+    "f14": {
+      "type": "text",
+      "label": "νοσοκομείο",
+      "placeholder": "νοσοκομείο"
+    },
+    "f15": {
+      "type": "text",
+      "label": "Apotel 1000mg x 3",
+      "placeholder": "Apotel 1000mg x 3"
+    },
+    "f16": {
+      "type": "text",
+      "label": "Omeprazole 40mg x 2",
+      "placeholder": "Omeprazole 40mg x 2"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "slot": "import.enimerotiko.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "s1_b1",
+          "text": "@f1",
+          "default": true,
+          "label": "Ημ. Εισαγωγής",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b2",
+          "text": "@f2",
+          "default": true,
+          "label": "Ημ. Εξιτηρίου",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b3",
+          "text": "@f3",
+          "default": false,
+          "label": "Ημ. Χειρουργείου",
+          "datefmt": "d-m-Y"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "slot": "import.enimerotiko.s2",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s2_b1",
+          "text": "{Ο|Η} ασθενής @f4 στις @f5 λόγω @f6.",
+          "default": true
+        },
+        {
+          "id": "s2_b2",
+          "text": "Από το ατομικό αναμνηστικό: @f7.",
+          "default": true,
+          "inline": true
+        }
+      ],
+      "heading": "Ιστορικό"
+    },
+    {
+      "id": "s3",
+      "slot": "import.enimerotiko.s3",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s3_b1",
+          "text": "Κατά την εισαγωγή {ο|η} ασθενής παρουσίαζε @f8.",
+          "default": true
+        },
+        {
+          "id": "s3_b2",
+          "text": "Από τον απεικονιστικό έλεγχο με @f9 διαπιστώθηκε @f10.",
+          "default": true,
+          "inline": true
+        }
+      ],
+      "heading": "Κλινική εικόνα και απεικονιστικός έλεγχος"
+    },
+    {
+      "id": "s4",
+      "slot": "import.enimerotiko.s4",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s4_b1",
+          "text": "@f11",
+          "default": true
+        }
+      ],
+      "heading": "Πορεία"
+    },
+    {
+      "id": "s5",
+      "slot": "import.enimerotiko.s5",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s5_b1",
+          "text": "@f12",
+          "default": true
+        }
+      ],
+      "heading": "Παρούσα κατάσταση"
+    },
+    {
+      "id": "s6",
+      "slot": "import.enimerotiko.s6",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s6_b1",
+          "text": "@f13",
+          "default": true
+        },
+        {
+          "id": "s6_b2",
+          "text": "{Ο|Η} ασθενής, κατόπιν επιθυμίας των συγγενών, θα μεταφερθεί με ασθενοφόρο σε @f14 για περαιτέρω νοσηλεία.",
+          "default": false,
+          "inline": true
+        }
+      ],
+      "heading": "Σχέδιο"
+    },
+    {
+      "id": "s7",
+      "slot": "import.enimerotiko.s7",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s7_b1",
+          "text": "**Φαρμακευτική αγωγή:**",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s8",
+      "slot": "import.enimerotiko.s8",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s8_b1",
+          "text": "@f15",
+          "default": true
+        },
+        {
+          "id": "s8_b2",
+          "text": "@f16",
+          "default": true
+        }
+      ],
+      "list_options": "[nosep]"
+    },
+    {
+      "id": "s9",
+      "slot": "import.enimerotiko.s9",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s9_b1",
+          "text": "\\DrugEntry{...}{...}{...}{...}{...}",
+          "default": false,
+          "format": "latex",
+          "inline": true
+        },
+        {
+          "id": "s9_b2",
+          "text": "Η φαρμακευτική αγωγή επισυνάπτεται.",
+          "default": false,
+          "inline": true
+        }
+      ]
+    }
+  ],
+  "needs_review": [
+    "s9_b1: kept as LaTeX: \\DrugEntry{...}{...}{...}{...}{...}"
+  ],
+  "title": "Ενημερωτικό",
+  "titles": [
+    "Ενημερωτικό",
+    "Ιατρική Έκθεση",
+    "Ενημερωτικό Σημείωμα"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no"
+}

@@ -1,0 +1,331 @@
+{
+  "format": 1,
+  "name": "odigies-kranio",
+  "label": "odigies-kranio",
+  "lang": "gr",
+  "paper": "a4",
+  "imported": "kit tpl-odigies-kranio.tex",
+  "shared": {
+    "purpose": "latest",
+    "drug-library": "latest"
+  },
+  "fields": {
+    "f1": {
+      "type": "text",
+      "label": "διάγνωση, π.χ.\\ υποτροπή γλοιοβλαστώματος δεξιά βρεγματικά",
+      "placeholder": "διάγνωση, π.χ.\\ υποτροπή γλοιοβλαστώματος δεξιά βρεγματικά"
+    },
+    "f2": {
+      "type": "text",
+      "label": "κρανιοτομία και αφαίρεση όγκου / στερεοτακτική βιοψία με νευ",
+      "placeholder": "κρανιοτομία και αφαίρεση όγκου / στερεοτακτική βιοψία με νευροπλοηγό"
+    },
+    "f3": {
+      "type": "date",
+      "label": "DD/MM/YYYY",
+      "placeholder": "DD/MM/YYYY"
+    },
+    "f4": {
+      "type": "date",
+      "label": "DD-MM-YYYY",
+      "placeholder": "DD-MM-YYYY"
+    },
+    "f5": {
+      "type": "text",
+      "label": "τέσσερις",
+      "placeholder": "τέσσερις"
+    },
+    "f6": {
+      "type": "text",
+      "label": "ομαλή",
+      "placeholder": "ομαλή"
+    },
+    "f7": {
+      "type": "text",
+      "label": "DD/MM",
+      "placeholder": "DD/MM"
+    },
+    "f8": {
+      "type": "text",
+      "label": "DD/MM",
+      "placeholder": "DD/MM"
+    },
+    "f9": {
+      "type": "text",
+      "label": "4",
+      "placeholder": "4"
+    },
+    "f10": {
+      "type": "text",
+      "label": "3",
+      "placeholder": "3"
+    },
+    "f11": {
+      "type": "text",
+      "label": "Keppra / Dexamethasone",
+      "placeholder": "Keppra / Dexamethasone"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "slot": "import.odigies-kranio.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "s1_b1",
+          "text": "@f1",
+          "default": true,
+          "label": "Διάγνωση",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b2",
+          "text": "(@f3) @f2",
+          "default": true,
+          "label": "Χειρουργείο",
+          "datefmt": "d/m/Y"
+        },
+        {
+          "id": "s1_b3",
+          "text": "@f4",
+          "default": true,
+          "label": "Ημ. Εξιτηρίου",
+          "datefmt": "d-m-Y"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "slot": "import.odigies-kranio.s2",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s2_b1",
+          "text": "Μετά την επέμβαση παραμείνατε για @f5 ημέρες στη ΜΕΘ, όπου η μετεγχειρητική πορεία ήταν @f6. Στις @f7 μεταφερθήκατε στον όροφο, όπου παραμείνατε έως τις @f8, οπότε και λάβατε εξιτήριο.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "slot": "import.odigies-kranio.s3",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s3_b1",
+          "text": "Ακολουθούν οδηγίες για την ομαλή σας ανάρρωση:",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "slot": "import.odigies-kranio.s4",
+      "layout": "enumerate",
+      "blocks": [
+        {
+          "id": "s4_b1",
+          "text": "**Τομή:** Μην βρέξετε το τραύμα (λουτρό/πισίνα) μέχρι την αφαίρεση ραμμάτων ή την επανεξέταση.",
+          "default": true
+        },
+        {
+          "id": "s4_b2",
+          "text": "**Φροντίδα Τραύματος:** Το τραύμα πρέπει να παραμένει καθαρό και στεγνό. Αλλάξτε επίδεσμο όπως σας έχει υποδειχθεί.",
+          "default": true
+        },
+        {
+          "id": "s4_b3",
+          "text": "**Αλλαγές:** Αλλαγή τραύματος κάθε 2 ημέρες με αυτοκόλλητα γαζάκια για 7 ημέρες. Μετά μπορεί να χρησιμοποιείται spray τύπου Pulvo47 / Vioplex-T ή άλλο αντίστοιχο, 2 φορές την ημέρα.",
+          "default": true
+        },
+        {
+          "id": "s4_b4",
+          "text": "**Διατροφή:** Ελαφριά και πλούσια σε πρωτεΐνες και φυτικές ίνες, με επαρκή ενυδάτωση.",
+          "default": true
+        }
+      ],
+      "heading": "Γενικές Οδηγίες",
+      "list_options": "[label=\\arabic*.]",
+      "list_preamble": "\\setlength{\\parskip}{6pt}"
+    },
+    {
+      "id": "s5",
+      "slot": "import.odigies-kranio.s5",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s5_b1",
+          "text": "Σε 7--10 ημέρες για κλινική επανεξέταση και αφαίρεση ραμμάτων.",
+          "default": true
+        },
+        {
+          "id": "s5_b2",
+          "text": "Σε @f9 ημέρες λήψη αίματος για αιματολογικές εξετάσεις: γενική αίματος, ουρία, κρεατινίνη, νάτριο, κάλιο, CRP.",
+          "default": true
+        },
+        {
+          "id": "s5_b3",
+          "text": "Εντός @f10 εβδομάδων θα ξεκινήσουν συνεδρίες χημειοθεραπείας και ακτινοθεραπείας, σε συνεννόηση με τον ογκολόγο.",
+          "default": false
+        }
+      ],
+      "heading": "Επανέλεγχοι"
+    },
+    {
+      "id": "s6",
+      "slot": "import.odigies-kranio.s6",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s6_b1",
+          "text": "\\item \\textbf{Επιληπτική κρίση}.",
+          "default": false,
+          "format": "latex"
+        },
+        {
+          "id": "s6_b2",
+          "text": "\\item \\textbf{Επιδείνωση του επιπέδου συνείδησης}, έντονη υπνηλία ή σύγχυση.",
+          "default": false,
+          "format": "latex",
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "slot": "import.odigies-kranio.s7",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s7_b1",
+          "text": "**Επικοινωνήστε άμεσα με τον ιατρό εάν εμφανίσετε:**",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s8",
+      "slot": "import.odigies-kranio.s8",
+      "layout": "itemize",
+      "blocks": [
+        {
+          "id": "s8_b1",
+          "text": "Έντονο ή αυξανόμενο πόνο.",
+          "default": true
+        },
+        {
+          "id": "s8_b2",
+          "text": "Εμέτους, θολή όραση ή διπλωπία.",
+          "default": true
+        },
+        {
+          "id": "s8_b3",
+          "text": "Πυρετό.",
+          "default": true
+        },
+        {
+          "id": "s8_b4",
+          "text": "Ερυθρότητα ή εκροή από την τομή.",
+          "default": true
+        },
+        {
+          "id": "s8_b5",
+          "text": "Αδυναμία ή αιμωδίες στο σώμα που δεν προϋπήρχαν.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s9",
+      "slot": "import.odigies-kranio.medications",
+      "layout": "medtable",
+      "blocks": [],
+      "library": "drug-library",
+      "default_rows": [
+        {
+          "name": "inj Fraxiparine",
+          "dose": "2850IU",
+          "freq": "1 x 1",
+          "days": "10",
+          "notes": "αντιπηκτικές ενέσεις υποδορίως, την ίδια ώρα κάθε ημέρα"
+        },
+        {
+          "name": "tb Klaricid",
+          "dose": "500mg",
+          "freq": "1 x 2",
+          "days": "7",
+          "notes": "αντιβίωση"
+        },
+        {
+          "name": "tb Keppra",
+          "dose": "1000mg",
+          "freq": "1 x 3",
+          "days": "",
+          "notes": ""
+        },
+        {
+          "name": "tb Dexamethasone",
+          "dose": "4mg",
+          "freq": "1 x 3",
+          "days": "",
+          "notes": "μετά το φαγητό"
+        },
+        {
+          "name": "caps Omeprazole",
+          "dose": "40mg",
+          "freq": "1 x 2",
+          "days": "10",
+          "notes": "προ φαγητού"
+        },
+        {
+          "name": "tb Paracetamol",
+          "dose": "1000mg",
+          "freq": "1 x 3",
+          "days": "10",
+          "notes": ""
+        },
+        {
+          "name": "spray Vioplex-T ή Pulvo47",
+          "dose": "",
+          "freq": "1 x 2",
+          "days": "",
+          "notes": "στο τραύμα, και να καλύπτεται μετά"
+        }
+      ],
+      "title_page": "Οδηγίες Φαρμακευτικής Αγωγής"
+    },
+    {
+      "id": "s10",
+      "slot": "import.odigies-kranio.s10",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s10_b1",
+          "text": "**Σημείωση:** Μην διακόψετε και μην μειώσετε μόνος/μόνη σας τα @f11. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.",
+          "default": true
+        },
+        {
+          "id": "s10_b2",
+          "text": "**Σημείωση:** Μην λαμβάνετε αντιφλεγμονώδη φάρμακα (π.χ.\\ Voltaren, Brufen, Ponstan, Naprosyn) χωρίς ιατρική οδηγία.",
+          "default": false,
+          "inline": true
+        }
+      ]
+    }
+  ],
+  "needs_review": [
+    "s6_b1: kept as LaTeX: \\item \\textbf{Επιληπτική κρίση}.",
+    "s6_b2: kept as LaTeX: \\item \\textbf{Επιδείνωση του επιπέδου συνείδησης}, έντονη υπνηλία ή σύ"
+  ],
+  "title": "Μετεγχειρητικές Οδηγίες",
+  "titles": [
+    "Μετεγχειρητικές Οδηγίες",
+    "Ενημερωτικό Σημείωμα για τον Ασθενή"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no"
+}

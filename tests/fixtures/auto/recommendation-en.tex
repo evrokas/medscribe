@@ -1,0 +1,73 @@
+% =====================================================================
+%  TYPE: Recommendation / observership letter (English)
+%  Based on the 2026-06 observership letter.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,british]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{en}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientName{Surname Name}
+\providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Letter of Recommendation}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\noindent To Whom It May Concern,
+
+It is my pleasure to write this letter of recommendation for \textbf{Τιμή 1}, whom I had the opportunity to host during Τιμή 2 clinical observership in the Department of Neurosurgery at Τιμή 3, Τιμή 4, from Τιμή 5 to Τιμή 6.
+
+During Τιμή 7 observership, Τιμή 8 demonstrated Τιμή 9. Τιμή 10
+
+Τιμή 11
+
+Τιμή 12
+
+I am pleased to recommend Τιμή 13 for Τιμή 14.
+
+I wish Τιμή 15 every success in Τιμή 16 future career.
+
+\vspace{1em}
+\noindent Sincerely,
+
+\vspace{2em}
+\noindent\textbf{\DrName, \DrDegree}\newline
+[Consultant Neurosurgeon]\newline
+[Athens Medical Group -- Peristeri Clinic]\\
+Athens, Greece
+
+\end{document}

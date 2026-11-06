@@ -1,0 +1,30 @@
+---
+table:
+  name: base_releases
+  class: baseReleasesClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: number
+    type: int
+    required: true
+
+  - name: status
+    type: varchar(16)
+    required: true
+
+  - name: note
+    type: text
+
+...
+
+# A base release (B1, B2, ...) is the set of base-file and asset versions that belong
+# together (PLAN.md §5.5). Its members are in base_release_files.

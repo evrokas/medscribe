@@ -1,0 +1,52 @@
+---
+table:
+  name: pool_blocks
+  class: poolBlocksClass
+
+  fields:
+  - name: guid
+    type: '@guid'
+
+  - name: cdate
+    type: '@cdate'
+
+  - name: cuser
+    type: '@cuser'
+
+  - name: slot
+    type: varchar(128)
+    required: true
+
+  - name: text
+    type: text
+    required: true
+
+  - name: text_hash
+    type: char(64)
+    required: true
+
+  - name: tier
+    type: varchar(8)
+    required: true
+
+  - name: hidden
+    type: int
+    default: 0
+
+  - name: uses
+    type: int
+    default: 0
+
+  - name: last_used
+    type: datetime
+
+  - name: first_type
+    type: varchar(64)
+
+...
+
+# The content pool (PLAN.md §12): text the doctor wrote or edited in issued documents, kept per slot (section
+# name) so it can be offered again. Patient details inside are turned into @tokens before they are stored
+# (swap on insertion, §12.1). tier: history (fed automatically at issue, D8) | library (promoted by hand).
+# hidden = not suggested. uses = number of issued, not withdrawn documents that used it. Unique (slot, text_hash)
+# is kept by web/pool.php.

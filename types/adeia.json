@@ -1,0 +1,203 @@
+{
+  "format": 1,
+  "name": "adeia",
+  "label": "Βεβαίωση άδειας / ανάπαυσης",
+  "lang": "gr",
+  "paper": "a4",
+  "title": "Ιατρική Βεβαίωση",
+  "titles": [
+    "Ιατρική Βεβαίωση"
+  ],
+  "closing": "",
+  "closings": [
+    "Ο ιατρός",
+    "Με εκτίμηση,"
+  ],
+  "stamp": "no",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "leave_days": {
+      "type": "text",
+      "label": "Διάρκεια άδειας (ψηφία και λέξεις)",
+      "placeholder": "10 (δέκα) ημέρες",
+      "default": "10 (δέκα) ημέρες",
+      "required": true
+    },
+    "visit_reason": {
+      "type": "text",
+      "label": "Αιτία επίσκεψης",
+      "placeholder": "αυχεναλγίας με ριζιτική συνδρομή κυρίως αριστερά"
+    },
+    "findings": {
+      "type": "text",
+      "label": "Ευρήματα",
+      "placeholder": "Ευρήματα, π.χ. Από τον έλεγχο με Μαγνητική Τομογραφία Αυχενικής Μοίρας της Σπονδυλικής Στήλης διαπιστώθηκε εκφυλιστική δισκοπάθεια Α5/6 και Α6/7."
+    },
+    "op_date": {
+      "type": "date",
+      "label": "Ημερομηνία επέμβασης"
+    },
+    "procedure": {
+      "type": "text",
+      "label": "Επέμβαση",
+      "placeholder": "επέμβαση"
+    },
+    "clinic_name": {
+      "type": "text",
+      "label": "Κλινική",
+      "placeholder": "Κλινική"
+    },
+    "telework_reason": {
+      "type": "text",
+      "label": "Λόγος τηλεργασίας",
+      "placeholder": "της υποτροπιάζουσας εμφάνισης των συμπτωμάτων"
+    },
+    "telework_period": {
+      "type": "text",
+      "label": "Διάρκεια τηλεργασίας",
+      "placeholder": "τον επόμενο μήνα"
+    },
+    "return_date": {
+      "type": "date",
+      "label": "Επιστροφή στην εργασία"
+    },
+    "followup": {
+      "type": "text",
+      "label": "Επανεξέταση σε",
+      "placeholder": "15 ημέρες"
+    },
+    "followup_study": {
+      "type": "text",
+      "label": "Νέα εξέταση",
+      "placeholder": "ΟΜΣΣ"
+    },
+    "assessment": {
+      "type": "text",
+      "label": "Εκτίμηση και σχέδιο",
+      "placeholder": "Σύνοψη της πορείας, τρέχουσα κλινική εικόνα (π.χ. μυϊκή ισχύς 3/5), θεραπευτικό πρόγραμμα, αναμενόμενη βελτίωση και πρόγνωση."
+    }
+  },
+  "sections": [
+    {
+      "id": "patient",
+      "slot": "certificate.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "amka_row",
+          "label": "ΑΜΚΑ",
+          "text": "@amka",
+          "datefmt": "d-m-Y",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "visit",
+      "slot": "leave.visit",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "visit",
+          "text": "{Ο|Η} ασθενής εξετάσθηκε σήμερα λόγω @visit_reason.",
+          "default": true
+        },
+        {
+          "id": "operated",
+          "text": "{Ο|Η} ασθενής υποβλήθηκε στις @op_date σε @procedure στην @clinic_name.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "findings",
+          "text": "@findings",
+          "default": true,
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "recommendation",
+      "slot": "leave.recommendation",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "rest",
+          "text": "{Ο|Η} ασθενής χρήζει ανάπαυσης για @leave_days και λήψης αναλγητικής αγωγής.",
+          "default": true
+        },
+        {
+          "id": "sick_leave",
+          "text": "{Ο|Η} ασθενής χρήζει **αναρρωτικής άδειας για @leave_days**.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "extension",
+          "text": "{Ο|Η} ασθενής χρήζει παράτασης της αναρρωτικής άδειας για @leave_days.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "telework",
+          "text": "Λόγω @telework_reason, συνιστάται η συνέχιση της εξ αποστάσεως εργασίας (τηλεργασία) για @telework_period.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "return",
+          "text": "{Ο|Η} ασθενής μπορεί να επιστρέψει στην εργασία {του|της} από @return_date.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "avoid_cold",
+          "text": "Συνιστάται να αποφεύγεται η συστηματική έκθεση σε κρύο και ζέστη κατά την εργασία.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "avoid_lifting",
+          "text": "Συνιστάται η αποφυγή **άρσης βαρών** και **πολύωρης ορθοστασίας**.",
+          "default": true
+        },
+        {
+          "id": "followup",
+          "text": "Επανεξέταση σε @followup.",
+          "default": true
+        },
+        {
+          "id": "followup_study",
+          "text": "Επανεξέταση με νέα Μαγνητική Τομογραφία @followup_study.",
+          "default": false,
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "assessment",
+      "slot": "leave.assessment",
+      "heading": "Εκτίμηση και Σχέδιο Αντιμετώπισης",
+      "heading_level": "subsection",
+      "layout": "paragraphs",
+      "optional": true,
+      "default": false,
+      "blocks": [
+        {
+          "id": "assessment",
+          "text": "@assessment",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "slot": "certificate.purpose",
+      "layout": "paragraphs",
+      "use": "purpose",
+      "default_block": "purpose_work"
+    }
+  ]
+}

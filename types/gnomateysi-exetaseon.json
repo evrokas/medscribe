@@ -1,0 +1,200 @@
+{
+  "format": 1,
+  "name": "gnomateysi-exetaseon",
+  "label": "Γνωμάτευση εξετάσεων",
+  "lang": "gr",
+  "paper": "a4",
+  "title": "Ιατρική Γνωμάτευση",
+  "titles": [
+    "Ιατρική Γνωμάτευση",
+    "Ιατρική Βεβαίωση"
+  ],
+  "closing": "",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "diagnosis": {
+      "type": "text",
+      "label": "Διάγνωση",
+      "placeholder": "εκφυλιστική δισκοπάθεια με ριζιτική συμμετοχή της Αυχενικής Μοίρας της Σπονδυλικής Στήλης"
+    },
+    "visit_reason": {
+      "type": "text",
+      "label": "Αιτία επίσκεψης",
+      "placeholder": "παρετικής οσφυοϊσχιαλγίας δεξιά, με αδυναμία τετρακεφάλου"
+    },
+    "complaint": {
+      "type": "text",
+      "label": "Αναφέρει",
+      "placeholder": "πτώση εξ ιδίου ύψους προ ολίγων ημερών, με κάκωση στη ράχη"
+    },
+    "surgery_date": {
+      "type": "date",
+      "label": "Ημερομηνία χειρουργείου"
+    },
+    "clinic_name": {
+      "type": "text",
+      "label": "Κλινική",
+      "placeholder": "Κλινική"
+    },
+    "condition": {
+      "type": "text",
+      "label": "Πάθηση",
+      "placeholder": "πάθηση"
+    },
+    "findings": {
+      "type": "text",
+      "label": "Ευρήματα",
+      "placeholder": "Ευρήματα από την κλινική εξέταση και τον απεικονιστικό έλεγχο."
+    },
+    "exam": {
+      "type": "text",
+      "label": "Εξέταση",
+      "placeholder": "Μαγνητική Τομογραφία ΑΜΣΣ προ και μετά τη χορήγηση σκιαγραφικής ουσίας"
+    },
+    "exam_new": {
+      "type": "text",
+      "label": "Νέα εξέταση (πριν την επέμβαση)",
+      "placeholder": "MRI ΑΜΣΣ προ και μετά τη χορήγηση σκιαγραφικής ουσίας"
+    },
+    "exam_postop": {
+      "type": "text",
+      "label": "Μετεγχειρητική εξέταση",
+      "placeholder": "Μαγνητικής Τομογραφίας ΑΜΣΣ και ΘΜΣΣ"
+    },
+    "xrays": {
+      "type": "text",
+      "label": "Ακτινογραφίες",
+      "placeholder": "δυναμικών ακτινογραφιών ΟΜΣΣ σε κάμψη και έκταση"
+    },
+    "emg": {
+      "type": "text",
+      "label": "ΗΜΓ",
+      "placeholder": "ΗΜΓ κάτω άκρων"
+    },
+    "sessions": {
+      "type": "text",
+      "label": "Αριθμός συνεδριών",
+      "placeholder": "10 (δέκα)"
+    },
+    "pt_goal": {
+      "type": "text",
+      "label": "Στόχος φυσικοθεραπείας",
+      "placeholder": "ενδυνάμωση των κάτω άκρων"
+    },
+    "pt_target": {
+      "type": "text",
+      "label": "Αντιμετώπιση (εντατική φυσικοθεραπεία)",
+      "placeholder": "του συνδρόμου απιοειδούς μυός"
+    },
+    "sessions_initial": {
+      "type": "text",
+      "label": "Αρχικός αριθμός συνεδριών",
+      "placeholder": "10 (δέκα)"
+    }
+  },
+  "sections": [
+    {
+      "id": "patient",
+      "slot": "certificate.patient",
+      "layout": "patient-info",
+      "blocks": []
+    },
+    {
+      "id": "diagnosis",
+      "slot": "opinion.diagnosis",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "diagnosis",
+          "text": "{Ο|Η} ασθενής πάσχει από @diagnosis.",
+          "default": true
+        },
+        {
+          "id": "visit",
+          "text": "{Ο|Η} ασθενής εξετάσθηκε σήμερα λόγω @visit_reason.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "complaint",
+          "text": "{Ο|Η} ασθενής αναφέρει @complaint.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "operated",
+          "text": "{Ο|Η} ασθενής χειρουργήθηκε στις @surgery_date στην @clinic_name για @condition.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "findings",
+          "text": "@findings",
+          "default": true,
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "request",
+      "slot": "opinion.request",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "mri",
+          "text": "Χρήζει ελέγχου με **@exam**.",
+          "default": true
+        },
+        {
+          "id": "mri_plan",
+          "text": "Προκειμένου να προγραμματισθεί η έκταση της επέμβασης, θα πρέπει να πραγματοποιηθεί νέα **@exam_new**.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "mri_postop",
+          "text": "Στο πλαίσιο του τακτικού μετεγχειρητικού ελέγχου, χρήζει πραγματοποίησης **@exam_postop** προ και μετά τη χορήγηση σκιαγραφικής ουσίας.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "mra",
+          "text": "Χρήζει ελέγχου με **Μαγνητική Αγγειογραφία Εγκεφαλικών Αγγείων (αρτηριών και φλεβών)**.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "xr_emg",
+          "text": "Ζητήθηκε η διενέργεια **@xrays** και **@emg**, και επανεξέταση.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "pt",
+          "text": "Συνιστάται η πραγματοποίηση **@sessions συνεδριών φυσικοθεραπείας/εργοθεραπείας** για @pt_goal.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "pt_intensive",
+          "text": "Χρήζει εντατικών συνεδριών φυσικοθεραπείας, προσανατολισμένων στην αντιμετώπιση @pt_target, από εξειδικευμένο φυσικοθεραπευτικό κέντρο. Ο προτεινόμενος αριθμός συνεδριών είναι αρχικά @sessions_initial.",
+          "default": false,
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "slot": "certificate.purpose",
+      "layout": "paragraphs",
+      "use": "purpose",
+      "default_block": "purpose_insurer"
+    }
+  ]
+}

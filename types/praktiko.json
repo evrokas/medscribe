@@ -1,0 +1,337 @@
+{
+  "format": 1,
+  "name": "praktiko",
+  "label": "praktiko",
+  "lang": "gr",
+  "paper": "a4",
+  "imported": "kit tpl-praktiko.tex",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "f1": {
+      "type": "date",
+      "label": "DD-MM-YYYY",
+      "placeholder": "DD-MM-YYYY"
+    },
+    "f2": {
+      "type": "text",
+      "label": "ονοματεπώνυμο",
+      "placeholder": "ονοματεπώνυμο"
+    },
+    "f3": {
+      "type": "text",
+      "label": "ονοματεπώνυμο",
+      "placeholder": "ονοματεπώνυμο"
+    },
+    "f4": {
+      "type": "text",
+      "label": "ονοματεπώνυμο",
+      "placeholder": "ονοματεπώνυμο"
+    },
+    "f5": {
+      "type": "text",
+      "label": "Γενική αναισθησία",
+      "placeholder": "Γενική αναισθησία"
+    },
+    "f6": {
+      "type": "text",
+      "label": "Χ ώρες",
+      "placeholder": "Χ ώρες"
+    },
+    "f7": {
+      "type": "text",
+      "label": "διάγνωση",
+      "placeholder": "διάγνωση"
+    },
+    "f8": {
+      "type": "text",
+      "label": "Ίδια",
+      "placeholder": "Ίδια"
+    },
+    "f9": {
+      "type": "text",
+      "label": "επέμβαση, π.χ.\\ υπό νευροπλοήγηση και διεγχειρητικό νευροφυσ",
+      "placeholder": "επέμβαση, π.χ.\\ υπό νευροπλοήγηση και διεγχειρητικό νευροφυσιολογικό έλεγχο"
+    },
+    "f10": {
+      "type": "text",
+      "label": "Ένδειξη και προεγχειρητικός έλεγχος.",
+      "placeholder": "Ένδειξη και προεγχειρητικός έλεγχος."
+    },
+    "f11": {
+      "type": "text",
+      "label": "Θέση ασθενούς, ακινητοποίηση (π.χ.\\ Mayfield), registration ",
+      "placeholder": "Θέση ασθενούς, ακινητοποίηση (π.χ.\\ Mayfield), registration νευροπλοήγησης, αντισηψία (αλλεργίες), ηλεκτρόδια νευροφυσιολογικού ελέγχου."
+    },
+    "f12": {
+      "type": "text",
+      "label": "Τομή, προσπέλαση, χειρουργικοί χειρισμοί, ευρήματα.",
+      "placeholder": "Τομή, προσπέλαση, χειρουργικοί χειρισμοί, ευρήματα."
+    },
+    "f13": {
+      "type": "text",
+      "label": "Αιμόσταση, σύγκλειση κατά στρώματα, παροχετεύσεις, περίδεση.",
+      "placeholder": "Αιμόσταση, σύγκλειση κατά στρώματα, παροχετεύσεις, περίδεση."
+    },
+    "f14": {
+      "type": "text",
+      "label": "Αφύπνιση και μεταφορά (ανάνηψη / ΜΕΘ).",
+      "placeholder": "Αφύπνιση και μεταφορά (ανάνηψη / ΜΕΘ)."
+    },
+    "f15": {
+      "type": "text",
+      "label": "υλικό, εταιρεία, μέγεθος",
+      "placeholder": "υλικό, εταιρεία, μέγεθος"
+    },
+    "f16": {
+      "type": "text",
+      "label": "Εστάλησαν δείγματα ιστού για παθολογοανατομική εξέταση.",
+      "placeholder": "Εστάλησαν δείγματα ιστού για παθολογοανατομική εξέταση."
+    },
+    "f17": {
+      "type": "text",
+      "label": "Καμία διεγχειρητική επιπλοκή.",
+      "placeholder": "Καμία διεγχειρητική επιπλοκή."
+    },
+    "f18": {
+      "type": "text",
+      "label": "Αιμοδυναμικά σταθερός, χωρίς νέα νευρολογικά ελλείμματα.",
+      "placeholder": "Αιμοδυναμικά σταθερός, χωρίς νέα νευρολογικά ελλείμματα."
+    },
+    "f20": {
+      "type": "text",
+      "label": "Ιδιότητα",
+      "placeholder": "Ιδιότητα"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "slot": "import.praktiko.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "s1_b1",
+          "text": "@f1",
+          "default": true,
+          "label": "Ημερομηνία",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b2",
+          "text": "@f2",
+          "default": true,
+          "label": "Χειρουργός",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b3",
+          "text": "@f3",
+          "default": true,
+          "label": "Βοηθός χειρουργού",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b4",
+          "text": "@f4",
+          "default": true,
+          "label": "Αναισθησιολόγος",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b5",
+          "text": "@f5",
+          "default": true,
+          "label": "Αναισθησία",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b6",
+          "text": "@f6",
+          "default": true,
+          "label": "Διάρκεια",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b7",
+          "text": "@f7",
+          "default": true,
+          "label": "Προεγχ.\\ διάγνωση",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b8",
+          "text": "@f8",
+          "default": true,
+          "label": "Μετεγχ.\\ διάγνωση",
+          "datefmt": "d-m-Y"
+        },
+        {
+          "id": "s1_b9",
+          "text": "@f9",
+          "default": true,
+          "label": "Επέμβαση",
+          "datefmt": "d-m-Y"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "slot": "import.praktiko.s2",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s2_b1",
+          "text": "@f10",
+          "default": true
+        }
+      ],
+      "heading": "Περιγραφή επέμβασης",
+      "heading_level": "subsection"
+    },
+    {
+      "id": "s3",
+      "slot": "import.praktiko.s3",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s3_b1",
+          "text": "@f11",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "slot": "import.praktiko.s4",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s4_b1",
+          "text": "@f12",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "slot": "import.praktiko.s5",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s5_b1",
+          "text": "@f13",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "slot": "import.praktiko.s6",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s6_b1",
+          "text": "@f14",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "slot": "import.praktiko.s7",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s7_b1",
+          "text": "@f15",
+          "default": true
+        }
+      ],
+      "heading": "Εμφυτεύματα και υλικά",
+      "heading_level": "subsection"
+    },
+    {
+      "id": "s8",
+      "slot": "import.praktiko.s8",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s8_b1",
+          "text": "@f16",
+          "default": true
+        }
+      ],
+      "heading": "Δείγματα",
+      "heading_level": "subsection"
+    },
+    {
+      "id": "s9",
+      "slot": "import.praktiko.s9",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s9_b1",
+          "text": "@f17",
+          "default": true
+        }
+      ],
+      "heading": "Επιπλοκές",
+      "heading_level": "subsection"
+    },
+    {
+      "id": "s10",
+      "slot": "import.praktiko.s10",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s10_b1",
+          "text": "@f18",
+          "default": true
+        }
+      ],
+      "heading": "Κατάσταση ασθενούς κατά το πέρας της επέμβασης",
+      "heading_level": "subsection"
+    },
+    {
+      "id": "s11",
+      "slot": "import.praktiko.s11",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s11_b1",
+          "text": "\\vspace{2em}",
+          "default": true,
+          "format": "latex"
+        },
+        {
+          "id": "s11_b2",
+          "text": "\\noindent [Ονοματεπώνυμο χειρουργού]\\newline",
+          "default": true,
+          "format": "latex",
+          "inline": true
+        },
+        {
+          "id": "s11_b3",
+          "text": "@f20",
+          "default": true,
+          "inline": true
+        }
+      ]
+    }
+  ],
+  "needs_review": [
+    "s11_b1: kept as LaTeX: \\vspace{2em}",
+    "s11_b2: kept as LaTeX: \\noindent [Ονοματεπώνυμο χειρουργού]\\newline"
+  ],
+  "title": "Πρακτικό Χειρουργείου",
+  "titles": [
+    "Πρακτικό Χειρουργείου"
+  ],
+  "closing": "",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no"
+}

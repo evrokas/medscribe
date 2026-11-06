@@ -1,0 +1,39 @@
+{
+  "format": 1,
+  "name": "timokatalogos",
+  "label": "Ενημέρωση και τιμοκατάλογος",
+  "lang": "gr",
+  "paper": "a4",
+  "title": "Ενημέρωση και Τιμοκατάλογος Ιατρείου",
+  "titles": [
+    "Ενημέρωση και Τιμοκατάλογος Ιατρείου"
+  ],
+  "closing": "",
+  "closings": [
+    "",
+    "Ο ιατρός"
+  ],
+  "stamp": "no",
+  "draft": true,
+  "needs_review": [
+    "New type (PLAN.md D12, M8): the structure is a skeleton; the doctor writes the wording and reviews before release."
+  ],
+  "shared": {},
+  "has_patient": false,
+  "fields": {},
+  "sections": [
+    {
+      "id": "body",
+      "slot": "practice.timokatalogos",
+      "layout": "paragraphs",
+      "blocks": []
+    },
+    {
+      "id": "items",
+      "slot": "practice.timokatalogos.items",
+      "heading": "",
+      "layout": "itemize",
+      "blocks": []
+    }
+  ]
+}

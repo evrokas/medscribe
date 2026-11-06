@@ -1,0 +1,70 @@
+{
+  "format": 1,
+  "name": "ikanotita-driving",
+  "label": "Βεβαίωση ικανότητας οδήγησης",
+  "lang": "gr",
+  "paper": "a4",
+  "title": "Βεβαίωση Ικανότητας για Οδήγηση",
+  "titles": [
+    "Βεβαίωση Ικανότητας για Οδήγηση"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός",
+    ""
+  ],
+  "stamp": "no",
+  "draft": true,
+  "needs_review": [
+    "New type (PLAN.md D12, M8): the structure is a skeleton; the doctor writes the wording and reviews before release."
+  ],
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "exam_date": {
+      "type": "date",
+      "label": "Ημερομηνία εξέτασης",
+      "required": true
+    },
+    "finding": {
+      "type": "text",
+      "label": "Εύρημα και συμπέρασμα",
+      "placeholder": "το συμπέρασμα της εξέτασης",
+      "required": true
+    }
+  },
+  "sections": [
+    {
+      "id": "patient",
+      "slot": "certificate.patient",
+      "layout": "patient-info",
+      "blocks": []
+    },
+    {
+      "id": "exam",
+      "slot": "fitness.exam",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "exam",
+          "text": "Βεβαιώνεται ότι {ο|η} ασθενής εξετάσθηκε στις @exam_date.",
+          "default": true
+        },
+        {
+          "id": "finding",
+          "text": "@finding",
+          "default": true,
+          "inline": true
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "slot": "certificate.purpose",
+      "layout": "paragraphs",
+      "use": "purpose",
+      "default_block": "purpose_request"
+    }
+  ]
+}

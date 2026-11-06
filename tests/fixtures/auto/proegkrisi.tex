@@ -1,0 +1,102 @@
+% =====================================================================
+%  TYPE: Surgical / procedure pre-approval (for the insurer)
+%  History, failed conservative treatment, indication, planned
+%  procedure. Based on Kapetanakos / Tzeferakos 2026, Milona 2025.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Προέγκριση Χειρουργείου}
+% \providecommand\DocTitle{Προέγκριση Επεμβατικής Πράξης}
+% \providecommand\DocTitle{Ιατρική Βεβαίωση}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{}
+% \providecommand\DocClosing{Ο ιατρός}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+%   \Info{Προγρ. επέμβαση}{10-01-2026}
+\end{PatientInfo}
+
+% 1. Diagnosis and history
+Ο ασθενής πάσχει από Τιμή 2.
+% Η ασθενής πάσχει από ...
+% Ο ασθενής εξετάσθηκε σήμερα λόγω [οσφυαλγίας με ισχιαλγία αριστερά] ...
+Τιμή 3
+Τιμή 4
+
+% 2. Imaging
+Από τον απεικονιστικό έλεγχο με Τιμή 5 την 10/01/2026, διαπιστώθηκε Τιμή 7.
+
+% 3. Failed conservative treatment (keep when it applies)
+Η πάθηση δεν ανταποκρίνεται πλέον στη συντηρητική αγωγή (φαρμακευτική αγωγή, φυσικοθεραπείες), παρά τη μακροχρόνια εφαρμογή της.
+
+% 4. Indication and planned procedure (with the materials)
+Ο ασθενής χρήζει Τιμή 8.
+% Ο ασθενής θα πρέπει να υποβληθεί σε Τιμή 9.
+% Ενδεχομένως, επί σημαντικής αστάθειας που μπορεί να διαπιστωθεί μόνο διεγχειρητικά, να απαιτηθεί επέκταση της σπονδυλοδεσίας στον Τιμή 10 σπόνδυλο.
+
+% 5. Setting (optional)
+% Η επέμβαση πραγματοποιείται υπό συνεχή ακτινοσκοπικό έλεγχο με C-Arm στον χώρο του χειρουργείου.
+% Η επέμβαση πραγματοποιείται σε χειρουργικό περιβάλλον, με διεγχειρητική καθοδήγηση μέσω αξονικής τομογραφίας (O-Arm), για τη διασφάλιση της ακρίβειας και της ασφάλειας της πράξης.
+% Το χειρουργείο έχει προγραμματισθεί για τις Τιμή 11 στην Τιμή 12.
+
+% --- Alternative block: repeat RF thermocoagulation of the Gasserian ganglion
+% (from Milona 2025; replace paragraphs 3-4 with these)
+% Τον Τιμή 13 η ασθενής υπεβλήθη σε θερμοπηξία του γασσερίου γαγγλίου αριστερά με ραδιοσυχνότητες (RF), με ικανοποιητική ανταπόκριση.
+% Σύμφωνα με τη διεθνή βιβλιογραφία, η διάρκεια του θεραπευτικού αποτελέσματος της θερμοπηξίας με ραδιοσυχνότητες ανέρχεται κατά μέσο όρο στους 24 μήνες. Στην προκειμένη περίπτωση, τους τελευταίους Τιμή 14 μήνες παρατηρείται σταδιακή υποτροπή της συμπτωματολογίας, με έντονο άλγος στην Τιμή 15 πλευρά του προσώπου και σημαντική επιβάρυνση της ποιότητας ζωής.
+% Λόγω της υποτροπής της νόσου και της αποτυχίας της συντηρητικής φαρμακευτικής αντιμετώπισης, κρίνεται ιατρικά απαραίτητη η επανάληψη της θερμοπηξίας του γασσερίου γαγγλίου με ραδιοσυχνότητες (RF).
+
+% 6. Request and purpose
+% Κατόπιν των ανωτέρω, αιτούμαστε την κάλυψη της εν λόγω ιατρικής πράξης από την ασφαλιστική εταιρεία, καθώς πρόκειται για απαραίτητη και ενδεδειγμένη θεραπευτική παρέμβαση.
+% Παρακαλώ όπως εγκρίνετε την παραπάνω επέμβαση, ώστε να προχωρήσουμε άμεσα στον προγραμματισμό της.
+% Purpose (for a female patient: "της ασθενούς", "της")
+Το παρόν χορηγείται για χρήση στην ασφαλιστική εταιρεία του ασθενούς.
+% Το παρόν χορηγείται για χρήση από τον ασφαλιστικό φορέα του ασθενούς.
+% Το παρόν χορηγείται για την εργασία του ασθενούς.
+% Το παρόν χορηγείται μετά από αίτηση του ασθενούς, για την υπηρεσία του.
+% Το παρόν χορηγείται για χρήση στο διαγνωστικό κέντρο.
+% Το παρόν χορηγείται για κάθε νόμιμη χρήση.
+% Η παρούσα βεβαίωση δίνεται κατόπιν επιθυμίας του ασθενούς.
+
+\end{document}

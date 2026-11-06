@@ -1,0 +1,15 @@
+<?php
+// How MedScribe reaches DocArc's MedScribe API (https://<docarc>/api/v1/..., see DocArc's CLAUDE.md,
+// "MedScribe API"). Copy to docarc_api.php (gitignored).
+//
+// DOCARC_API_URL   DocArc's base address, no trailing slash (the API lives under /api/v1/).
+// DOCARC_API_KEY   sent as X-MedScribe-Api-Key; must equal DOCARC_MEDSCRIBE_API_KEY in DocArc's
+//                  config/medscribe_api.php. Generate one with:
+//                    php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
+// DOCARC_UPLOAD_TIMEOUT   seconds allowed for sending a PDF or .tex (lookups keep the family's 3 s).
+//
+// The key stays on the server. Without the file (or with a blank key) documents can be written and
+// previewed but not issued.
+define('DOCARC_API_URL', 'https://<<docarc-host>>');
+define('DOCARC_API_KEY', '<<key>>');
+define('DOCARC_UPLOAD_TIMEOUT', 30);

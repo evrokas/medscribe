@@ -1,0 +1,8 @@
+<?php
+// TeX settings for MedScribe's compile service (copy to tex.php; gitignored).
+// Every constant is optional: web/compile.php falls back to these same values.
+
+define('MEDSCRIBE_XELATEX', '/usr/local/texlive/2026/bin/x86_64-linux/xelatex');
+define('MEDSCRIBE_TEX_TIMEOUT', 120);        // seconds per XeLaTeX pass
+define('MEDSCRIBE_TEX_MAX_PASSES', 4);
+define('MEDSCRIBE_JOB_MAX_BYTES', 64 * 1024 * 1024);   // size of a finished job folder

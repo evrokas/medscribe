@@ -1,0 +1,17 @@
+---
+table:
+  name: pool_uses
+  class: poolUsesClass
+
+  fields:
+  - name: pool_id
+    type: int
+    required: true
+
+  - name: document_id
+    type: int
+    required: true
+
+...
+
+# Which issued document used which pool block. A withdrawn document's rows are removed (PLAN.md §7.4).

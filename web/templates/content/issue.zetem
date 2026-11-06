@@ -1,0 +1,88 @@
+<div class="page-placeholder issue">
+  <div class="page-head">
+    <h2>{{{t('Issue')}}} #{{{$doc['id']}}} &middot; {{{$type_label}}}</h2>
+    <span class="badge badge-{{{$doc['status']}}}">{{{$doc['status']}}}</span>
+  </div>
+  <p><a href="{{rel_url('/documents/' . $doc['id'])}}">&larr; {{{t('Back to the document')}}}</a>
+     {% if(count($revisions)): %} &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/history')}}">{{{t('History')}}}</a>{% endif %}</p>
+
+  <table class="status-table">
+    <tr><td>{{{t('Patient')}}}</td><td>{{{$doc['patient_name'] ?: '-'}}}</td></tr>
+    <tr><td>{{{t('DocArc type')}}}</td><td>{% if($type_link): %}{{{$type_link['label_seen']}}} <code>{{{$type_link['code_seen']}}}</code>{% else: %}<span class="check-error">{{{t('not linked')}}}</span> <a href="{{rel_url('/types/links')}}">{{{t('Link it')}}}</a>{% endif %}</td></tr>
+    <tr><td>{{{t('DocArc clinic')}}}</td><td>{% if($clinic_link): %}{{{$clinic_link['label_seen']}}}{% else: %}{{{t('none (the record is sent without a clinic)')}}}{% endif %} <span class="muted">({{{$clinic}}})</span></td></tr>
+    <tr><td>{{{t('Code')}}}</td><td>{% if($doc['doc_code']): %}<code>{{{$doc['doc_code']}}}</code> &middot; <span class="muted">{{{$doc['docarc_url']}}}</span>{% else: %}-{% endif %}</td></tr>
+    {% if($doc['verify_code']): %}<tr><td>{{{t('Verification code')}}}</td><td><strong>{{{$doc['verify_code']}}}</strong> <span class="muted">{{{t('give this to the patient with the QR link')}}}</span></td></tr>{% endif %}
+    {% if($doc['approved_at']): %}<tr><td>{{{t('Approved')}}}</td><td>{{{$doc['approved_at']}}} {{{t('by')}}} {{{$doc['approved_by']}}}</td></tr>{% endif %}
+    {% if($doc['issued_at']): %}<tr><td>{{{t('Issued')}}}</td><td>{{{$doc['issued_at']}}}</td></tr>{% endif %}
+    {% if($doc['status'] == 'withdrawn'): %}<tr><td>{{{t('Withdrawn')}}}</td><td>{{{$doc['withdrawn_at']}}} {{{t('by')}}} {{{$doc['withdrawn_by']}}}: {{{$doc['withdraw_reason']}}}</td></tr>{% endif %}
+  </table>
+
+  {% if(!$docarc_on): %}<p class="notice">{{{t('DocArc is not configured (config/docarc_api.php). Documents can be previewed but not issued.')}}}</p>{% endif %}
+  {% if($busy): %}<p class="notice">{{{t('A step is running on this document right now.')}}}</p>{% endif %}
+
+  <div class="checks">
+    {% foreach($checks as $c): %}<div class="check check-{{{$c['level']}}}">{{{$c['msg']}}}</div>{% endforeach %}
+    {% if(count($checks) == 0): %}<div class="check check-ok">{{{t('All checks pass')}}}</div>{% endif %}
+  </div>
+
+  {% if(in_array($doc['status'], ['draft', 'review', 'code_reserved'])): %}
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
+    {{ csrf_field() }}
+    <button type="submit" name="action" value="prepare" class="primary" {% if($blocking || !$docarc_on || !$type_link): %}disabled{% endif %}>{{{($doc['status'] == 'code_reserved') ? t('Build the final PDF') : t('Request the code and build the final PDF')}}}</button>
+  </form>
+  <p class="muted">{{{t('The code is reserved in DocArc first, because the QR must be inside the PDF. The final PDF is shown here for your approval; nothing is sent yet.')}}}</p>
+  {% endif %}
+
+  {% if($doc['status'] == 'final_compiled'): %}
+  <h3>{{{t('Final PDF (as it will be archived)')}}}</h3>
+  <div class="final-preview"><iframe src="{{rel_url($final_url)}}" title="{{{t('Final PDF')}}}"></iframe></div>
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
+    {{ csrf_field() }}
+    <button type="submit" name="action" value="approve" class="primary">{{{t('Approve and send to DocArc')}}}</button>
+    <button type="submit" name="action" value="edit">{{{t('Edit again (the code stays reserved)')}}}</button>
+  </form>
+  <p class="muted">{{{t('Approving freezes the document. Exactly these bytes are sent; nothing is compiled again.')}}}</p>
+  {% endif %}
+
+  {% if($doc['status'] == 'approved' || $doc['status'] == 'pdf_sent'): %}
+  <p class="notice">{{{t('Approved and frozen, but not completely sent to DocArc yet.')}}}</p>
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
+    {{ csrf_field() }}
+    <button type="submit" name="action" value="send" class="primary">{{{t('Send again')}}}</button>
+  </form>
+  {% endif %}
+
+  {% if($doc['status'] == 'issued'): %}
+  <h3>{{{t('Issued')}}}</h3>
+  <p><a href="{{rel_url('/documents/' . $doc['id'] . '/rev/1/pdf')}}" target="_blank">PDF</a> &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/rev/1/tex')}}" target="_blank">.tex</a></p>
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
+    {{ csrf_field() }}
+    <button type="submit" name="action" value="copy">{{{t('Copy as new (another patient)')}}}</button>
+  </form>
+  <details class="danger-zone">
+    <summary>{{{t('Withdraw (a mistake: wrong patient, must not exist)')}}}</summary>
+    <p class="muted">{{{t('DocArc deletes the whole record, so the printed QR leads nowhere. MedScribe keeps the document, marked withdrawn. A correction is not a withdrawal: revisions are not available yet.')}}}</p>
+    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="form-grid">
+      {{ csrf_field() }}
+      <label>{{{t('Reason (required)')}}} <input type="text" name="reason" maxlength="500" required></label>
+      <button type="submit" name="action" value="withdraw" class="danger">{{{t('Withdraw this document')}}}</button>
+    </form>
+  </details>
+  {% endif %}
+
+  {% if($doc['status'] == 'withdrawn'): %}
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
+    {{ csrf_field() }}
+    <button type="submit" name="action" value="copy">{{{t('Copy as new (another patient)')}}}</button>
+  </form>
+  <details class="danger-zone">
+    <summary>{{{t('Delete from MedScribe')}}}</summary>
+    <p class="muted">{{{t('Removes the inputs, .tex and PDF. The audit log keeps only that this happened.')}}}</p>
+    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="form-grid">
+      {{ csrf_field() }}
+      <label>{{{t('Type DELETE to confirm')}}} <input type="text" name="confirm" autocomplete="off"></label>
+      <button type="submit" name="action" value="delete_withdrawn" class="danger">{{{t('Delete permanently')}}}</button>
+    </form>
+  </details>
+  {% endif %}
+</div>

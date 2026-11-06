@@ -1,0 +1,14 @@
+# Zeus Framework: MedScribe per-deployment settings (copy to site.info.yaml)
+
+# set to 1 to show PHP errors (development only)
+php_display_errors: 1
+php_display_startup_errors: 1
+
+enable_template_comments: 0
+enable_template_cache: 0
+template_cache_path: "cache/"
+
+# library path for stored files (templates store, documents, compile jobs)
+libpath: files/
+
+disabled_packages: []

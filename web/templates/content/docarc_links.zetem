@@ -1,0 +1,29 @@
+<div class="page-placeholder">
+  <h2>{{{t('DocArc links')}}}</h2>
+  <p class="muted">{{{t('DocArc owns its document types and clinics. Each MedScribe type uses exactly one DocArc type (several MedScribe types may share one); each clinic key uses at most one DocArc clinic.')}}}</p>
+  {% if(!$enabled): %}<p class="notice">{{{t('DocArc is not configured (config/docarc_api.php).')}}}</p>{% elseif(!$reachable): %}<p class="notice">{{{t('DocArc is not reachable right now. The links shown are the last saved ones.')}}}</p>{% endif %}
+  <form method="post" action="{{rel_url('/types/links')}}">
+    {{ csrf_field() }}
+    <table class="status-table list">
+      <tr><th>{{{t('MedScribe')}}}</th><th>{{{t('DocArc')}}}</th></tr>
+      {% foreach($rows as $row): %}
+      <tr>
+        <td>{{{$row['kind']}}}: <strong>{{{$row['key']}}}</strong></td>
+        <td>
+          {% if($reachable): %}
+          <select name="{{{$row['kind']}}}[{{{$row['key']}}}]">
+            <option value="0">{% if($row['kind'] == 'type'): %}-{% else: %}{{{t('none')}}}{% endif %}</option>
+            {% if($row['kind'] == 'type'): %}
+              {% foreach($dtypes as $d): %}<option value="{{{$d['id']}}}" {% if($row['link'] && $row['link']['docarc_id'] == $d['id']): %}selected{% endif %}>{{{$d['label']}}} ({{{$d['code']}}})</option>{% endforeach %}
+            {% else: %}
+              {% foreach($dclinics as $d): %}<option value="{{{$d['id']}}}" {% if($row['link'] && $row['link']['docarc_id'] == $d['id']): %}selected{% endif %}>{{{$d['name']}}}</option>{% endforeach %}
+            {% endif %}
+          </select>
+          {% else: %}{{{$row['link'] ? $row['link']['label_seen'] : '-'}}}{% endif %}
+        </td>
+      </tr>
+      {% endforeach %}
+    </table>
+    {% if($reachable): %}<div class="actions"><button type="submit" class="primary">{{{t('Save links')}}}</button></div>{% endif %}
+  </form>
+</div>

@@ -1,0 +1,132 @@
+% =====================================================================
+%  TYPE: Informed consent for surgery
+%  Patient-facing; signed by patient, witness and doctor.
+%  Based on Georgiadis (craniotomy). Fill in the specific risks for
+%  the procedure and site: only you can do that part.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Έντυπο Ενημερωμένης Συγκατάθεσης για Χειρουργική Επέμβαση}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{}
+% \providecommand\DocClosing{Ο ιατρός}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+  \Info{Ημ. Χειρουργείου}{10-01-2026}
+  \Info{Θεράπων ιατρός}{\DrName, \DrSpecialty}
+\end{PatientInfo}
+
+\section{Περιγραφή πάθησης}
+Έχετε διαγνωσθεί με Τιμή 2, Τιμή 3.
+Τιμή 4
+
+\section{Σκοπός της επέμβασης}
+Η προτεινόμενη χειρουργική πράξη είναι η \textbf{Τιμή 5}Τιμή 6.
+Στόχος της επέμβασης είναι:
+\begin{itemize}
+\item Τιμή 7
+\item Τιμή 8
+\end{itemize}
+
+\section{Περιγραφή της διαδικασίας}
+Η επέμβαση πραγματοποιείται υπό \textbf{Τιμή 9 αναισθησία}.
+Τιμή 10
+Η διάρκεια της επέμβασης κυμαίνεται συνήθως από \textbf{Τιμή 11 ώρες}.
+
+\section{Πιθανοί κίνδυνοι και επιπλοκές}
+Παρά τη μέγιστη προσοχή και εμπειρία, κάθε χειρουργική επέμβαση ενέχει κινδύνους, οι οποίοι περιλαμβάνουν:
+\subsection*{Γενικοί κίνδυνοι}
+% Percentages are from the craniotomy consent: check them for this procedure.
+\begin{itemize}
+\item Αιμορραγία (≈ 2--5\%)
+\item Λοίμωξη / Μηνιγγίτιδα (≈ 1--3\%)
+\item Θρόμβωση ή Εμβολή (≈ 1--2\%)
+\item Αντίδραση στην Αναισθησία ($<$1\%)
+\end{itemize}
+\subsection*{Ειδικοί κίνδυνοι της συγκεκριμένης επέμβασης}
+\begin{itemize}
+\item Τιμή 12
+\item Τιμή 13
+\end{itemize}
+% Ενδέχεται να απαιτηθεί μετεγχειρητική νοσηλεία σε ΜΕΘ και περαιτέρω αποκατάσταση.
+
+\section{Εναλλακτικές επιλογές}
+\begin{itemize}
+\item \textbf{Συντηρητική αντιμετώπιση}: Τιμή 14.
+\item Τιμή 15: Τιμή 16.
+\end{itemize}
+
+\section{Χρήση δεδομένων και εκπαιδευτικού υλικού}
+Στο πλαίσιο της ιατρικής εκπαίδευσης και της προαγωγής της επιστήμης, ζητείται επίσης η συγκατάθεσή μου για (σημειώστε ένα):
+\begin{itemize}
+\item[{\faSquare[regular]}] Τη χρήση \textbf{ανώνυμων ιατρικών δεδομένων}, εικόνων, βίντεο ή εγγραφών της επέμβασης, \textbf{αποκλειστικά για εκπαιδευτικούς ή επιστημονικούς σκοπούς}.
+\item[{\faSquare[regular]}] Δεν επιθυμώ τη χρήση τέτοιου υλικού.
+\end{itemize}
+Σε κάθε περίπτωση, τα προσωπικά μου στοιχεία δεν θα δημοσιοποιηθούν και θα τηρηθούν όλοι οι κανόνες προστασίας προσωπικών δεδομένων (GDPR).
+
+\section{Δήλωση ασθενούς}
+Δηλώνω ότι:
+\begin{itemize}
+\item Μου εξηγήθηκε με κατανοητό τρόπο η φύση της νόσου και της προτεινόμενης επέμβασης.
+\item Έλαβα απαντήσεις σε όλες τις ερωτήσεις μου.
+\item Κατανοώ τους πιθανούς κινδύνους και τις εναλλακτικές επιλογές.
+\item Συναινώ ελεύθερα και χωρίς πίεση στη διενέργεια της επέμβασης.
+\end{itemize}
+
+\vspace{1em}
+\noindent\textbf{Υπογραφή ασθενούς:} \underline{\hspace{6cm}} \hfill \textbf{Ημερομηνία:} \underline{\hspace{3cm}}
+
+\section{Μάρτυρας (εφόσον απαιτείται)}
+\noindent\textbf{Ονοματεπώνυμο:} \underline{\hspace{6cm}} \\[0.5em]
+\textbf{Σχέση με ασθενή:} \underline{\hspace{6cm}} \\[0.5em]
+\textbf{Υπογραφή:} \underline{\hspace{6cm}}
+
+\section{Δήλωση ιατρού}
+Δηλώνω ότι ενημέρωσα πλήρως τον/την ασθενή για τη φύση, τους κινδύνους και τα πιθανά αποτελέσματα της επέμβασης, και απάντησα σε όλες τις ερωτήσεις του/της.
+
+\vspace{1em}
+\noindent\textbf{Υπογραφή ιατρού:} \underline{\hspace{6cm}} \hfill \textbf{Ημερομηνία:} \underline{\hspace{3cm}}
+
+\end{document}

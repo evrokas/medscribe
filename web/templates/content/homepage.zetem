@@ -1,0 +1,16 @@
+{% attach_library('boxicons') %}
+<div class="dashboard">
+    <div class="dashboard-welcome">
+        <h2>{{{t('Welcome')}}}{% if($display_name): %}, {{{$display_name}}}{% endif %}</h2>
+        <p class="muted">{{{t('MedScribe is in early setup (pre-M0). These pages are placeholders for checking login and navigation.')}}}</p>
+    </div>
+    <div class="dashboard-grid">
+        {% foreach($cards as $card): %}
+        <a class="dashboard-card" href="{{rel_url($card['url'])}}">
+            <i class="bx {{{$card['icon']}}}"></i>
+            <span class="dashboard-card-title">{{{t($card['title'])}}}</span>
+            <span class="dashboard-card-desc">{{{t($card['desc'])}}}</span>
+        </a>
+        {% endforeach %}
+    </div>
+</div>

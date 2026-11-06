@@ -1,0 +1,12 @@
+<div class="page-placeholder">
+    <h2>{{{t('System status')}}}</h2>
+    <table class="status-table">
+        {% foreach($checks as $c): %}
+        <tr class="{% if($c['ok']): %}ok{% else: %}fail{% endif %}">
+            <td>{% if($c['ok']): %}&#10003;{% else: %}&#10007;{% endif %}</td>
+            <td>{{{$c['label']}}}</td>
+            <td><code>{{{$c['detail']}}}</code></td>
+        </tr>
+        {% endforeach %}
+    </table>
+</div>

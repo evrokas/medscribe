@@ -1,0 +1,113 @@
+{
+  "format": 1,
+  "name": "epistoli",
+  "label": "epistoli",
+  "lang": "gr",
+  "paper": "a4",
+  "imported": "kit tpl-epistoli.tex",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "f2": {
+      "type": "text",
+      "label": "Κείμενο, π.χ.\\ Παρακαλώ όπως επιστρέψετε τους κύβους παραφίν",
+      "placeholder": "Κείμενο, π.χ.\\ Παρακαλώ όπως επιστρέψετε τους κύβους παραφίνης του ασθενούς \\textbf{\\PatientName} στην κλινική, \\textbf{χωρίς} την πραγματοποίηση περαιτέρω εξετάσεων."
+    },
+    "f3": {
+      "type": "text",
+      "label": "τη διαδερμική κυφοπλαστική, τη σπονδυλοπλαστική και τη δισκο",
+      "placeholder": "τη διαδερμική κυφοπλαστική, τη σπονδυλοπλαστική και τη δισκοπλαστική"
+    },
+    "f4": {
+      "type": "text",
+      "label": "8.4.7",
+      "placeholder": "8.4.7"
+    },
+    "f5": {
+      "type": "text",
+      "label": "μεγάλης βαρύτητας",
+      "placeholder": "μεγάλης βαρύτητας"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "slot": "import.epistoli.s1",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s1_b1",
+          "text": "\\ifthenelse{\\equal{\\Recipient}{}}{}{\\noindent\\Recipient\\par}",
+          "default": true,
+          "format": "latex"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "slot": "import.epistoli.s2",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s2_b1",
+          "text": "\\noindent\\textbf{Αφορά:} [ασθενή \\PatientName / θέμα]",
+          "default": true,
+          "format": "latex"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "slot": "import.epistoli.s3",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s3_b1",
+          "text": "@f2",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "slot": "import.epistoli.s4",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s4_b1",
+          "text": "Όσον αφορά την κατηγοριοποίηση, θεωρώ ότι η επέμβαση ανήκει στην ίδια κατηγορία με @f3, με **κωδικό @f4** σύμφωνα με την κατηγοριοποίηση που χρησιμοποιείται στην κλινική. Ο κωδικός αυτός ανήκει στις επεμβάσεις **@f5**.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "slot": "import.epistoli.s5",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "s5_b1",
+          "text": "Ευχαριστώ.",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": [
+    "s1_b1: kept as LaTeX: \\ifthenelse{\\equal{\\Recipient}{}}{}{\\noindent\\Recipient\\par}",
+    "s2_b1: kept as LaTeX: \\noindent\\textbf{Αφορά:} [ασθενή \\PatientName / θέμα]"
+  ],
+  "title": "",
+  "titles": [
+    "Αίτημα",
+    "Αίτημα Νέων Υπηρεσιών"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός",
+    "Με εκτίμηση,"
+  ],
+  "stamp": "no",
+  "recipient": true
+}

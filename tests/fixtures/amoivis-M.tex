@@ -1,0 +1,72 @@
+% =====================================================================
+%  TYPE: Fee-payment certificate
+%  Confirms the patient paid a medical fee (e.g. assistant surgeon),
+%  for the insurer. Based on 'gnomatefsi' and Tselemegkos.
+%
+%  Copy, rename to "YYYYMMDD - surname - topic.tex", fill in and
+%  compile with XeLaTeX. Toggle alternatives by moving the "%".
+%  Text in [brackets] is a placeholder: replace or delete it.
+% =====================================================================
+\documentclass[10pt,greek]{article}
+\usepackage[useregional]{datetime2}
+
+%%%%%%%%%%%%%%%%%%%%% Language
+\providecommand\DocLang{gr}
+
+%%%%%%%%%%%%%%%%%%%%% Clinic (letterhead logo, footer address)
+\providecommand\Clinic{Peristeri}
+% \providecommand\Clinic{Mandra}
+% \providecommand\Clinic{Bioclinic}
+% \providecommand\Clinic{Psychikou}
+% \providecommand\Clinic{Metropolitan}
+% \providecommand\Clinic{Dunant}
+% \providecommand\Clinic{Euroclinic}
+
+%%%%%%%%%%%%%%%%%%%%% Document code for the QR: paste the code issued
+%%%%%%%%%%%%%%%%%%%%% by doc.erns.eu (empty = no QR code)
+\providecommand\DocCode{}
+
+%%%%%%%%%%%%%%%%%%%%% Patient
+\providecommand\PatientPrefix{Ο}
+% \providecommand\PatientPrefix{Η κα}
+\providecommand\PatientName{Παπαδόπουλος Γιώργος}
+\providecommand\PatientAge{45}
+% \providecommand\PatientAge{}
+
+%%%%%%%%%%%%%%%%%%%%% Date
+\providecommand\DocDate{\DTMdate{2026-01-15}}
+% \providecommand\DocDate{\DTMdate{2026-05-04}}
+
+%%%%%%%%%%%%%%%%%%%%% Title
+\providecommand\DocTitle{Ιατρική Βεβαίωση}
+
+%%%%%%%%%%%%%%%%%%%%% Closing (empty = no signature block)
+\providecommand\DocClosing{Ο ιατρός}
+% \providecommand\DocClosing{}
+
+%%%%%%%%%%%%%%%%%%%%% Stamp and signature image
+\providecommand\DocStamp{no}
+% \providecommand\DocStamp{yes}
+
+\input{evrtemplate}
+
+\begin{document}
+
+\begin{PatientInfo}
+    \Info{Ημ. Χειρουργείου}{10-01-2026}
+\end{PatientInfo}
+
+Ο ασθενής υποβλήθηκε στις 10/01/2026 στην Ιατρικό Περιστερίου σε μικροδισκεκτομή Ο4-Ο5.
+
+Με την παρούσα βεβαιώνεται ότι ο ασθενής έχει εξοφλήσει το ποσό των 500€ ως ιατρική αμοιβή βοηθού χειρουργού, βάσει της ΑΠΥ Νο.\ 108 που εξέδωσα στις 12/01/2026 και την οποία έχει καταθέσει ο ίδιος στην ασφαλιστική του εταιρεία.
+
+% Purpose (for a female patient: "της ασθενούς", "της")
+Το παρόν χορηγείται για χρήση στην ασφαλιστική εταιρεία του ασθενούς.
+% Το παρόν χορηγείται για χρήση από τον ασφαλιστικό φορέα του ασθενούς.
+% Το παρόν χορηγείται για την εργασία του ασθενούς.
+% Το παρόν χορηγείται μετά από αίτηση του ασθενούς, για την υπηρεσία του.
+% Το παρόν χορηγείται για χρήση στο διαγνωστικό κέντρο.
+% Το παρόν χορηγείται για κάθε νόμιμη χρήση.
+% Η παρούσα βεβαίωση δίνεται κατόπιν επιθυμίας του ασθενούς.
+
+\end{document}

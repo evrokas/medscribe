@@ -1,0 +1,122 @@
+{
+  "format": 1,
+  "name": "syntagi-a5",
+  "label": "Συνταγή / Οδηγίες φαρμακευτικής αγωγής (A5)",
+  "lang": "gr",
+  "paper": "a5",
+  "title": "Συνταγή",
+  "titles": [
+    "Συνταγή",
+    "Οδηγίες Φαρμακευτικής Αγωγής"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός",
+    ""
+  ],
+  "stamp": "no",
+  "page_numbers": "all",
+  "shared": {
+    "drug-library": "latest"
+  },
+  "fields": {
+    "diagnosis": {
+      "type": "text",
+      "label": "Διάγνωση",
+      "placeholder": "διάγνωση"
+    },
+    "allergies": {
+      "type": "text",
+      "label": "Αλλεργίες",
+      "placeholder": "καμία γνωστή"
+    },
+    "surgery_date": {
+      "type": "date",
+      "label": "Ημερομηνία χειρουργείου"
+    },
+    "amka_value": {
+      "type": "text",
+      "label": "ΑΜΚΑ"
+    },
+    "drug_names": {
+      "type": "text",
+      "label": "Φάρμακα (σημείωση)",
+      "placeholder": "Tegretol / Lyrica / Keppra"
+    },
+    "one_drug": {
+      "type": "text",
+      "label": "Φάρμακο (σημείωση)",
+      "placeholder": "φάρμακο"
+    }
+  },
+  "sections": [
+    {
+      "id": "patient",
+      "slot": "prescription.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "amka_row",
+          "label": "ΑΜΚΑ",
+          "text": "@amka",
+          "default": false
+        },
+        {
+          "id": "diagnosis_row",
+          "label": "Διάγνωση",
+          "text": "@diagnosis",
+          "default": false
+        },
+        {
+          "id": "allergies_row",
+          "label": "Αλλεργίες",
+          "text": "@allergies",
+          "default": false
+        },
+        {
+          "id": "surgery_row",
+          "label": "Ημ. Χειρουργείου",
+          "text": "@surgery_date",
+          "datefmt": "d-m-Y",
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "medications",
+      "slot": "prescription.medications",
+      "layout": "medtable",
+      "library": "drug-library"
+    },
+    {
+      "id": "notes",
+      "slot": "prescription.notes",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "note_nsaid",
+          "text": "**Σημείωση:** Μην λαμβάνετε αντιφλεγμονώδη φάρμακα (π.χ.\\ Voltaren, Brufen, Ponstan, Naprosyn) χωρίς ιατρική οδηγία.",
+          "default": true
+        },
+        {
+          "id": "note_no_reduce",
+          "text": "**Σημείωση:** Μην διακόψετε και μην μειώσετε μόνος/μόνη σας τα @drug_names. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "note_tell",
+          "text": "**Σημείωση:** Ενημερώστε κάθε ιατρό και φαρμακοποιό ότι λαμβάνετε @one_drug, πριν από τη χορήγηση οποιουδήποτε νέου φαρμάκου.",
+          "default": false,
+          "inline": true
+        },
+        {
+          "id": "note_continue",
+          "text": "**Σημείωση:** Η υπόλοιπη φαρμακευτική σας αγωγή (π.χ.\\ αντιυπερτασική) συνεχίζεται **αμετάβλητη**.",
+          "default": false,
+          "inline": true
+        }
+      ]
+    }
+  ]
+}

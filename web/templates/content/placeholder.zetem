@@ -1,0 +1,6 @@
+{% attach_library('boxicons') %}
+<div class="page-placeholder">
+    <h2>{{{t($heading)}}}</h2>
+    <p>{{{t($note)}}}</p>
+    <p class="muted"><i class="bx bx-wrench"></i> {{{t('Not built yet')}}} &middot; {{{t('Planned milestone')}}}: {{{$milestone}}}</p>
+</div>

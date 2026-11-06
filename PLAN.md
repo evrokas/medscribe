@@ -493,9 +493,12 @@ This follows what `~/devel/docs/scripts/build.sh` already does:
 - **XeLaTeX runs:** `xelatex -interaction=nonstopmode -halt-on-error -no-shell-escape`, 2 to 4 passes
   until there is no "Rerun", with a fixed `SOURCE_DATE_EPOCH`.
 - **No reading outside the job:** TeX Live here allows reading any file (`openin_any = a`), so a
-  `latex` block could `\input` a server file such as `config/docarc_api.php` into the PDF. Jobs run
-  with `openin_any=p` (only the job folder and the TeX tree) and `openout_any=p`; raw-LaTeX blocks
-  are a doctor-only feature.
+  `latex` block could `\input` a server file such as `config/docarc_api.php` into the PDF.
+  *Checked 2026-11-06: `openin_any=p` does **not** prevent this for XeTeX (absolute and `../` paths are
+  still read).* Jobs therefore run in a namespace sandbox (`bin/tex-sandbox.sh`): a private root with
+  `/usr` read-only, the font config, the job folder and a cache folder, and no network.
+  `openin_any=p`/`openout_any=p` are still set as a second layer. Raw-LaTeX blocks stay a doctor-only
+  feature.
 - **Limits:** a time limit and a size limit per job. Fonts and caches go to a folder Apache's user
   can write to.
 - **On failure:** the error and the end of the log are shown in the form, never a blank page.
@@ -728,7 +731,7 @@ Each milestone ends with something you can use or test.
 
 | # | Milestone | Done when |
 |---|---|---|
-| M0 | **Foundations:** ZeusFw app scaffold (same layout as ZPMS), login + roles, config templates, test runner. The **template store** (sources, versions, SHA-256, base releases), the kit import (all files → v1, base release B1), and the compile service running XeLaTeX as Apache's user from a manifest (`openin_any=p`, §7.2). In the kit (git): `\DocDraft` and `\DocRevision` (Q6) | The unmodified `tpl-vevaiosi-mri.tex` compiles from the store into the same PDF as `scripts/build.sh` gives (byte-identical when both use the same `SOURCE_DATE_EPOCH`; build.sh sets none, so add it there or compare page images). A build's manifest lists every file used, with its version and hash |
+| M0 | **Foundations:** ZeusFw app scaffold (same layout as ZPMS), login + roles, config templates, test runner. The **template store** (sources, versions, SHA-256, base releases), the kit import (all files → v1, base release B1), and the compile service running XeLaTeX as Apache's user from a manifest, in a namespace sandbox (§7.2). In the kit (git): `\DocDraft` and `\DocRevision` (Q6) | The unmodified `tpl-vevaiosi-mri.tex` compiles from the store into the same PDF as `scripts/build.sh` gives (byte-identical when both use the same `SOURCE_DATE_EPOCH`; build.sh sets none, so add it there or compare page images). A build's manifest lists every file used, with its version and hash |
 | M1 | **Engine + first type**: the type/section/block format, gender variants, field types, local edits, escaping and markup. The form, renderer and preview, with the patient typed in by hand. `vevaiosi-mri` is defined in the new format | A `vevaiosi-mri` is written entirely in the form, and its PDF matches the hand-filled kit version (regression test G3) |
 | M2 | **ZPMS**: patient search and fetch-by-guid endpoints in ZPMS, the "New document" button, the patient snapshot | Opening ZPMS → "New document" → `vevaiosi-mri` arrives with the patient already filled in |
 | M3 | **DocArc + lifecycle**: the DocArc endpoints (§9), the two-stage issue flow with its states and retries (§7.4), locking, copy as new, withdraw, the document history (§7.5). Revise once DocArc's versioning exists. Rebuilding from a manifest. **Issued documents feed the history** (D8) | **G2 is met for `vevaiosi-mri`:** an issued PDF with a working QR, in DocArc, in under a minute. **G5 is met:** after a new base release, an old document still rebuilds to the same PDF hash |
