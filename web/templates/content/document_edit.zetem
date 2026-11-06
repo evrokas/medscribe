@@ -6,6 +6,8 @@
         <span class="badge badge-{{{$doc['status']}}}">{{{$doc['status']}}}</span>
     </div>
 
+    {% if($unsaved): %}<p class="notice">{{{t('These changes are NOT saved yet: a PDF was being built. Save again.')}}}</p>{% endif %}
+    {% if($busy && !$locked): %}<p class="notice">{{{t('A PDF of this document is being built; saving waits until it is done.')}}}</p>{% endif %}
     {% if($locked): %}<p class="notice">{{{t('This document is locked.')}}} {% if($doc['doc_code']): %}<code>{{{$doc['doc_code']}}}</code>{% endif %}</p>{% endif %}
     {% if($doc['status'] == 'code_reserved'): %}<p class="notice">{{{t('Code reserved')}}}: <code>{{{$doc['doc_code']}}}</code>. {{{t('Edits keep the code; the final PDF is built again at the next step.')}}}</p>{% endif %}
     <p class="links">
@@ -91,7 +93,7 @@
 
     {% foreach($sections as $sec): %}
     <fieldset class="section" {% if($locked): %}disabled{% endif %}>
-      <legend>{{{$sec['heading'] ?: $sec['slot']}}} <span class="muted">{{{$sec['slot']}}} &middot; {{{$sec['layout']}}}</span></legend>
+      <legend>{{{$sec['label'] ?: ($sec['heading'] ?: $sec['slot'])}}} <span class="muted">{{{$sec['slot']}}} &middot; {{{$sec['layout']}}}</span></legend>
       {% if($sec['optional']): %}
       <label class="inline"><input type="checkbox" name="sections_on[{{{$sec['id']}}}]" value="1" {% if($sec['on']): %}checked{% endif %}> {{{t('Include this section')}}}</label>
       {% endif %}
@@ -131,7 +133,12 @@
           <label class="inline"><input type="checkbox" name="blocks_on[{{{$b['id']}}}]" value="1" {% if($b['on']): %}checked{% endif %}> {{{$b['label'] ?: ''}}}</label>
           {% endif %}
         </div>
+        {% if($b['is_latex']): %}
+        <textarea rows="{{{max(2, min(8, intdiv(mb_strlen($b['text']), 90) + 1))}}}" readonly class="latex-block">{{{$b['text']}}}</textarea>
+        <span class="muted">{{{t('LaTeX block: it can be switched on or off here; its text is changed in the type editor.')}}}</span>
+        {% else: %}
         <textarea name="btext[{{{$b['id']}}}]" rows="{{{max(2, min(8, intdiv(mb_strlen($b['text']), 90) + 1))}}}">{{{$b['text']}}}</textarea>
+        {% endif %}
         {% if($b['edited']): %}<span class="edited">{{{t('edited for this document')}}}</span>{% endif %}
       </div>
       {% endforeach %}
@@ -147,7 +154,7 @@
       {% endif %}
       <details {% if($sec['extra']): %}open{% endif %}>
         <summary>{{{$sec['is_list'] ? t('Add items (one per line)') : t('Add free text')}}}</summary>
-        <textarea id="extra-{{{$sec['id']}}}" name="extra[{{{$sec['id']}}}]" rows="3" placeholder="{{{t('Written for this document only')}}}">{{{$sec['extra']}}}</textarea>
+        <textarea id="extra-{{{$sec['id']}}}" name="extra[{{{$sec['id']}}}]" rows="{{{$sec['rows']}}}" placeholder="{% if($sec['placeholder'] !== ''): %}{{{$sec['placeholder']}}}{% else: %}{{{t('Written for this document only')}}}{% endif %}">{{{$sec['extra']}}}</textarea>
       </details>
     </fieldset>
     {% endforeach %}

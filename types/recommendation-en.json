@@ -1,256 +1,147 @@
 {
   "format": 1,
   "name": "recommendation-en",
-  "label": "recommendation-en",
+  "label": "Letter of Recommendation (English)",
   "lang": "en",
   "paper": "a4",
   "imported": "kit tpl-recommendation-en.tex",
-  "shared": {
-    "purpose": "latest"
-  },
   "fields": {
-    "f1": {
+    "surname": {
       "type": "text",
-      "label": "Ms.\\ Name Surname",
-      "placeholder": "Ms.\\ Name Surname"
+      "label": "Surname (for \"Ms. Surname\")",
+      "placeholder": "Surname"
     },
-    "f2": {
+    "hospital": {
       "type": "text",
-      "label": "her",
-      "placeholder": "her"
+      "label": "Hospital",
+      "default": "Athens Medical Group Hospital, Peristeri Clinic, Athens, Greece"
     },
-    "f3": {
+    "program": {
       "type": "text",
-      "label": "Athens Medical Group Hospital, Peristeri Clinic, Athens, Gre",
-      "placeholder": "Athens Medical Group Hospital, Peristeri Clinic, Athens, Greece"
-    },
-    "f4": {
-      "type": "text",
-      "label": "as part of the ... Program",
+      "label": "Programme",
       "placeholder": "as part of the ... Program"
     },
-    "f5": {
-      "type": "text",
-      "label": "date",
-      "placeholder": "date"
+    "from": {
+      "type": "date",
+      "label": "Observership from"
     },
-    "f6": {
-      "type": "text",
-      "label": "date",
-      "placeholder": "date"
+    "to": {
+      "type": "date",
+      "label": "Observership to"
     },
-    "f7": {
+    "qualities": {
       "type": "text",
-      "label": "her",
-      "placeholder": "her"
-    },
-    "f8": {
-      "type": "text",
-      "label": "Ms.\\ Surname",
-      "placeholder": "Ms.\\ Surname"
-    },
-    "f9": {
-      "type": "text",
-      "label": "genuine enthusiasm for learning and a sincere interest in ne",
+      "label": "Demonstrated",
       "placeholder": "genuine enthusiasm for learning and a sincere interest in neurosurgery"
     },
-    "f10": {
+    "next": {
       "type": "text",
-      "label": "What the candidate attended or did, e.g.\\ She attended a min",
-      "placeholder": "What the candidate attended or did, e.g.\\ She attended a minimally invasive lumbar discectomy, showing particular interest in the surgical principles, anatomy and decision-making involved."
-    },
-    "f11": {
-      "type": "text",
-      "label": "What impressed you most, with one concrete example.",
-      "placeholder": "What impressed you most, with one concrete example."
-    },
-    "f12": {
-      "type": "text",
-      "label": "Qualities relevant to the next step: professionalism, intell",
-      "placeholder": "Qualities relevant to the next step: professionalism, intellectual curiosity, humility, teamwork, patient care."
-    },
-    "f13": {
-      "type": "text",
-      "label": "her",
-      "placeholder": "her"
-    },
-    "f14": {
-      "type": "text",
-      "label": "postgraduate training programs, research opportunities, clin",
+      "label": "Recommended for",
       "placeholder": "postgraduate training programs, research opportunities, clinical observerships, or any academic endeavor she chooses to pursue"
-    },
-    "f15": {
-      "type": "text",
-      "label": "her",
-      "placeholder": "her"
-    },
-    "f16": {
-      "type": "text",
-      "label": "her",
-      "placeholder": "her"
     }
   },
   "sections": [
     {
-      "id": "s1",
-      "slot": "import.recommendation-en.s1",
+      "id": "greeting",
+      "slot": "recommendation-en.greeting",
+      "label": "Greeting",
       "layout": "paragraphs",
       "blocks": [
         {
-          "id": "s1_b1",
-          "text": "\\noindent To Whom It May Concern,",
+          "id": "greeting_b1",
+          "text": "To Whom It May Concern,",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "intro",
+      "slot": "recommendation-en.intro",
+      "label": "Introduction",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "intro_b1",
+          "text": "It is my pleasure to write this letter of recommendation for **{Mr.|Ms.}\\ @patient**, whom I had the opportunity to host during {his|her} clinical observership in the Department of Neurosurgery at @hospital, from @from to @to.",
           "default": true,
-          "format": "latex"
-        }
-      ]
-    },
-    {
-      "id": "s2",
-      "slot": "import.recommendation-en.s2",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s2_b1",
-          "text": "It is my pleasure to write this letter of recommendation for **@f1**, whom I had the opportunity to host during @f2 clinical observership in the Department of Neurosurgery at @f3, @f4, from @f5 to @f6.",
-          "default": true
-        }
-      ]
-    },
-    {
-      "id": "s3",
-      "slot": "import.recommendation-en.s3",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s3_b1",
-          "text": "During @f7 observership, @f8 demonstrated @f9. @f10",
-          "default": true
-        }
-      ]
-    },
-    {
-      "id": "s4",
-      "slot": "import.recommendation-en.s4",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s4_b1",
-          "text": "@f11",
-          "default": true
-        }
-      ]
-    },
-    {
-      "id": "s5",
-      "slot": "import.recommendation-en.s5",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s5_b1",
-          "text": "@f12",
-          "default": true
-        }
-      ]
-    },
-    {
-      "id": "s6",
-      "slot": "import.recommendation-en.s6",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s6_b1",
-          "text": "I am pleased to recommend @f13 for @f14.",
-          "default": true
-        }
-      ]
-    },
-    {
-      "id": "s7",
-      "slot": "import.recommendation-en.s7",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s7_b1",
-          "text": "I wish @f15 every success in @f16 future career.",
-          "default": true
-        }
-      ]
-    },
-    {
-      "id": "s8",
-      "slot": "import.recommendation-en.s8",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s8_b1",
-          "text": "\\vspace{1em}",
-          "default": true,
-          "format": "latex"
+          "group": "intro",
+          "datefmt": "j F Y"
         },
         {
-          "id": "s8_b2",
-          "text": "\\noindent Sincerely,",
-          "default": true,
-          "format": "latex",
-          "inline": true
+          "id": "intro_b2",
+          "text": "It is my pleasure to write this letter of recommendation for **{Mr.|Ms.}\\ @patient**, whom I had the opportunity to host during {his|her} clinical observership in the Department of Neurosurgery at @hospital, @program, from @from to @to.",
+          "default": false,
+          "group": "intro",
+          "datefmt": "j F Y"
         }
       ]
     },
     {
-      "id": "s9",
-      "slot": "import.recommendation-en.s9",
+      "id": "observed",
+      "slot": "recommendation-en.observed",
+      "label": "What the candidate did",
       "layout": "paragraphs",
       "blocks": [
         {
-          "id": "s9_b1",
-          "text": "\\vspace{2em}",
-          "default": true,
-          "format": "latex"
-        },
+          "id": "observed_b1",
+          "text": "During {his|her} observership, {Mr.|Ms.}\\ @surname demonstrated @qualities.",
+          "default": true
+        }
+      ],
+      "placeholder": "What the candidate attended or did, e.g. She attended a minimally invasive lumbar discectomy, showing particular interest in the surgical principles, anatomy and decision-making involved."
+    },
+    {
+      "id": "impressed",
+      "slot": "recommendation-en.impressed",
+      "label": "What impressed you most",
+      "layout": "paragraphs",
+      "blocks": [],
+      "placeholder": "What impressed you most, with one concrete example."
+    },
+    {
+      "id": "qualities",
+      "slot": "recommendation-en.qualities",
+      "label": "Qualities",
+      "layout": "paragraphs",
+      "blocks": [],
+      "placeholder": "Qualities relevant to the next step: professionalism, intellectual curiosity, humility, teamwork, patient care."
+    },
+    {
+      "id": "recommend",
+      "slot": "recommendation-en.recommend",
+      "label": "Recommendation",
+      "layout": "paragraphs",
+      "blocks": [
         {
-          "id": "s9_b2",
-          "text": "\\noindent\\textbf{\\DrName, \\DrDegree}\\newline",
-          "default": true,
-          "format": "latex",
-          "inline": true
-        },
+          "id": "recommend_b1",
+          "text": "I am pleased to recommend {him|her} for @next.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "wish",
+      "slot": "recommendation-en.wish",
+      "label": "Closing wish",
+      "layout": "paragraphs",
+      "blocks": [
         {
-          "id": "s9_b3",
-          "text": "[Consultant Neurosurgeon]\\newline",
-          "default": true,
-          "format": "latex",
-          "inline": true
-        },
-        {
-          "id": "s9_b4",
-          "text": "[Athens Medical Group -- Peristeri Clinic]\\\\",
-          "default": true,
-          "format": "latex",
-          "inline": true
-        },
-        {
-          "id": "s9_b5",
-          "text": "Athens, Greece",
-          "default": true,
-          "inline": true
+          "id": "wish_b1",
+          "text": "I wish {him|her} every success in {his|her} future career.",
+          "default": true
         }
       ]
     }
-  ],
-  "needs_review": [
-    "s1_b1: kept as LaTeX: \\noindent To Whom It May Concern,",
-    "s8_b1: kept as LaTeX: \\vspace{1em}",
-    "s8_b2: kept as LaTeX: \\noindent Sincerely,",
-    "s9_b1: kept as LaTeX: \\vspace{2em}",
-    "s9_b2: kept as LaTeX: \\noindent\\textbf{\\DrName, \\DrDegree}\\newline",
-    "s9_b3: kept as LaTeX: [Consultant Neurosurgeon]\\newline",
-    "s9_b4: kept as LaTeX: [Athens Medical Group -- Peristeri Clinic]\\\\"
   ],
   "title": "Letter of Recommendation",
   "titles": [
     "Letter of Recommendation"
   ],
-  "closing": "",
-  "closings": [],
-  "stamp": "no"
+  "closing": "Sincerely,",
+  "closings": [
+    "Sincerely,",
+    "Kind regards,"
+  ],
+  "stamp": "no",
+  "reviewed": "2026-11-06"
 }

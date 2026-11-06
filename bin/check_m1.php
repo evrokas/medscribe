@@ -65,6 +65,14 @@ foreach ($auto as $name => $c) {
         'settings' => ['clinic' => 'Peristeri', 'date' => '2026-01-15', 'title' => $type['title'], 'closing' => $type['closing'], 'stamp' => $type['stamp'] ?? 'no', 'recipient' => $c['recipient'] ?? ''],
         'fields' => $c['fields']];
     foreach ($type['sections'] as $sec) if (($sec['layout'] ?? '') === 'medtable' && !empty($sec['default_rows'])) $inputs['meds'][$sec['id']] = $sec['default_rows'];   // as a new document gets them
+    if (!empty($type['reviewed'])) {
+        // Reviewed by the doctor: the type is the reference now, not the kit file. It must still build cleanly.
+        $inputs['fields'] = array_map(fn($f) => $f['placeholder'] ?? $f['label'] ?? 'x', $type['fields'] ?? []);
+        [$tex, $issues] = render_document($type, $inputs);
+        $mine = compile_job($files, ['document.tex' => $tex], 'document.tex', $epoch);
+        check("[auto $name] reviewed {$type['reviewed']}: builds with no issues", $mine['ok'] && !$issues, ($mine['error'] ?? '') . ($issues ? json_encode($issues, JSON_UNESCAPED_UNICODE) : ''));
+        continue;
+    }
     [$tex, $issues] = render_document($type, $inputs);
     $mine = compile_job($files, ['document.tex' => $tex], 'document.tex', $epoch);
     $ref = compile_job($files, ['document.tex' => file_get_contents(__DIR__ . "/../tests/fixtures/auto/$name.tex")], 'document.tex', $epoch);

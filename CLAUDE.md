@@ -274,7 +274,7 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
 - **Try it without Apache:** `php -S 127.0.0.1:8099 -t web router.php` (`router.php` is dev-only and emulates
   `.htaccess`). Production needs its own vhost with `DocumentRoot .../medscribe/web`, like `pms.erns.eu`
   (see `deploy/apache-vhost.conf.sample`).
-- Strings are English only for now; there is no `config/dictionary.gr.php` yet.
+- Strings are English only for now; there is no `config/dictionary.gr.php` yet (the Greek interface is postponed, 2026-11-06).
 
 ## M0 foundations (2026-11-06)
 
@@ -290,7 +290,7 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
 - **Tests:** `bin/run_tests.sh` (`--static-only`, `--tex-only`) runs lint/YAML/route checks and
   `bin/check_m0.php`, the M0 acceptance check: store build is byte-identical to `build.sh`, manifest
   rebuild, old-build rebuild, and the `\input` isolation test (plain-text secret, not PHP).
-- **Kit change (uncommitted in `~/devel/docs`):** `\DocDraft` and `\DocRevision` added to
+- **Kit change (committed in `~/devel/docs` as 8a6e291, not pushed):** `\DocDraft` and `\DocRevision` added to
   `evrtemplate.tex` (Q6); with both empty the PDF is unchanged.
 - CLI scripts boot through `bin/lib/cli_boot.php`, which must call `dbConnection::init()` itself.
 
@@ -341,9 +341,18 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
 - **MedScribe:** `web/docarc_client.php` (never throws; 3 s lookups, `DOCARC_UPLOAD_TIMEOUT` for uploads),
   `web/issue.php` (the state machine: draft/review → code_reserved → final_compiled → approved → pdf_sent →
   issued → withdrawn; every transition is a compare-and-swap on `status`, steps take `busy_until` first, a
-  failed step resumes with the same call, DocArc calls are idempotent), `web/issue_pages.php` (issue page,
+  failed step resumes with the same call, DocArc calls are idempotent). **Every TeX run on a document (preview,
+  final PDF, rebuild) holds the `busy_until` lock, and the composer's save takes it too**: a save during a build is
+  refused and the typed form is handed back once (`$_SESSION['doc_unsaved']`). The lock lasts
+  `issue_busy_seconds()`, longer than the slowest possible build; the two-up print takes it too (409 while busy), `web/issue_pages.php` (issue page,
   history, revision files, `/types/links` for D20), `web/audit.php` (basic audit: who/when/what/document/revision,
   never patient data or reasons). Only the doctor issues, withdraws, deletes and rebuilds (D21).
+- **Verification code (D22):** the AMKA when valid, else a 6-digit code made **once** and kept in `documents.verify_code`
+  *before* DocArc is called, so a retry (DocArc answering the existing record by idempotency key) never shows a code DocArc
+  does not have. The send's PATCH carries `verification` too, so a corrected AMKA reaches DocArc.
+- **What MedScribe may delete in DocArc:** only records it created through the API (DocArc answers 404 for every other
+  record, staff ones included), and `mode=empty` only when nothing was ever uploaded (no main document, no supplementary
+  file; else 409). Deleting a draft (doctor or secretary) only ever asks for `mode=empty`; withdraw (`mode=all`) is the doctor's.
 - **Abandoned drafts:** the empty DocArc record is deleted; if DocArc is down the job is queued in
   `docarc_cleanup` (`issue_cleanup_run()`, to be run by `bin/retry_cleanups.php`), and a job never deletes a
   record that has a document.
@@ -374,8 +383,12 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   not unchanged type blocks) is stored per slot with the patient's name, AMKA, field values and dates turned back
   into `@tokens` (swap on insertion); withdrawing removes it. The composer offers suggestions per section (same
   slot first, then same family) and a token palette; `/library` lists the pool (promote, demote, hide).
-  **Not built from M4:** merge in the library, ranking by case features (M6), the "other patient's name left in the
-  text" check (§7.3).
+  Only exact copies of the values are tokenized; a surname alone or another grammatical form stays as written. That is
+  accepted for issued documents because the doctor reviews every letter, suggestions included, before issuing (decided
+  2026-11-06). The archive seeder, whose letters nobody reviews one by one, still drops any text where part of the name
+  is found (`pool_name_left()`: accent/case-free stem match, errs on the safe side).
+  **Not built from M4:** merge in the library, ranking by case features (M6), a composer warning when the document's own
+  text names a *different* patient (§7.3).
 - **Bug found by `bin/check_web.php`:** a new document used to start with every standalone block switched off;
   `check_web.php` (real HTTP, temporary doctor + secretary accounts) now guards that, role access and CSRF.
 
@@ -400,20 +413,35 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   commented ones blocks that are off; `[text]` becomes a field (dates by shape); gender is made agreeing; the seven purpose
   sentences become the shared component; anything it cannot express as markup becomes a trusted `format: latex` block
   and is listed in the type's `needs_review`. Imported: `proegkrisi`, `enimerotiko`, `gnomateysi-farmakon`,
-  `iatrodikastiki`, `synainesi`, `praktiko`, `epistoli`, `recommendation-en` (English), and the postop types
-  `odigies-osfyiki|kranio|kyfoplastiki`. They are released, but **the doctor has not reviewed them**
-  (each is a proposal from the kit file); review in the type editor, one per sitting.
+  `iatrodikastiki`, `synainesi`, `praktiko`, `epistoli` (it also stands for the kit's blank `letter-gr`/`letter-en`; no
+  separate types, decided 2026-11-06), `recommendation-en` (English), and the postop types
+  `odigies-osfyiki|kranio|kyfoplastiki`.
+- **Type review (2026-11-06, in a Claude session):** all of them are reviewed (`"reviewed": "<date>"` in the type). The kit's
+  `gnomateysi-farmakon` was split into `gnomateysi-baclofen`, `gnomateysi-fyk` and `gnomateysi-farmakon` (chronic medication);
+  the two new types need a DocArc link on `/types/links` before issuing. A reviewed type is no longer compared with its kit
+  file in `bin/check_m1.php` (it must build with no issues instead): the type is the reference now. The postop types were
+  done with structure-only defaults (the doctor's instruction); their emergency boxes are off until the doctor enables them.
+  Workflow: edit `types/<name>.json`, then `php bin/import_types.php --release --note="..." <name>` (one new version, the
+  doctor's note); the JSON files stay the source, so the files and the store never diverge.
+- **Engine additions from the review:** `has_patient: "optional"` (name not required), a section `placeholder` (grey hint in
+  its free-text box; a section with no blocks is a free-text box) and `label` (composer name of a heading-less section),
+  `intro` on `medtable`, `datefmt: "long"` (20 Φεβρουαρίου 2026). `proegkrisi` ships the first case feature (chip
+  "Επανάληψη RF γασσερίου"; kit wording).
 - **Engine additions:** `topics` layout (enumerated topics with bullets, one slot per topic), `medtable` `default_rows` and
   `title_page`, list `bullet`/`list_options`/`list_preamble`, numbered headings, `recipient` setting,
-  `has_patient: false` (practice documents), **case features** (`features` in a type; chips whose operations
-  enable/disable/set/add and are undone exactly on removal; unit-tested; composer chips; **no feature is shipped yet**:
+  `has_patient: false` (practice documents), raw-LaTeX blocks read-only in the composer (changed in the type editor),
+  **case features** (`features` in a type; chips whose operations
+  enable/disable/set/add and are undone exactly on removal; unit-tested; composer chips; only `proegkrisi`'s RF chip so far:
   modules hold clinical wording, which is the doctor's to write).
 - **Regression of imported types** (`bin/check_m1.php`, "auto"): PDF text equal to the filled kit template (blank lines
   ignored; a few differ in sub-pixel spacing only). `php bin/check_auto.php <name>` shows the differences for one type.
 - **M8 types** (`ikanotita-work|driving|travel`, `preop-odigies`, `gdpr-enimerosi`, `timokatalogos`, `fylladio`) are
   **drafts** (`"draft": true` is kept out of release by `import_types.php`): skeletons whose wording the doctor writes;
   the three practice documents have no patient. Release them from the type editor after review.
-- **Archive seeding (D15):** `bin/seed_archive.php <folder> [--dry-run]` (unit-tested on synthetic letters only). It has
+- **Archive seeding (D15):** `bin/seed_archive.php <folder> [--dry-run]` (unit-tested on synthetic letters only). Texts go
+  to `pool_archive_slot(<heading>)` and are suggested (third tier, after the slot and its family) in sections with the same
+  heading; each letter is one pseudo-document (negative id from its content), so a second run changes nothing;
+  `--dry-run` prints every text it would store. It has
   **not** been run on the real archive: those letters hold real patients' details, so the doctor runs it.
 - **Not done:** modules for the postop types, the rest of the §12.3 operations (SWAP, PROPOSE MEDROW with confirmation),
   M9 (scales, deferred by the plan).

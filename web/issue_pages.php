@@ -104,7 +104,7 @@ function page_document_history($params) {
     $doc = doc_load($id);
     if (!$doc) return error_404('Document not found.');
     if (in_array($doc['status'], ['withdrawn'], true) && !issue_is_doctor()) return error_403('Only the doctor can open a withdrawn document.');
-    medscribe_audit('doc_opened', $id);
+    if (in_array($doc['status'], ['issued', 'withdrawn'], true)) medscribe_audit('doc_opened', $id);   // as the composer: issued documents only
     $revs = issue_revisions($id);
     foreach ($revs as &$r) {
         $m = store_db()->prepare('SELECT manifest FROM builds WHERE id = ?'); $m->execute([$r['build_id']]);
@@ -168,13 +168,17 @@ function page_docarc_links_post($params) {
     foreach (($_POST['type'] ?? []) as $key => $val) {
         if (!is_string($key) || !preg_match('/^[a-z0-9-]{1,64}$/', $key)) continue;
         $val = (int)$val;
-        if ($val === 0) { issue_link_clear('type', $key); continue; }
+        $cur = issue_link_get('type', $key);
+        if ($val === 0) { if ($cur) issue_link_clear('type', $key); continue; }
+        if ($cur && (int)$cur['docarc_id'] === $val) continue;   // unchanged: keep who linked it and when
         foreach ($dtypes as $t) if ($t['id'] === $val) issue_link_set('type', $key, $val, $t['label'], $t['code'], $user);
     }
     foreach (($_POST['clinic'] ?? []) as $key => $val) {
         if (!in_array($key, RENDER_CLINICS, true)) continue;
         $val = (int)$val;
-        if ($val === 0) { issue_link_clear('clinic', $key); continue; }
+        $cur = issue_link_get('clinic', $key);
+        if ($val === 0) { if ($cur) issue_link_clear('clinic', $key); continue; }
+        if ($cur && (int)$cur['docarc_id'] === $val) continue;
         foreach ($dclinics as $c) if ($c['id'] === $val) issue_link_set('clinic', $key, $val, $c['name'], null, $user);
     }
     $kernel->addStatus('status', 'Links saved.');

@@ -26,12 +26,14 @@ $letter = <<<'TEX'
   \item Με εντολή $x$ και \foo{bar} εδώ υπάρχει LaTeX.
 \end{itemize}
 Το ΑΜΚΑ 12345678901 καταγράφηκε σε αυτό το γράμμα.
+Ο κ. Ιωάννου επανεξετάστηκε μετά από δύο εβδομάδες.
+Η σύζυγος του Γεωργίου ενημερώθηκε για τη φροντίδα.
 \end{document}
 TEX;
 eq(seed_letter_texts($letter), [
     ['archive.φροντίδα_τραύματος', 'Ο ασθενής @patient παρέμεινε στην κλινική για τρεις ημέρες.'],
     ['archive.φροντίδα_τραύματος', 'Το τραύμα πρέπει να παραμένει **καθαρό** και στεγνό.'],
-    ['archive.φροντίδα_τραύματος', 'Το ΑΜΚΑ @amka καταγράφηκε σε αυτό το γράμμα.']], 'plain text is kept with patient details as tokens; short lines, comments, patient rows and LaTeX are skipped');
+    ['archive.φροντίδα_τραύματος', 'Το ΑΜΚΑ @amka καταγράφηκε σε αυτό το γράμμα.']], 'plain text is kept with patient details as tokens; short lines, comments, patient rows, LaTeX and lines naming the patient in part are skipped');
 eq(seed_letter_texts('\\providecommand\\PatientName{Επώνυμο Όνομα}\\begin{document}x\\end{document}'), [], 'a letter with the template placeholder name is skipped');
 eq(seed_letter_texts('no patient here'), [], 'a file without a patient name is skipped');
 echo $fail ? "$fail of $n seed tests FAILED\n" : '';

@@ -117,6 +117,24 @@ $ev = store_db()->query("SELECT event_type FROM audit_log WHERE document_id = $i
 check('audit: code requested, approved, issued (no patient data)', array_intersect(['code_requested', 'approved', 'issued'], $ev) === ['code_requested', 'approved', 'issued']
     && !str_contains(json_encode(store_db()->query("SELECT * FROM audit_log WHERE document_id = $id")->fetchAll(PDO::FETCH_ASSOC), JSON_UNESCAPED_UNICODE), 'Παπαδόπουλος'));
 
+// ---- 5b. a verification code without AMKA is made once: a retry after a lost answer keeps it; the send updates DocArc
+$secret = fn(string $tok) => (string)$dpdo->query('SELECT retrieval_secret_hash FROM records WHERE token = ' . $dpdo->quote($tok))->fetchColumn();
+$vid = newdoc(['patient' => ['amka' => '']]);
+$r = issue_request_code($vid, 'doctor', $cfg);
+$vd = doc_load($vid); $vcode = (string)$vd['verify_code'];
+check('no AMKA: a 6-digit code, and DocArc checks that code', $r['ok'] && preg_match('/^\d{6}$/', $vcode) && password_verify($vcode, $secret($vd['doc_code'])), $r['msg']);
+// a lost answer: DocArc made the record, MedScribe never recorded it
+store_db()->prepare("UPDATE documents SET status = 'draft', doc_code = NULL, docarc_url = NULL, docarc_type_id = NULL WHERE id = ?")->execute([$vid]);
+$r = issue_request_code($vid, 'doctor', $cfg);
+$vd2 = doc_load($vid);
+check('...the retry gets the same record and keeps the same code', $r['ok'] && $vd2['doc_code'] === $vd['doc_code'] && $vd2['verify_code'] === $vcode && password_verify($vcode, $secret($vd2['doc_code'])));
+// the AMKA is added after the code was reserved: what DocArc checks follows the document as approved
+$in = $vd2['inputs']; $in['patient']['amka'] = '98765432109'; doc_save_inputs($vid, $in);
+$r = issue_prepare($vid, 'doctor', $cfg); $r2 = $r['ok'] ? issue_approve($vid, 'doctor', $cfg) : $r;
+$vd3 = doc_load($vid);
+check('...an AMKA added later: issued, DocArc now checks the AMKA, not the old code', $r2['ok'] && $vd3['status'] === 'issued' && $vd3['verify_code'] === '98765432109'
+    && password_verify('98765432109', $secret($vd3['doc_code'])) && !password_verify($vcode, $secret($vd3['doc_code'])), $r2['msg']);
+
 // ---- 6. G5: the document keeps the base release it was built with; a newer one does not change its rebuild
 $rb = issue_rebuild_check($id, 1, 'doctor');
 $man = json_decode(store_db()->query("SELECT manifest FROM builds WHERE id = " . (int)$revs[0]['build_id'])->fetchColumn(), true);
@@ -125,8 +143,8 @@ check('G5: the current base release is newer than the one the document was built
 
 // ---- 6b. the pool is fed by the issued document (D8): edited and free text, with patient details as @tokens
 // ---- 7. a failed send resumes
-$id2 = newdoc(['patient' => ['name' => 'Δεύτερος Ασθενής', 'amka' => '', 'age' => '50'],
-               'blocks' => ['operation' => ['text' => '{Ο|Η} ασθενής Δεύτερος Ασθενής υποβλήθηκε στις 10/01/2026 σε μικροδισκεκτομή Ο4-Ο5.']],
+$id2 = newdoc(['patient' => ['name' => 'Δευτεράκης Νικόλαος', 'amka' => '', 'age' => '50'],
+               'blocks' => ['operation' => ['text' => '{Ο|Η} ασθενής Δευτεράκης Νικόλαος υποβλήθηκε στις 10/01/2026 σε μικροδισκεκτομή Ο4-Ο5.']],
                'extra' => ['purpose' => [['text' => 'Συνιστάται ανάπαυση για 2 εβδομάδες.']]]]);
 issue_request_code($id2, 'doctor', $cfg); issue_compile_final($id2, 'doctor');
 $d2 = doc_load($id2);
@@ -143,13 +161,13 @@ check('issue feeds the pool: edited and free text, patient name and date as @tok
 check('unchanged type blocks do not enter the pool', !in_array('certificate.materials', array_column($pool, 'slot'), true));
 check('suggestions: the same slot first, then the same family (D16); tokens stay tokens', (function () { $s = pool_suggest('certificate.operation', 3); return count($s) === 2 && $s[0]['slot'] === 'certificate.operation' && str_contains($s[0]['text'], '@patient') && $s[1]['slot'] === 'certificate.purpose'; })());
 $rec2 = dstate($d2['doc_code'], $cfg);
-check('DocArc holds the second document once (no duplicates)', $rec2 && $rec2['has_document'] && (int)$dpdo->query("SELECT COUNT(*) FROM documents")->fetchColumn() === 2);
+check('DocArc holds the second document once (no duplicates)', $rec2 && $rec2['has_document'] && (int)$dpdo->query("SELECT COUNT(*) FROM documents")->fetchColumn() === 3);   // $id, $vid (5b), $id2
 
 // ---- 8. the step lock (double click / second tab)
 $id3 = newdoc();
 store_db()->prepare('UPDATE documents SET busy_until = DATE_ADD(NOW(), INTERVAL 60 SECOND) WHERE id = ?')->execute([$id3]);
 $r = issue_request_code($id3, 'doctor', $cfg);
-check('a second step while one runs is refused', !$r['ok'] && $r['retry'] && st($id3) === 'draft' && (int)$dpdo->query('SELECT COUNT(*) FROM records')->fetchColumn() === 2, $r['msg']);
+check('a second step while one runs is refused', !$r['ok'] && $r['retry'] && st($id3) === 'draft' && (int)$dpdo->query('SELECT COUNT(*) FROM records')->fetchColumn() === 3, $r['msg']);   // $id, $vid, $id2: none new
 issue_end($id3);
 
 // ---- 9. a relinked type: the empty record is replaced (the type is part of the code)
@@ -177,6 +195,8 @@ check('an issued record is never removed by a cleanup job', (function () use ($c
 $r = issue_copy($id, 'doctor');
 $cp = doc_load($r['id'] ?? 0); $created[] = $r['id'] ?? 0;
 check('copy as new: a draft without patient and code, linked to the original', $r['ok'] && $cp['status'] === 'draft' && $cp['doc_code'] === null && $cp['inputs']['patient']['name'] === '' && $cp['inputs']['patient']['amka'] === '' && (int)$cp['copied_from'] === $id && ($cp['inputs']['fields']['surgery_date'] ?? '') === '2026-01-10');
+check('...using the latest released type version, like a new document', (int)$cp['typedef_version_id'] === (int)source_released_by_name('typedef/vevaiosi-mri')['version_id']);
+check('...and without the verification code of the original', $cp['verify_code'] === null);
 
 // ---- 12. withdraw, then delete from MedScribe
 check('only an issued document can be withdrawn', !issue_withdraw($cp['id'], 'doctor', 'x', $cfg)['ok']);

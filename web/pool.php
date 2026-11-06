@@ -28,6 +28,34 @@ function pool_tokenize(string $text, array $values, array $fieldTypes = []): str
     return $text;
 }
 
+/** Accent-free uppercase (Greek and Latin), to compare names whatever their accents and case. */
+function pool_fold(string $s): string {
+    $d = class_exists('Normalizer') ? Normalizer::normalize($s, Normalizer::FORM_D) : $s;
+    return mb_strtoupper(preg_replace('/\p{Mn}+/u', '', (string)($d === false ? $s : $d)));
+}
+
+/**
+ * Does the text still name the patient after tokenizing (PLAN.md §7.3)? Each part of the name (4+ letters) is
+ * looked for as a word stem, so the surname or first name alone and other grammatical forms are caught too
+ * ("Παπαδόπουλος" -> "του Παπαδόπουλου", "ΠΑΠΑΔΟΠΟΥΛΟ"). Used by the archive seeder only (its letters are not reviewed
+ * one by one); text from an issued document is pooled without it, since the doctor reviews every letter before issuing.
+ */
+function pool_name_left(string $text, string $name): bool {
+    $t = pool_fold($text);
+    foreach (preg_split('/[^\p{L}]+/u', pool_fold($name), -1, PREG_SPLIT_NO_EMPTY) as $w) {
+        if (mb_strlen($w) < 4) continue;
+        $stem = mb_substr($w, 0, max(4, mb_strlen($w) - 2));
+        if (preg_match('/(?<!\p{L})' . preg_quote($stem, '/') . '\p{L}{0,4}(?!\p{L})/u', $t)) return true;
+    }
+    return false;
+}
+
+/** The pool slot of seeded archive text under a heading (D15); pool_suggest() offers it to sections with that heading. */
+function pool_archive_slot(string $heading): string {
+    $h = trim(preg_replace('/[^\p{L}\p{N}]+/u', '_', mb_strtolower($heading)), '_');
+    return $h === '' ? 'archive.body' : 'archive.' . $h;
+}
+
 /** The texts a document authored: [slot => [text, ...]] (local edits of blocks, and free text added to sections). */
 function pool_authored(array $type, array $inputs): array {
     $out = [];
@@ -48,8 +76,8 @@ function pool_authored(array $type, array $inputs): array {
 }
 
 /**
- * Store one text in a slot and count one more use by $docId (0 = the seeded archive, D15). Returns true when the
- * document had not used this text before.
+ * Store one text in a slot and count one more use by $docId (a document; negative = one seeded archive letter, D15).
+ * Returns true when that document (or letter) had not used this text before, so feeding or seeding twice counts once.
  */
 function pool_store_text(string $slot, string $text, int $docId, string $type, string $user): bool {
     $db = store_db();
@@ -62,7 +90,7 @@ function pool_store_text(string $slot, string $text, int $docId, string $type, s
            ->execute([store_uuid(), mb_substr($user, 0, 32), $slot, $text, $hash, $type]);
         $id = $db->lastInsertId();
     }
-    if ($docId > 0) {
+    if ($docId !== 0) {
         $has = $db->prepare('SELECT 1 FROM pool_uses WHERE pool_id = ? AND document_id = ?');
         $has->execute([$id, $docId]);
         if ($has->fetchColumn()) return false;
@@ -84,7 +112,8 @@ function pool_feed_document(int $docId): int {
     $n = 0;
     foreach (pool_authored($type, $doc['inputs']) as $slot => $texts) {
         foreach (array_unique($texts) as $raw) {
-            if (pool_store_text($slot, pool_tokenize($raw, $values, $ftypes), $docId, (string)$doc['type_name'], (string)$doc['cuser'])) $n++;
+            $text = pool_tokenize($raw, $values, $ftypes);
+            if (pool_store_text($slot, $text, $docId, (string)$doc['type_name'], (string)$doc['cuser'])) $n++;
         }
     }
     return $n;
@@ -104,16 +133,19 @@ function pool_remove_document(int $docId): void {
 
 /**
  * Suggestions for a slot (D16): the same slot first, then other slots of the same family (the part before the
- * first dot). Library tier before history, then most used, then most recent. Hidden blocks are never offered.
+ * first dot), then seeded archive text written under the same heading (D15, pool_archive_slot()). Within each,
+ * library tier before history, then most used, then most recent. Hidden blocks are never offered.
  * $exclude = texts already in the document.
  */
-function pool_suggest(string $slot, int $limit = 5, array $exclude = []): array {
+function pool_suggest(string $slot, int $limit = 5, array $exclude = [], string $heading = ''): array {
     $family = strstr($slot, '.', true) ?: $slot;
+    $familyLike = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $family) . '.%';
+    $archive = trim($heading) !== '' ? pool_archive_slot($heading) : "\0";   // no heading: no archive tier
     $st = store_db()->prepare(
         "SELECT id, slot, text, tier, uses, last_used FROM pool_blocks
-          WHERE hidden = 0 AND uses > 0 AND (slot = ? OR slot LIKE ?)
-          ORDER BY (slot = ?) DESC, (tier = 'library') DESC, uses DESC, last_used DESC LIMIT 40");
-    $st->execute([$slot, $family . '.%', $slot]);
+          WHERE hidden = 0 AND uses > 0 AND (slot = ? OR slot LIKE ? OR slot = ?)
+          ORDER BY CASE WHEN slot = ? THEN 0 WHEN slot = ? THEN 2 ELSE 1 END, (tier = 'library') DESC, uses DESC, last_used DESC LIMIT 40");
+    $st->execute([$slot, $familyLike, $archive, $slot, $archive]);
     $out = [];
     foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
         if (in_array(trim($r['text']), $exclude, true)) continue;

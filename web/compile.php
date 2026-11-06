@@ -33,7 +33,7 @@ function compile_dir_size(string $dir): int {
     return $n;
 }
 
-/** A kit path must stay inside the job: relative, no "..", no leading dot parts. */
+/** A kit path must stay inside the job: relative, no "." or ".." parts, no NUL (dot-files such as .latexmkrc are allowed). */
 function compile_safe_path(string $p): bool {
     return $p !== '' && $p[0] !== '/' && !preg_match('#(^|/)\.\.?(/|$)#', $p) && !str_contains($p, "\0");
 }

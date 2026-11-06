@@ -6,63 +6,58 @@
   "paper": "a4",
   "imported": "kit tpl-odigies-kranio.tex",
   "shared": {
-    "purpose": "latest",
     "drug-library": "latest"
   },
   "fields": {
     "f1": {
       "type": "text",
-      "label": "διάγνωση, π.χ.\\ υποτροπή γλοιοβλαστώματος δεξιά βρεγματικά",
-      "placeholder": "διάγνωση, π.χ.\\ υποτροπή γλοιοβλαστώματος δεξιά βρεγματικά"
+      "label": "Διάγνωση",
+      "placeholder": "διάγνωση, π.χ. υποτροπή γλοιοβλαστώματος δεξιά βρεγματικά"
     },
     "f2": {
       "type": "text",
-      "label": "κρανιοτομία και αφαίρεση όγκου / στερεοτακτική βιοψία με νευ",
+      "label": "Επέμβαση",
       "placeholder": "κρανιοτομία και αφαίρεση όγκου / στερεοτακτική βιοψία με νευροπλοηγό"
     },
     "f3": {
       "type": "date",
-      "label": "DD/MM/YYYY",
-      "placeholder": "DD/MM/YYYY"
+      "label": "Ημ. χειρουργείου"
     },
     "f4": {
       "type": "date",
-      "label": "DD-MM-YYYY",
-      "placeholder": "DD-MM-YYYY"
+      "label": "Ημ. εξιτηρίου"
     },
     "f5": {
       "type": "text",
-      "label": "τέσσερις",
+      "label": "Ημέρες στη ΜΕΘ",
       "placeholder": "τέσσερις"
     },
     "f6": {
       "type": "text",
-      "label": "ομαλή",
+      "label": "Πορεία στη ΜΕΘ",
       "placeholder": "ομαλή"
     },
     "f7": {
-      "type": "text",
-      "label": "DD/MM",
-      "placeholder": "DD/MM"
+      "type": "date",
+      "label": "Μεταφορά στον όροφο"
     },
     "f8": {
-      "type": "text",
-      "label": "DD/MM",
-      "placeholder": "DD/MM"
+      "type": "date",
+      "label": "Εξιτήριο"
     },
     "f9": {
       "type": "text",
-      "label": "4",
+      "label": "Αιματολογικές σε (ημέρες)",
       "placeholder": "4"
     },
     "f10": {
       "type": "text",
-      "label": "3",
+      "label": "Χημειο-/ακτινοθεραπεία εντός (εβδομάδων)",
       "placeholder": "3"
     },
     "f11": {
       "type": "text",
-      "label": "Keppra / Dexamethasone",
+      "label": "Φάρμακα που δεν διακόπτονται",
       "placeholder": "Keppra / Dexamethasone"
     }
   },
@@ -103,7 +98,8 @@
         {
           "id": "s2_b1",
           "text": "Μετά την επέμβαση παραμείνατε για @f5 ημέρες στη ΜΕΘ, όπου η μετεγχειρητική πορεία ήταν @f6. Στις @f7 μεταφερθήκατε στον όροφο, όπου παραμείνατε έως τις @f8, οπότε και λάβατε εξιτήριο.",
-          "default": false
+          "default": false,
+          "datefmt": "d/m"
         }
       ]
     },
@@ -175,22 +171,22 @@
     {
       "id": "s6",
       "slot": "import.odigies-kranio.s6",
-      "layout": "paragraphs",
+      "layout": "urgentbox",
       "blocks": [
         {
           "id": "s6_b1",
-          "text": "\\item \\textbf{Επιληπτική κρίση}.",
-          "default": false,
-          "format": "latex"
+          "text": "**Επιληπτική κρίση**.",
+          "default": true
         },
         {
           "id": "s6_b2",
-          "text": "\\item \\textbf{Επιδείνωση του επιπέδου συνείδησης}, έντονη υπνηλία ή σύγχυση.",
-          "default": false,
-          "format": "latex",
-          "inline": true
+          "text": "**Επιδείνωση του επιπέδου συνείδησης**, έντονη υπνηλία ή σύγχυση.",
+          "default": true
         }
-      ]
+      ],
+      "optional": true,
+      "default": false,
+      "label": "Πλαίσιο επειγόντων (δεν υπήρχε στις παλιές επιστολές: έλεγχος πριν την ενεργοποίηση)"
     },
     {
       "id": "s7",
@@ -302,7 +298,7 @@
       "blocks": [
         {
           "id": "s10_b1",
-          "text": "**Σημείωση:** Μην διακόψετε και μην μειώσετε μόνος/μόνη σας τα @f11. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.",
+          "text": "**Σημείωση:** Μην διακόψετε και μην μειώσετε {μόνος|μόνη} σας τα @f11. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.",
           "default": true
         },
         {
@@ -314,10 +310,6 @@
       ]
     }
   ],
-  "needs_review": [
-    "s6_b1: kept as LaTeX: \\item \\textbf{Επιληπτική κρίση}.",
-    "s6_b2: kept as LaTeX: \\item \\textbf{Επιδείνωση του επιπέδου συνείδησης}, έντονη υπνηλία ή σύ"
-  ],
   "title": "Μετεγχειρητικές Οδηγίες",
   "titles": [
     "Μετεγχειρητικές Οδηγίες",
@@ -327,5 +319,6 @@
   "closings": [
     "Ο ιατρός"
   ],
-  "stamp": "no"
+  "stamp": "no",
+  "reviewed": "2026-11-06"
 }

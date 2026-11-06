@@ -6,18 +6,21 @@
  * are unit-tested on their own (tests/static/render_test.php).
  *
  * TYPE DEFINITION (JSON, versioned in the store as `typedef/<name>`):
- *   name, label, lang (gr|en), paper (a4|a5), title, closing, stamp (yes|no), has_patient? (false = a practice document with no patient),
+ *   name, label, lang (gr|en), paper (a4|a5), title, closing, stamp (yes|no), has_patient? (false = a practice document with no patient; "optional" = a patient may be given, the name is not required),
  *   fields: {id: {type: text|date|number, label, default?, placeholder?, required?}}
+ *   reviewed?: date  the doctor reviewed the wording (an imported type: its kit file is no longer the reference)
  *   titles?: [..]  closings?: [..]   alternatives offered for the title / closing (the first is the default)
  *   shared?: {name: sha256}          shared components this type uses, pinned by hash (see render_resolve_type)
- *   sections: [{id, slot, heading?, heading_level? (section|subsection), layout, optional?, default?,
+ *   sections: [{id, slot, heading?, heading_level? (section|subsection), layout, optional?, default?, placeholder? (grey hint in the
+ *               composer's free-text box, never printed), label? (the section's name in the composer when it has no heading),
  *               blocks: [...] | use: name + default_block (the blocks come from a shared component)}]
  *     layout: paragraphs | itemize | enumerate | description | patient-info | urgentbox | medtable
  *             (topics: an enumerated list of topics, each `{id, title, style: itemize|paragraph, blocks}`; a topic with no active block is left out)
- *             (medtable: rows from inputs.meds, chosen from a shared drug library: section `library` = component name)
+ *             (medtable: rows from inputs.meds, chosen from a shared drug library: section `library` = component name;
+ *              `intro` = markup printed above the table when it has rows)
  *     block:  {id, text, default (on/off), group? (choice group: at most one on), label?
  *              (description term / patient-info row label), format? markup|latex,
- *              datefmt? (date format inside this block)}
+ *              datefmt? (date format inside this block: a PHP date() format, or "long" = 20 Φεβρουαρίου 2026)}
  *
  * BLOCK TEXT MARKUP (everything else is escaped, so text can never break the build):
  *   {Ο|Η}      gender variant: first = male, second = female, from the patient's gender
@@ -76,27 +79,34 @@ function render_resolve_type(array $type, callable $load): array {
  * CASE FEATURES (PLAN.md D17, §12.3). A type may define `features: {id: {label, ops: [...]}}`; the doctor adds a
  * feature to a document as a chip and its operations change the document's choices:
  *   {op: enable, block}   switch a block on (a block of a choice group becomes the group's choice)
- *   {op: disable, block}  switch a block off
+ *   {op: disable, block}  switch a block off (a block of a choice group: the group's choice is cleared if it is this block)
  *   {op: set, field, value}   set a field
  *   {op: add, section, text}  add free text to a section (markup, @tokens allowed)
  * What each operation replaced is remembered in inputs.feature_undo[feature], so removing the chip puts the
- * document back exactly as it was. Chips stack: a later chip wins. The app proposes, the doctor edits: the
+ * document back exactly as it was (added free text is removed only while it is still as the chip added it). Chips stack: a later chip wins. The app proposes, the doctor edits: the
  * operations only set the same choices the doctor can set by hand, and never write clinical wording.
  */
 function render_feature_add(array $type, array $inputs, string $feature): array {
     $def = $type['features'][$feature] ?? null;
     if (!$def || in_array($feature, $inputs['features'] ?? [], true)) return $inputs;
     $undo = [];
-    $groups = []; $blockGroup = [];
-    foreach (render_expand_sections($type) as $sec) foreach (($sec['blocks'] ?? []) as $b) if (isset($b['group'])) $blockGroup[$b['id']] = $b['group'];
+    $blockGroup = []; $groupDefault = [];
+    foreach (render_expand_sections($type) as $sec) foreach (($sec['blocks'] ?? []) as $b) if (isset($b['group'])) {
+        $blockGroup[$b['id']] = $b['group'];
+        if (!empty($b['default'])) $groupDefault[$b['group']] = $b['id'];
+    }
     foreach (($def['ops'] ?? []) as $op) {
         switch ($op['op'] ?? '') {
             case 'enable': case 'disable':
                 $id = $op['block']; $on = $op['op'] === 'enable';
-                if ($on && isset($blockGroup[$id])) {
-                    $g = $blockGroup[$id]; $undo[] = ['t' => 'group', 'k' => $g, 'had' => array_key_exists($g, $inputs['groups'] ?? []), 'v' => $inputs['groups'][$g] ?? null];
-                    $inputs['groups'][$g] = $id;
-                } elseif (!isset($blockGroup[$id])) {
+                if (isset($blockGroup[$id])) {
+                    // a block of a choice group: enable makes it the choice; disable clears the choice, if it is this block
+                    $g = $blockGroup[$id];
+                    $chosen = array_key_exists($g, $inputs['groups'] ?? []) ? $inputs['groups'][$g] : ($groupDefault[$g] ?? '');
+                    if (!$on && $chosen !== $id) break;
+                    $undo[] = ['t' => 'group', 'k' => $g, 'had' => array_key_exists($g, $inputs['groups'] ?? []), 'v' => $inputs['groups'][$g] ?? null];
+                    $inputs['groups'][$g] = $on ? $id : '';
+                } else {
                     $undo[] = ['t' => 'block', 'k' => $id, 'had' => isset($inputs['blocks'][$id]['on']), 'v' => $inputs['blocks'][$id]['on'] ?? null];
                     $inputs['blocks'][$id]['on'] = $on;
                 }
@@ -126,8 +136,12 @@ function render_feature_remove(array $type, array $inputs, string $feature): arr
             case 'group': if ($u['had']) $inputs['groups'][$u['k']] = $u['v']; else unset($inputs['groups'][$u['k']]); break;
             case 'field': if ($u['had']) $inputs['fields'][$u['k']] = $u['v']; else unset($inputs['fields'][$u['k']]); break;
             case 'extra':
+                // remove the text this chip added, once (the last copy: it was appended); identical text the doctor typed
+                // stays, and if the doctor edited the added text it is theirs now and stays too
                 $t = $inputs['extra'][$u['k']][0]['text'] ?? '';
-                $t = trim(str_replace($u['text'], '', $t));
+                $pos = $u['text'] === '' ? false : strrpos($t, $u['text']);
+                if ($pos === false) break;
+                $t = trim(preg_replace('/\n{3,}/', "\n\n", substr($t, 0, $pos) . substr($t, $pos + strlen($u['text']))));
                 if ($t === '') unset($inputs['extra'][$u['k']]); else $inputs['extra'][$u['k']] = [['text' => $t]];
                 break;
         }
@@ -149,7 +163,12 @@ function tex_escape(string $s): string {
 
 function render_format_date(string $iso, string $fmt = 'd/m/Y'): string {
     $d = DateTime::createFromFormat('!Y-m-d', $iso);
-    return ($d && $d->format('Y-m-d') === $iso) ? $d->format($fmt) : '';
+    if (!$d || $d->format('Y-m-d') !== $iso) return '';
+    if ($fmt === 'long') {   // "20 Φεβρουαρίου 2026" (Greek month in the genitive, as dates are written in a letter)
+        $m = ['Ιανουαρίου', 'Φεβρουαρίου', 'Μαρτίου', 'Απριλίου', 'Μαΐου', 'Ιουνίου', 'Ιουλίου', 'Αυγούστου', 'Σεπτεμβρίου', 'Οκτωβρίου', 'Νοεμβρίου', 'Δεκεμβρίου'];
+        return $d->format('j') . ' ' . $m[(int)$d->format('n') - 1] . ' ' . $d->format('Y');
+    }
+    return $d->format($fmt);
 }
 
 /** Built-in tokens and field values for a document, as plain (unescaped) strings. */
@@ -271,7 +290,8 @@ function render_medtable(array $section, array $inputs, array &$ctx): string {
         $rows[] = '\\DrugEntry' . implode('', $cells);
     }
     $title = isset($section['title_page']) && $rows ? "\\newpage\n\\begin{center}\n\\LARGE\\textbf{" . tex_escape($section['title_page']) . "}\n\\end{center}\n\\vspace{0.5cm}\n\n" : '';
-    return $rows ? $title . "\\begin{MedTable}\n" . implode("\n", $rows) . "\n\\end{MedTable}\n" : '';
+    $intro = $rows && isset($section['intro']) && $section['intro'] !== '' ? render_markup($section['intro'], $ctx) . "\n\n" : '';
+    return $rows ? $title . $intro . "\\begin{MedTable}\n" . implode("\n", $rows) . "\n\\end{MedTable}\n" : '';
 }
 
 /**
@@ -313,11 +333,16 @@ function render_topics(array $section, array $inputs, array &$ctx): string {
         $head = '  \\item \\textbf{' . tex_escape($tp['title']) . '}';
         $items[] = ($tp['style'] ?? 'itemize') === 'paragraph'
             ? $head . "\n\n    " . implode("\n\n    ", $parts)
-            : $head . "\n    \\begin{itemize}\n" . implode("\n", array_map(fn($p) => '      \\item ' . $p, $parts)) . "\n    \\end{itemize}";
+            : $head . "\n    \\begin{itemize}\n" . implode("\n", array_map(fn($p) => '      \\item ' . render_item_guard($p) . $p, $parts)) . "\n    \\end{itemize}";
     }
     if (!$items) return '';
     $head = isset($section['heading']) && $section['heading'] !== '' ? '\\section*{' . tex_escape($section['heading']) . "}\n" : '';
     return $head . '\\begin{enumerate}' . (string)($section['list_options'] ?? '') . "\n" . (($section['list_preamble'] ?? '') === '\\setlength{\\parskip}{6pt}' ? "\\setlength{\\parskip}{6pt}\n" : '') . implode("\n", $items) . "\n\\end{enumerate}\n";
+}
+
+/** "{}" when an \item's text starts with "[" (LaTeX would read it as the item's optional label), else "". */
+function render_item_guard(string $tex): string {
+    return str_starts_with(ltrim($tex), '[') ? '{}' : '';
 }
 
 /** One section as LaTeX; '' when off or empty. */
@@ -364,19 +389,20 @@ function render_section(array $section, array $inputs, array &$ctx): string {
         case 'itemize': case 'enumerate':
             // "\item [" would read the bracket as an option: guard it with {}
             // a block may carry a trusted `bullet` (LaTeX, from the kit import) replacing the list marker
-            $lines = array_map(fn($i) => '  \\item' . (isset($i[2]['bullet']) ? '[' . $i[2]['bullet'] . ']' : '') . ' ' . ($i[1][0] === '[' ? '{}' : '') . $i[1], $items);
+            $lines = array_map(fn($i) => '  \\item' . (isset($i[2]['bullet']) ? '[' . $i[2]['bullet'] . ']' : '') . ' ' . render_item_guard($i[1]) . $i[1], $items);
             $opt = (string)($section['list_options'] ?? '');
             $intro = isset($section['intro']) && $section['intro'] !== '' ? render_markup($section['intro'], $ctx) . "\n\n" : '';
             $pre = ($section['list_preamble'] ?? '') === '\\setlength{\\parskip}{6pt}' ? "\\setlength{\\parskip}{6pt}\n" : '';
             return $head . $intro . "\\begin{{$layout}}$opt\n" . $pre . implode("\n", $lines) . "\n\\end{{$layout}}\n";
         case 'description':
-            $lines = array_map(fn($i) => '  \\item[' . ($i[0] ?? '') . '] ' . $i[1], $items);
+            // a "]" inside the label would end the optional argument: brace the label then
+            $lines = array_map(fn($i) => '  \\item[' . (str_contains((string)$i[0], ']') ? '{' . $i[0] . '}' : ($i[0] ?? '')) . '] ' . render_item_guard($i[1]) . $i[1], $items);
             return $head . "\\begin{description}\n" . implode("\n", $lines) . "\n\\end{description}\n";
         case 'patient-info':
             $lines = array_map(fn($i) => '  \\Info{' . ($i[0] ?? '') . '}{' . $i[1] . '}', $items);
             return $head . "\\begin{PatientInfo}\n" . implode("\n", $lines) . "\n\\end{PatientInfo}\n";
         case 'urgentbox':
-            $lines = array_map(fn($i) => '  \\item ' . $i[1], $items);
+            $lines = array_map(fn($i) => '  \\item ' . render_item_guard($i[1]) . $i[1], $items);
             $opt = isset($section['heading']) && $section['heading'] !== '' ? '[' . tex_escape($section['heading']) . ']' : '';
             return "\\begin{UrgentBox}$opt\n" . implode("\n", $lines) . "\n\\end{UrgentBox}\n";
     }
@@ -384,8 +410,14 @@ function render_section(array $section, array $inputs, array &$ctx): string {
 }
 
 /** Validate a type definition; returns a list of problems (empty = fine). */
+/** Must a document of this type name a patient? (has_patient: true/absent = yes; false = no patient; "optional" = may.) */
+function render_patient_required(array $type): bool {
+    return ($type['has_patient'] ?? true) === true;
+}
+
 function render_validate_type(array $t): array {
     $e = [];
+    if (!in_array($t['has_patient'] ?? true, [true, false, 'optional'], true)) $e[] = 'has_patient must be true, false or "optional"';
     foreach (['name', 'lang', 'sections'] as $k) if (!isset($t[$k])) $e[] = "missing $k";
     if (!in_array($t['lang'] ?? '', ['gr', 'en'], true)) $e[] = 'lang must be gr or en';
     $seenS = []; $seenB = [];
@@ -424,7 +456,7 @@ function render_validate_type(array $t): array {
 function render_checks(array $type, array $inputs, array $issues): array {
     $c = [];
     $p = $inputs['patient'] ?? [];
-    if (($type['has_patient'] ?? true) !== false && trim((string)($p['name'] ?? '')) === '') $c[] = ['level' => 'error', 'msg' => 'Patient name is empty'];
+    if (render_patient_required($type) && trim((string)($p['name'] ?? '')) === '') $c[] = ['level' => 'error', 'msg' => 'Patient name is empty'];
     foreach (array_keys($issues['missing'] ?? []) as $n) {
         $c[] = ['level' => 'error', 'msg' => 'Missing value: ' . ($type['fields'][$n]['label'] ?? $n)];
     }

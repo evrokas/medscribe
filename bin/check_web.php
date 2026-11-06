@@ -111,6 +111,39 @@ check('the composer saves choices, a local edit and free text', $in['settings'][
     && str_contains($in['blocks']['operation']['text'] ?? '', 'ΑΛΛΑΓΗ') && ($in['extra']['purpose'][0]['text'] ?? '') === 'Ένα επιπλέον κείμενο.' && !isset($in['blocks']['materials']['text']));
 $page = $dc->get("/documents/$id")['body'];
 check('the page shows the edit marker and the free text', str_contains($page, 'edited for this document') && str_contains($page, 'Ένα επιπλέον κείμενο.'));
+check('a save releases the step lock', $db->query("SELECT busy_until FROM documents WHERE id = $id")->fetchColumn() === null);
+
+// ---- while a build holds the lock (TeX running), a save changes nothing and gives the typed form back
+$db->exec("UPDATE documents SET busy_until = DATE_ADD(NOW(), INTERVAL 120 SECOND) WHERE id = $id");
+$before = $db->query("SELECT inputs FROM documents WHERE id = $id")->fetchColumn();
+$r = $sc->post("/documents/$id", ['csrf_token' => $sc->token("/documents/$id"), 'action' => 'save', 'patient' => ['name' => 'WT While Busy', 'gender' => 'M'],
+    'settings' => ['clinic' => 'Mandra', 'date' => '2026-02-01']]);
+check('locked: a save during a build changes nothing', $db->query("SELECT inputs FROM documents WHERE id = $id")->fetchColumn() === $before);
+$page = $sc->get("/documents/$id")['body'];
+check('...and the composer shows the typed values with a "not saved" notice', str_contains($page, 'WT While Busy') && str_contains($page, 'NOT saved'));
+check('...only once', !str_contains($sc->get("/documents/$id")['body'], 'WT While Busy'));
+$r = $dc->post("/documents/$id", ['csrf_token' => $dc->token("/documents/$id"), 'action' => 'preview', 'patient' => ['name' => 'WT While Busy']]);
+check('locked: a preview does not start either', $db->query("SELECT inputs FROM documents WHERE id = $id")->fetchColumn() === $before);
+$db->exec("UPDATE documents SET inputs = JSON_SET(inputs, '$.settings.paper', 'a5') WHERE id = $id");
+$busy = $db->query("SELECT busy_until FROM documents WHERE id = $id")->fetchColumn();
+$r = $dc->get("/documents/$id/print.pdf");
+check('locked: the two-up print waits too (409, no PDF) and leaves the lock alone', $r['status'] === 409 && !str_starts_with($r['body'], '%PDF')
+    && $db->query("SELECT busy_until FROM documents WHERE id = $id")->fetchColumn() === $busy);
+$db->exec("UPDATE documents SET inputs = JSON_REMOVE(inputs, '$.settings.paper') WHERE id = $id");
+$before = $db->query("SELECT inputs FROM documents WHERE id = $id")->fetchColumn();
+$db->exec("UPDATE documents SET busy_until = NULL WHERE id = $id");
+
+// ---- a withdrawn document's preview PDF is the doctor's only, like its composer, history and files
+$okBuild = 0;   // any successful build whose PDF is still in the store
+foreach ($db->query("SELECT id, pdf_sha256 FROM builds WHERE status = 'ok' AND pdf_sha256 IS NOT NULL ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC) as $bb) {
+    if (is_file(store_object_path($bb['pdf_sha256']))) { $okBuild = (int)$bb['id']; break; }
+}
+$wd = $docs[1] ?? 0;
+$db->exec("UPDATE documents SET status = 'withdrawn', last_build_id = $okBuild WHERE id = $wd");
+// (the framework's error_403() renders its page with HTTP 200, so check that no PDF comes back)
+check('withdrawn: the secretary cannot fetch the preview PDF', !str_starts_with($sc->get("/documents/$wd/preview.pdf")['body'], '%PDF'));
+check('withdrawn: the doctor can', str_starts_with($dc->get("/documents/$wd/preview.pdf")['body'], '%PDF'));
+$db->exec("UPDATE documents SET status = 'draft', last_build_id = NULL WHERE id = $wd");
 check('the deleted draft goes away (and takes its builds)', (function () use ($dc, $db, $id, &$docs) { $r = $dc->post("/documents/$id/delete", ['csrf_token' => $dc->token("/documents/$id")]); $docs = array_diff($docs, [$id]); return $r['status'] === 302 && !$db->query("SELECT 1 FROM documents WHERE id = $id")->fetchColumn(); })());
 
 // ---- the type editor refuses invalid input and keeps what was typed

@@ -144,6 +144,31 @@ eq(render_feature_remove($ft, $with, 'leak'), $base, 'removing the chip restores
 $user = $with; $user['blocks']['x1']['on'] = false;   // the doctor then edits by hand: the removal still restores what the feature changed
 eq(render_feature_remove($ft, $user, 'leak')['fields'], ['days' => '7'], 'removal restores the field the feature set');
 eq(render_feature_add($ft, $base, 'unknown'), $base, 'an unknown feature does nothing');
+// disable on a block of a choice group clears the choice (only if it is that block), and is undone
+$ft['features']['nog'] = ['label' => 'No G1', 'ops' => [['op' => 'disable', 'block' => 'g1']]];
+$ng = render_feature_add($ft, $base, 'nog');
+[$t2] = render_document($ft, $ng);
+eq([str_contains($t2, 'G1'), $ng['groups']['g'] ?? null], [false, ''], 'disable on the chosen block of a group clears the choice');
+eq(render_feature_remove($ft, $ng, 'nog'), $base, '...and removing the chip restores it');
+$g2 = $base; $g2['groups']['g'] = 'g2';
+eq(render_feature_add($ft, $g2, 'nog')['groups']['g'], 'g2', 'disable on a block that is not the choice leaves the group alone');
+// the undo of "add" removes only the text it added, once
+$typed = $base; $typed['extra']['s'] = [['text' => 'Added line.']];   // the doctor typed the same sentence before
+$both = render_feature_add($ft, $typed, 'leak');
+eq(render_feature_remove($ft, $both, 'leak')['extra']['s'][0]['text'] ?? null, 'Added line.', 'identical text the doctor typed stays');
+$edited = $with; $edited['extra']['s'][0]['text'] = 'Added line, edited.';
+eq(render_feature_remove($ft, $edited, 'leak')['extra']['s'][0]['text'] ?? null, 'Added line, edited.', 'added text the doctor edited stays');
+
+// "[" at the start of an item, "]" in a description label do not break the LaTeX
+$lt = ['name' => 'l', 'lang' => 'gr', 'sections' => [
+    ['id' => 'u', 'layout' => 'urgentbox', 'blocks' => [['id' => 'u1', 'text' => '[1] urgent', 'default' => true]]],
+    ['id' => 'd', 'layout' => 'description', 'blocks' => [['id' => 'd1', 'label' => 'Α]', 'text' => 'x', 'default' => true]]],
+    ['id' => 't', 'layout' => 'topics', 'topics' => [['id' => 'tp', 'title' => 'T', 'blocks' => [['id' => 't1', 'text' => '[a] b', 'default' => true]]]]]]];
+[$t3] = render_document($lt, $base);
+eq([str_contains($t3, '\\item {}[1] urgent'), str_contains($t3, '\\item[{Α]}] x'), str_contains($t3, '\\item {}[a] b')], [true, true, true], 'list items starting with [ are guarded, a ] in a label is braced');
+
+// the long Greek date format (genitive month)
+eq([render_format_date('2026-02-20', 'long'), render_format_date('2026-05-01', 'long'), render_format_date('bad', 'long')], ['20 Φεβρουαρίου 2026', '1 Μαΐου 2026', ''], 'long date: Greek genitive month');
 
 echo $fail ? "$fail of $n render tests FAILED\n" : '';
 exit($fail ? 1 : 0);

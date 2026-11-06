@@ -56,6 +56,7 @@ function page_type_edit($params) {
     $src = types_source((string)($params['kind'] ?? ''), (string)($params['name'] ?? ''));
     if (!$src) return error_404('Unknown source.');
     $versions = types_versions((int)$src['id']);
+    if (!$versions) return error_404('This source has no versions yet.');
     $shown = (int)($_GET['v'] ?? 0) ?: (int)$versions[0]['version'];
     $cur = null; foreach ($versions as $v) if ((int)$v['version'] === $shown) $cur = $v;
     if (!$cur) return error_404('Unknown version.');

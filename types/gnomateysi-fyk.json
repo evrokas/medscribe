@@ -1,0 +1,141 @@
+{
+  "format": 1,
+  "name": "gnomateysi-fyk",
+  "label": "Γνωμάτευση: φάρμακο υψηλού κόστους (ΦΥΚ)",
+  "lang": "gr",
+  "paper": "a4",
+  "imported": "kit tpl-gnomateysi-farmakon.tex (B)",
+  "reviewed": "2026-11-06",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "since": {
+      "type": "text",
+      "label": "Από το (έτος)",
+      "placeholder": "2014"
+    },
+    "condition": {
+      "type": "text",
+      "label": "Πάθηση",
+      "placeholder": "σπαστικό ραιβόκρανο με στροφή της κεφαλής προς τα αριστερά"
+    },
+    "initial": {
+      "type": "text",
+      "label": "Αρχική θεραπεία",
+      "placeholder": "μυοχαλαρωτικά (Norgesic, Muscoril, Sirdalud)"
+    },
+    "injections": {
+      "type": "text",
+      "label": "Εγχύσεις με",
+      "placeholder": "βοτουλινική τοξίνη στον στερνοκλειδομαστοειδή, στον τραπεζοειδή και στους σπληνιοειδείς μύες"
+    },
+    "improves": {
+      "type": "text",
+      "label": "Βελτιώνουν",
+      "placeholder": "το ραιβόκρανο και τον πόνο στην αυχενική μοίρα της ΣΣ"
+    },
+    "history": {
+      "type": "text",
+      "label": "Ιστορικό",
+      "placeholder": "ήπια υπέρταση υπό αγωγή, ..."
+    },
+    "count": {
+      "type": "text",
+      "label": "Αριθμός φιαλιδίων",
+      "placeholder": "3 (τρία)"
+    },
+    "form": {
+      "type": "text",
+      "label": "Σκεύασμα",
+      "placeholder": "PD.INJ.SOL DYSPORT 500U/vial"
+    },
+    "clinic": {
+      "type": "text",
+      "label": "Κλινική χορήγησης",
+      "placeholder": "Κλινική"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "slot": "import.gnomateysi-farmakon.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "s1_b1",
+          "text": "@amka",
+          "default": true,
+          "label": "ΑΜΚΑ"
+        }
+      ]
+    },
+    {
+      "id": "p1",
+      "slot": "gnomateysi-fyk.course",
+      "layout": "paragraphs",
+      "placeholder": "Άλλα φάρμακα και παρενέργειες.",
+      "blocks": [
+        {
+          "id": "p1_b1",
+          "text": "{Ο|Η} ασθενής από το @since παρουσιάζει @condition. Η αρχική θεραπεία με @initial δεν είχε αποτέλεσμα.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "slot": "gnomateysi-fyk.effect",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "p2_b1",
+          "text": "Οι εγχύσεις με @injections βελτιώνουν @improves.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "p3",
+      "slot": "gnomateysi-fyk.history",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "p3_b1",
+          "text": "Ιστορικό: @history",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "p4",
+      "slot": "gnomateysi-fyk.request",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "p4_b1",
+          "text": "Για τη θεραπεία απαιτούνται @count φιαλίδια @form, που θα χορηγηθούν από τον θεράποντα ιατρό στην @clinic.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "slot": "certificate.purpose",
+      "layout": "paragraphs",
+      "use": "purpose",
+      "default_block": "purpose_fund"
+    }
+  ],
+  "title": "Ιατρική Γνωμάτευση",
+  "titles": [
+    "Ιατρική Γνωμάτευση",
+    "Ιστορικό ασθενούς για αίτημα ΦΥΚ",
+    "Ιατρική Βεβαίωση"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no"
+}

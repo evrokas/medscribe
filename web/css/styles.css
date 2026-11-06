@@ -66,6 +66,7 @@ legend { font-weight: 600; padding: 0 .4rem; } legend .muted { font-weight: 400;
 .composer .row { display: flex; flex-wrap: wrap; gap: .8rem; }
 .composer .block { margin: .5rem 0; } .composer .block.off textarea { opacity: .55; }
 .composer .block textarea, .composer details textarea { width: 100%; box-sizing: border-box; resize: vertical; }
+.composer textarea.latex-block { font-family: ui-monospace, monospace; font-size: .85em; background: var(--surface-muted, #f5f5f5); }
 .composer label.inline { flex-direction: row; align-items: center; gap: .4rem; }
 .edited { font-size: .75rem; color: var(--operation-text); }
 .checks { margin: 1rem 0; } .check { padding: .3rem .6rem; border-left: 4px solid; margin: .2rem 0; font-size: .9rem; }

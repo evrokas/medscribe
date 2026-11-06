@@ -1,0 +1,87 @@
+{
+  "format": 1,
+  "name": "gnomateysi-baclofen",
+  "label": "Γνωμάτευση: αντλία baclofen (kit επαναπλήρωσης)",
+  "lang": "gr",
+  "paper": "a4",
+  "imported": "kit tpl-gnomateysi-farmakon.tex (A)",
+  "reviewed": "2026-11-06",
+  "shared": {
+    "purpose": "latest"
+  },
+  "fields": {
+    "diagnosis": {
+      "type": "text",
+      "label": "Πάθηση",
+      "placeholder": "Εγκεφαλική Παράλυση"
+    },
+    "picture": {
+      "type": "text",
+      "label": "Κλινική εικόνα",
+      "placeholder": "τετραπληγία"
+    },
+    "limbs": {
+      "type": "text",
+      "label": "Σπαστικότητα στα",
+      "placeholder": "άνω και κάτω άκρα"
+    },
+    "refill": {
+      "type": "date",
+      "label": "Τελευταία επαναπλήρωση"
+    },
+    "company": {
+      "type": "text",
+      "label": "Εταιρεία του kit",
+      "placeholder": "Medtronic"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "slot": "import.gnomateysi-farmakon.patient",
+      "layout": "patient-info",
+      "blocks": [
+        {
+          "id": "s1_b1",
+          "text": "@amka",
+          "default": true,
+          "label": "ΑΜΚΑ"
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "slot": "gnomateysi-baclofen.body",
+      "layout": "paragraphs",
+      "blocks": [
+        {
+          "id": "body_b1",
+          "text": "{Ο|Η} ασθενής πάσχει από @diagnosis και εμφανίζει @picture και έντονη σπαστικότητα στα @limbs. Έχει τοποθετηθεί αντλία ενδοραχιαίας έγχυσης baclofen, η οποία πρέπει να επαναπληρώνεται σε τακτά χρονικά διαστήματα.",
+          "default": true
+        },
+        {
+          "id": "body_b2",
+          "text": "Η τελευταία επαναπλήρωση της αντλίας πραγματοποιήθηκε στις **@refill**, με χρήση kit μιας χρήσεως της εταιρείας @company.",
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "purpose",
+      "slot": "certificate.purpose",
+      "layout": "paragraphs",
+      "use": "purpose",
+      "default_block": "purpose_fund"
+    }
+  ],
+  "title": "Ιατρική Γνωμάτευση",
+  "titles": [
+    "Ιατρική Γνωμάτευση",
+    "Ιατρική Βεβαίωση"
+  ],
+  "closing": "Ο ιατρός",
+  "closings": [
+    "Ο ιατρός"
+  ],
+  "stamp": "no"
+}

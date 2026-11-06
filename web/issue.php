@@ -8,13 +8,20 @@
  *                     ▲   └─ edit again ◀──┘
  *
  * Every transition is a compare-and-swap on `status` (issue_cas), and a step that runs for seconds
- * takes `busy_until` first, so a double click, a second tab or a secretary's save cannot run it twice.
+ * takes `busy_until` first, so a double click or a second tab cannot run it twice. Every TeX run on a
+ * document (final build, preview, rebuild) holds that lock, and the composer's save takes it too, so
+ * nobody can change the inputs while a PDF is being built from them (documents.php).
  * A failed step leaves the status where it was, so the same call resumes it; DocArc calls are idempotent.
  * Every function returns ['ok' => bool, 'msg' => string, 'retry' => bool (worth trying again)].
  */
 
 const ISSUE_EDITABLE = ['draft', 'review', 'code_reserved'];
 const ISSUE_BUSY_SECONDS = 150;
+
+/** How long a step lock lasts: longer than the slowest possible TeX build (every pass hitting its timeout). */
+function issue_busy_seconds(): int {
+    return max(ISSUE_BUSY_SECONDS, (MEDSCRIBE_TEX_TIMEOUT + 10) * MEDSCRIBE_TEX_MAX_PASSES + 60);
+}
 
 function issue_result(bool $ok, string $msg, bool $retry = false, array $extra = []): array {
     return ['ok' => $ok, 'msg' => $msg, 'retry' => $retry] + $extra;
@@ -63,7 +70,7 @@ function issue_cas(int $id, array $from, string $to, array $set = []): bool {
 
 /** Take the step lock; false when another step is running (double click, second tab). */
 function issue_begin(int $id): bool {
-    $st = store_db()->prepare('UPDATE documents SET busy_until = DATE_ADD(NOW(), INTERVAL ' . ISSUE_BUSY_SECONDS . ' SECOND) WHERE id = ? AND (busy_until IS NULL OR busy_until < NOW())');
+    $st = store_db()->prepare('UPDATE documents SET busy_until = DATE_ADD(NOW(), INTERVAL ' . issue_busy_seconds() . ' SECOND) WHERE id = ? AND (busy_until IS NULL OR busy_until < NOW())');
     $st->execute([$id]);
     return $st->rowCount() === 1;
 }
@@ -88,12 +95,28 @@ function issue_qr_base(int $baseReleaseId): ?string {
     return null;
 }
 
-/** [DocArc verification type, value] or null when the type switches it off (D22). */
+/**
+ * [DocArc verification type, value] or null when the type switches it off (D22). The patient's AMKA when it is
+ * valid, else a 6-digit code made ONCE per document and kept in `verify_code`: a retry (lost answer, DocArc
+ * returning the existing record by idempotency key) and the final send must use the same code the patient gets.
+ */
 function issue_verification(array $doc, array $type): ?array {
     if (($type['verification'] ?? 'on') === 'off') return null;
     $amka = (string)($doc['inputs']['patient']['amka'] ?? '');
     if (preg_match('/^\d{11}$/', $amka)) return ['type' => 'AMKA', 'value' => $amka];
-    return ['type' => 'OTHER', 'value' => sprintf('%06d', random_int(0, 999999))];
+    $kept = (string)($doc['verify_code'] ?? '');
+    return ['type' => 'OTHER', 'value' => preg_match('/^\d{6}$/', $kept) ? $kept : sprintf('%06d', random_int(0, 999999))];
+}
+
+/** Keep the verification value on the document BEFORE DocArc is told about it (so a retry reuses it). */
+function issue_keep_verification(int $id, ?array $verify): void {
+    store_db()->prepare('UPDATE documents SET verify_code = ? WHERE id = ?')->execute([$verify ? $verify['value'] : null, $id]);
+}
+
+/** DocArc's description of the record: the document's title, else the type's title, else its label (same at request and at send). */
+function issue_description(array $doc, ?array $type): string {
+    $t = trim((string)($doc['inputs']['settings']['title'] ?? ''));
+    return $t !== '' ? $t : (string)($type['title'] ?? $type['label'] ?? '');
 }
 
 function issue_error_checks(array $type, array $inputs): array {
@@ -150,12 +173,13 @@ function issue_request_code(int $id, string $user, ?array $cfg = null): array {
 
         $clinicLink = issue_link_get('clinic', (string)($doc['inputs']['settings']['clinic'] ?? ''));
         $verify = issue_verification($doc, $type);
+        issue_keep_verification($id, $verify);
         $s = $doc['inputs']['settings'];
         $payload = [
             'idempotency_key' => 'msdoc-' . $doc['guid'] . '-t' . $dt['id'],
             'document_type_id' => $dt['id'],
             'clinic_id' => $clinicLink ? (int)$clinicLink['docarc_id'] : null,
-            'description' => (string)($s['title'] ?? ($type['title'] ?? $type['label'] ?? '')),
+            'description' => issue_description($doc, $type),
             'patient_name' => (string)($doc['inputs']['patient']['name'] ?? ''),
             'record_date' => (string)$s['date'],
             'requesting_user' => $user,
@@ -171,8 +195,7 @@ function issue_request_code(int $id, string $user, ?array $cfg = null): array {
             issue_cleanup_enqueue($rec['token'], 'empty', 'url mismatch', $user);
             return issue_result(false, "DocArc's address for the code (" . $rec['url'] . ") is not the address printed in the QR ($base). Check DocArc's QR base URL setting. The empty record was queued for deletion.");
         }
-        $verifyCode = $verify ? $verify['value'] : null;
-        if (!issue_cas($id, ['draft', 'review'], 'code_reserved', ['doc_code' => $rec['token'], 'docarc_url' => $rec['url'], 'docarc_type_id' => $dt['id'], 'verify_code' => $verifyCode])) {
+        if (!issue_cas($id, ['draft', 'review'], 'code_reserved', ['doc_code' => $rec['token'], 'docarc_url' => $rec['url'], 'docarc_type_id' => $dt['id']])) {
             return issue_result(false, 'The document changed meanwhile. Reload it.');
         }
         medscribe_audit('code_requested', $id, null, $user);
@@ -187,6 +210,7 @@ function issue_compile_final(int $id, string $user): array {
         $doc = doc_load($id);
         if (!$doc || $doc['status'] !== 'code_reserved') return issue_result(false, 'The final PDF is built from a document with a reserved code.');
         $type = doc_typedef((int)$doc['typedef_version_id']);
+        if (!$type) return issue_result(false, 'Type definition not found.');
         $errors = issue_error_checks($type, $doc['inputs']);
         if ($errors) return issue_result(false, 'Fix these first: ' . implode('; ', $errors));
         $inputs = $doc['inputs'];
@@ -230,17 +254,25 @@ function issue_send(int $id, string $user, ?array $cfg = null): array {
         $b = store_db()->prepare('SELECT * FROM builds WHERE id = ?');
         $b->execute([$doc['final_build_id']]);
         $build = $b->fetch(PDO::FETCH_ASSOC);
-        $pdf = store_get($build['pdf_sha256']);          // the approved bytes, never a recompile
-        $tex = store_get($build['tex_sha256']);
+        if (!$build || $build['status'] !== 'ok') return issue_result(false, 'The approved build is missing. Nothing was sent.');
+        try {
+            $pdf = store_get($build['pdf_sha256']);      // the approved bytes, never a recompile
+            $tex = store_get($build['tex_sha256']);
+        } catch (Throwable $e) { return issue_result(false, 'The stored final PDF is damaged: ' . $e->getMessage() . '. Nothing was sent.'); }
         $code = $doc['doc_code'];
 
         if ($doc['status'] === 'approved') {
             $type = doc_typedef((int)$doc['typedef_version_id']);
+            if (!$type) return issue_result(false, 'Type definition not found. Nothing was sent.');
             $s = $doc['inputs']['settings'];
             $clinicLink = issue_link_get('clinic', (string)($s['clinic'] ?? ''));
-            // the record's details follow the document as approved
-            $p = docarc_patch_record($code, ['description' => (string)($s['title'] ?? ''), 'patient_name' => (string)($doc['inputs']['patient']['name'] ?? ''),
-                                              'record_date' => (string)$s['date'], 'clinic_id' => $clinicLink ? (int)$clinicLink['docarc_id'] : null], $cfg);
+            // the record's details follow the document as approved, the verification code too (the AMKA may have been
+            // corrected after the code was reserved; an OTHER code stays the one kept on the document)
+            $verify = issue_verification($doc, $type);
+            issue_keep_verification($id, $verify);
+            $p = docarc_patch_record($code, ['description' => issue_description($doc, $type), 'patient_name' => (string)($doc['inputs']['patient']['name'] ?? ''),
+                                              'record_date' => (string)$s['date'], 'clinic_id' => $clinicLink ? (int)$clinicLink['docarc_id'] : null,
+                                              'verification' => $verify], $cfg);
             if (!$p['ok']) return issue_result(false, 'DocArc did not accept the record details: ' . $p['error'] . '. The document is approved; send again.', $p['status'] === 0 || $p['status'] >= 500);
             $u = docarc_put_document($code, $pdf, $code . '.pdf', $cfg);
             if (!$u['ok']) return issue_result(false, 'The PDF was not sent: ' . $u['error'] . '. The document is approved; send again (the same bytes are sent).', $u['status'] === 0 || $u['status'] >= 500);
@@ -370,10 +402,16 @@ function issue_delete_withdrawn(int $id, string $user): array {
     });
 }
 
-/** "Copy as new": the inputs without the patient and without a code, as a new draft. Returns the new id in 'id'. */
+/**
+ * "Copy as new": the inputs without the patient and without a code, as a new draft. Like any new document it uses the
+ * latest released version of the type and the current base release (choices for blocks that no longer exist are
+ * simply ignored by the engine). Returns the new id in 'id'.
+ */
 function issue_copy(int $id, string $user): array {
     $doc = doc_load($id);
     if (!$doc) return issue_result(false, 'Document not found.');
+    $latest = source_released_by_name('typedef/' . $doc['type_name']);
+    $versionId = $latest ? (int)$latest['version_id'] : (int)$doc['typedef_version_id'];
     $in = $doc['inputs'];
     $in['patient'] = ['name' => '', 'age' => '', 'amka' => '', 'gender' => '', 'guid' => '', 'dob' => ''];
     unset($in['settings']['code'], $in['settings']['revision']);
@@ -381,7 +419,7 @@ function issue_copy(int $id, string $user): array {
     $rel = base_release_current();
     $db = store_db();
     $db->prepare("INSERT INTO documents (guid, cuser, udate, type_name, typedef_version_id, base_release_id, status, patient_name, inputs, copied_from) VALUES (?,?,NOW(),?,?,?, 'draft', '', ?, ?)")
-       ->execute([store_uuid(), $user, $doc['type_name'], $doc['typedef_version_id'], $rel ? $rel['id'] : $doc['base_release_id'], json_encode($in, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), $id]);
+       ->execute([store_uuid(), $user, $doc['type_name'], $versionId, $rel ? $rel['id'] : $doc['base_release_id'], json_encode($in, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), $id]);
     $new = (int)$db->lastInsertId();
     medscribe_audit('doc_copied', $new, null, $user);
     return issue_result(true, 'Copied.', false, ['id' => $new]);
@@ -397,6 +435,10 @@ function issue_revisions(int $docId): array {
 
 /** Rebuild a revision from its manifest; the PDF must have the same hash as the one that was issued. */
 function issue_rebuild_check(int $docId, int $revision, string $user = 'system'): array {
+    return issue_locked($docId, fn() => issue_rebuild_check_locked($docId, $revision, $user));
+}
+
+function issue_rebuild_check_locked(int $docId, int $revision, string $user): array {
     $st = store_db()->prepare('SELECT r.*, b.manifest FROM document_revisions r JOIN builds b ON b.id = r.build_id WHERE r.document_id = ? AND r.revision = ?');
     $st->execute([$docId, $revision]);
     $rev = $st->fetch(PDO::FETCH_ASSOC);

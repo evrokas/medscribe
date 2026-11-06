@@ -1,97 +1,33 @@
 {
   "format": 1,
   "name": "gnomateysi-farmakon",
-  "label": "gnomateysi-farmakon",
+  "label": "Γνωμάτευση: χρόνια φαρμακευτική αγωγή",
   "lang": "gr",
   "paper": "a4",
-  "imported": "kit tpl-gnomateysi-farmakon.tex",
+  "imported": "kit tpl-gnomateysi-farmakon.tex (C)",
+  "reviewed": "2026-11-06",
   "shared": {
     "purpose": "latest"
   },
   "fields": {
-    "f1": {
+    "diagnosis": {
       "type": "text",
-      "label": "Εγκεφαλική Παράλυση",
-      "placeholder": "Εγκεφαλική Παράλυση"
-    },
-    "f2": {
-      "type": "text",
-      "label": "τετραπληγία",
-      "placeholder": "τετραπληγία"
-    },
-    "f3": {
-      "type": "text",
-      "label": "άνω και κάτω άκρα",
-      "placeholder": "άνω και κάτω άκρα"
-    },
-    "f4": {
-      "type": "date",
-      "label": "DD/MM/YYYY",
-      "placeholder": "DD/MM/YYYY"
-    },
-    "f5": {
-      "type": "text",
-      "label": "Medtronic",
-      "placeholder": "Medtronic"
-    },
-    "f6": {
-      "type": "text",
-      "label": "2014",
-      "placeholder": "2014"
-    },
-    "f7": {
-      "type": "text",
-      "label": "σπαστικό ραιβόκρανο με στροφή της κεφαλής προς τα αριστερά",
-      "placeholder": "σπαστικό ραιβόκρανο με στροφή της κεφαλής προς τα αριστερά"
-    },
-    "f8": {
-      "type": "text",
-      "label": "μυοχαλαρωτικά (Norgesic, Muscoril, Sirdalud)",
-      "placeholder": "μυοχαλαρωτικά (Norgesic, Muscoril, Sirdalud)"
-    },
-    "f9": {
-      "type": "text",
-      "label": "Άλλα φάρμακα και παρενέργειες.",
-      "placeholder": "Άλλα φάρμακα και παρενέργειες."
-    },
-    "f10": {
-      "type": "text",
-      "label": "βοτουλινική τοξίνη στον στερνοκλειδομαστοειδή, στον τραπεζοε",
-      "placeholder": "βοτουλινική τοξίνη στον στερνοκλειδομαστοειδή, στον τραπεζοειδή και στους σπληνιοειδείς μύες"
-    },
-    "f11": {
-      "type": "text",
-      "label": "το ραιβόκρανο και τον πόνο στην αυχενική μοίρα της ΣΣ",
-      "placeholder": "το ραιβόκρανο και τον πόνο στην αυχενική μοίρα της ΣΣ"
-    },
-    "f12": {
-      "type": "text",
-      "label": "ήπια υπέρταση υπό αγωγή, ...",
-      "placeholder": "ήπια υπέρταση υπό αγωγή, ..."
-    },
-    "f15": {
-      "type": "text",
-      "label": "φαρμακοανθεκτική νευραλγία του 2ου κλάδου του τριδύμου νεύρο",
+      "label": "Πάθηση",
       "placeholder": "φαρμακοανθεκτική νευραλγία του 2ου κλάδου του τριδύμου νεύρου"
     },
-    "f16": {
+    "region": {
       "type": "text",
-      "label": "Προηγούμενες θεραπείες και αποτέλεσμα.",
-      "placeholder": "Προηγούμενες θεραπείες και αποτέλεσμα."
-    },
-    "f17": {
-      "type": "text",
-      "label": "της αριστερής άνω γνάθου",
+      "label": "Περιοχή πόνου",
       "placeholder": "της αριστερής άνω γνάθου"
     },
-    "f18": {
+    "drug1": {
       "type": "text",
-      "label": "pregabalin (Lyrica)",
+      "label": "Φάρμακο",
       "placeholder": "pregabalin (Lyrica)"
     },
-    "f19": {
+    "drug2": {
       "type": "text",
-      "label": "συνδυασμό amitriptyline και perphenazine (Minitran)",
+      "label": "Δεύτερο φάρμακο",
       "placeholder": "συνδυασμό amitriptyline και perphenazine (Minitran)"
     }
   },
@@ -105,99 +41,32 @@
           "id": "s1_b1",
           "text": "@amka",
           "default": true,
-          "label": "ΑΜΚΑ",
-          "datefmt": "d-m-Y"
+          "label": "ΑΜΚΑ"
         }
       ]
     },
     {
-      "id": "s2",
-      "slot": "import.gnomateysi-farmakon.s2",
+      "id": "p1",
+      "slot": "gnomateysi-farmakon.diagnosis",
       "layout": "paragraphs",
+      "placeholder": "Προηγούμενες θεραπείες και αποτέλεσμα.",
       "blocks": [
         {
-          "id": "s2_b1",
-          "text": "{Ο|Η} ασθενής πάσχει από @f1 και εμφανίζει @f2 και έντονη σπαστικότητα στα @f3. Έχει τοποθετηθεί αντλία ενδοραχιαίας έγχυσης baclofen, η οποία πρέπει να επαναπληρώνεται σε τακτά χρονικά διαστήματα.",
+          "id": "p1_b1",
+          "text": "{Ο|Η} ασθενής πάσχει από @diagnosis.",
           "default": true
         }
       ]
     },
     {
-      "id": "s3",
-      "slot": "import.gnomateysi-farmakon.s3",
+      "id": "p2",
+      "slot": "gnomateysi-farmakon.treatment",
       "layout": "paragraphs",
       "blocks": [
         {
-          "id": "s3_b1",
-          "text": "Η τελευταία επαναπλήρωση της αντλίας πραγματοποιήθηκε στις **@f4**, με χρήση kit μιας χρήσεως της εταιρείας @f5.",
+          "id": "p2_b1",
+          "text": "{Ο|Η} ασθενής παρουσιάζει νευροπαθητικό πόνο στην περιοχή @region και για τον λόγο αυτό λαμβάνει φαρμακευτική αγωγή με @drug1 και @drug2. Τα φάρμακα αυτά έχουν ένδειξη στον χρόνιο και νευροπαθητικό πόνο, και αυτός είναι ο λόγος που τα λαμβάνει {ο|η} ασθενής.",
           "default": true
-        }
-      ]
-    },
-    {
-      "id": "s4",
-      "slot": "import.gnomateysi-farmakon.s4",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s4_b1",
-          "text": "===== B. High-cost drug (ΦΥΚ), e.g. botulinum toxin",
-          "default": false
-        },
-        {
-          "id": "s4_b2",
-          "text": "{Ο|Η} ασθενής από το @f6 παρουσιάζει @f7. Η αρχική θεραπεία με @f8 δεν είχε αποτέλεσμα. @f9",
-          "default": false,
-          "inline": true
-        },
-        {
-          "id": "s4_b3",
-          "text": "Οι εγχύσεις με @f10 βελτιώνουν @f11.",
-          "default": false,
-          "inline": true
-        },
-        {
-          "id": "s4_b4",
-          "text": "Ιστορικό: @f12",
-          "default": false,
-          "inline": true
-        },
-        {
-          "id": "s4_b5",
-          "text": "Για τη θεραπεία απαιτούνται \\DrugCount\\ φιαλίδια [PD.INJ.SOL \\Drug\\ 500U/vial], που θα χορηγηθούν από τον θεράποντα ιατρό στην [Κλινική].",
-          "default": false,
-          "format": "latex",
-          "inline": true
-        }
-      ]
-    },
-    {
-      "id": "s5",
-      "slot": "import.gnomateysi-farmakon.s5",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s5_b1",
-          "text": "{Ο|Η} ασθενής πάσχει από @f15. @f16",
-          "default": false
-        },
-        {
-          "id": "s5_b2",
-          "text": "{Ο|Η} ασθενής παρουσιάζει νευροπαθητικό πόνο στην περιοχή @f17 και για τον λόγο αυτό λαμβάνει φαρμακευτική αγωγή με @f18 και @f19. Τα φάρμακα αυτά έχουν ένδειξη στον χρόνιο και νευροπαθητικό πόνο, και αυτός είναι ο λόγος που τα λαμβάνει {ο|η} ασθενής.",
-          "default": false,
-          "inline": true
-        }
-      ]
-    },
-    {
-      "id": "s6",
-      "slot": "import.gnomateysi-farmakon.s6",
-      "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s6_b1",
-          "text": "Purpose (for a female patient: \"της ασθενούς\", \"της\")",
-          "default": false
         }
       ]
     },
@@ -206,20 +75,15 @@
       "slot": "certificate.purpose",
       "layout": "paragraphs",
       "use": "purpose",
-      "default_block": "purpose_fund"
+      "default_block": "purpose_request"
     }
-  ],
-  "needs_review": [
-    "extra settings not imported: Drug, DrugCount",
-    "s4_b5: kept as LaTeX: Για τη θεραπεία απαιτούνται \\DrugCount\\ φιαλίδια [PD.INJ.SOL \\Drug\\ 50"
   ],
   "title": "Ιατρική Γνωμάτευση",
   "titles": [
     "Ιατρική Γνωμάτευση",
-    "Ιστορικό ασθενούς για αίτημα ΦΥΚ\\\\(\\Drug)",
     "Ιατρική Βεβαίωση"
   ],
-  "closing": "",
+  "closing": "Ο ιατρός",
   "closings": [
     "Ο ιατρός"
   ],

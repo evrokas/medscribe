@@ -1,32 +1,24 @@
 {
   "format": 1,
   "name": "epistoli",
-  "label": "epistoli",
+  "label": "Επιστολή",
   "lang": "gr",
   "paper": "a4",
   "imported": "kit tpl-epistoli.tex",
-  "shared": {
-    "purpose": "latest"
-  },
   "fields": {
-    "f2": {
-      "type": "text",
-      "label": "Κείμενο, π.χ.\\ Παρακαλώ όπως επιστρέψετε τους κύβους παραφίν",
-      "placeholder": "Κείμενο, π.χ.\\ Παρακαλώ όπως επιστρέψετε τους κύβους παραφίνης του ασθενούς \\textbf{\\PatientName} στην κλινική, \\textbf{χωρίς} την πραγματοποίηση περαιτέρω εξετάσεων."
-    },
     "f3": {
       "type": "text",
-      "label": "τη διαδερμική κυφοπλαστική, τη σπονδυλοπλαστική και τη δισκο",
+      "label": "Συγκρίσιμη επέμβαση",
       "placeholder": "τη διαδερμική κυφοπλαστική, τη σπονδυλοπλαστική και τη δισκοπλαστική"
     },
     "f4": {
       "type": "text",
-      "label": "8.4.7",
+      "label": "Κωδικός",
       "placeholder": "8.4.7"
     },
     "f5": {
       "type": "text",
-      "label": "μεγάλης βαρύτητας",
+      "label": "Κατηγορία",
       "placeholder": "μεγάλης βαρύτητας"
     }
   },
@@ -51,9 +43,8 @@
       "blocks": [
         {
           "id": "s2_b1",
-          "text": "\\noindent\\textbf{Αφορά:} [ασθενή \\PatientName / θέμα]",
-          "default": true,
-          "format": "latex"
+          "text": "**Αφορά:** ασθενή @patient",
+          "default": true
         }
       ]
     },
@@ -61,13 +52,8 @@
       "id": "s3",
       "slot": "import.epistoli.s3",
       "layout": "paragraphs",
-      "blocks": [
-        {
-          "id": "s3_b1",
-          "text": "@f2",
-          "default": true
-        }
-      ]
+      "blocks": [],
+      "placeholder": "π.χ. Παρακαλώ όπως επιστρέψετε τους κύβους παραφίνης του ασθενούς **@patient** στην κλινική, **χωρίς** την πραγματοποίηση περαιτέρω εξετάσεων."
     },
     {
       "id": "s4",
@@ -94,10 +80,6 @@
       ]
     }
   ],
-  "needs_review": [
-    "s1_b1: kept as LaTeX: \\ifthenelse{\\equal{\\Recipient}{}}{}{\\noindent\\Recipient\\par}",
-    "s2_b1: kept as LaTeX: \\noindent\\textbf{Αφορά:} [ασθενή \\PatientName / θέμα]"
-  ],
   "title": "",
   "titles": [
     "Αίτημα",
@@ -109,5 +91,7 @@
     "Με εκτίμηση,"
   ],
   "stamp": "no",
-  "recipient": true
+  "recipient": true,
+  "has_patient": "optional",
+  "reviewed": "2026-11-06"
 }

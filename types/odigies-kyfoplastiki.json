@@ -6,48 +6,46 @@
   "paper": "a4",
   "imported": "kit tpl-odigies-kyfoplastiki.tex",
   "shared": {
-    "purpose": "latest",
     "drug-library": "latest"
   },
   "fields": {
     "f1": {
       "type": "text",
-      "label": "οστεοπορωτικό κάταγμα Θ12",
+      "label": "Διάγνωση",
       "placeholder": "οστεοπορωτικό κάταγμα Θ12"
     },
     "f2": {
       "type": "text",
-      "label": "Θ\\textsubscript{12}",
-      "placeholder": "Θ\\textsubscript{12}"
+      "label": "Επίπεδο",
+      "placeholder": "Θ12"
     },
     "f3": {
       "type": "date",
-      "label": "DD/MM/YYYY",
-      "placeholder": "DD/MM/YYYY"
+      "label": "Ημ. χειρουργείου"
     },
     "f4": {
       "type": "text",
-      "label": "3",
+      "label": "Ημέρες κλινήρης",
       "placeholder": "3"
     },
     "f5": {
       "type": "text",
-      "label": "Clexane 4000IU",
+      "label": "Αντιπηκτικό",
       "placeholder": "Clexane 4000IU"
     },
     "f6": {
       "type": "text",
-      "label": "10",
+      "label": "Ημέρες αντιπηκτικού",
       "placeholder": "10"
     },
     "f7": {
       "type": "text",
-      "label": "Tegretol / Lyrica / Keppra",
+      "label": "Φάρμακα που δεν διακόπτονται",
       "placeholder": "Tegretol / Lyrica / Keppra"
     },
     "f8": {
       "type": "text",
-      "label": "φάρμακο",
+      "label": "Φάρμακο προς ενημέρωση ιατρών",
       "placeholder": "φάρμακο"
     }
   },
@@ -316,22 +314,22 @@
     {
       "id": "s6",
       "slot": "import.odigies-kyfoplastiki.s6",
-      "layout": "paragraphs",
+      "layout": "urgentbox",
       "blocks": [
         {
           "id": "s6_b1",
-          "text": "\\item \\textbf{Ακράτεια ούρων/κοπράνων} ή \\textbf{αδυναμία ούρησης}.",
-          "default": false,
-          "format": "latex"
+          "text": "**Ακράτεια ούρων/κοπράνων** ή **αδυναμία ούρησης**.",
+          "default": true
         },
         {
           "id": "s6_b2",
-          "text": "\\item \\textbf{Νέα ή ταχέως επιδεινούμενη αδυναμία} στα κάτω άκρα.",
-          "default": false,
-          "format": "latex",
-          "inline": true
+          "text": "**Νέα ή ταχέως επιδεινούμενη αδυναμία** στα κάτω άκρα.",
+          "default": true
         }
-      ]
+      ],
+      "optional": true,
+      "default": false,
+      "label": "Πλαίσιο επειγόντων (δεν υπήρχε στις παλιές επιστολές: έλεγχος πριν την ενεργοποίηση)"
     },
     {
       "id": "s7",
@@ -357,9 +355,8 @@
         },
         {
           "id": "s8_b2",
-          "text": "Πυρετό (Θερμοκρασία $>$ 38\\textdegree{}C).",
-          "default": true,
-          "format": "latex"
+          "text": "Πυρετό (Θερμοκρασία > 38°C).",
+          "default": true
         },
         {
           "id": "s8_b3",
@@ -428,7 +425,7 @@
         },
         {
           "id": "s10_b2",
-          "text": "**Σημείωση:** Μην διακόψετε και μην μειώσετε μόνος/μόνη σας τα @f7. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.",
+          "text": "**Σημείωση:** Μην διακόψετε και μην μειώσετε {μόνος|μόνη} σας τα @f7. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.",
           "default": false,
           "inline": true
         },
@@ -447,11 +444,6 @@
       ]
     }
   ],
-  "needs_review": [
-    "s6_b1: kept as LaTeX: \\item \\textbf{Ακράτεια ούρων/κοπράνων} ή \\textbf{αδυναμία ούρησης}.",
-    "s6_b2: kept as LaTeX: \\item \\textbf{Νέα ή ταχέως επιδεινούμενη αδυναμία} στα κάτω άκρα.",
-    "s8_b2: kept as LaTeX: Πυρετό (Θερμοκρασία $>$ 38\\textdegree{}C)."
-  ],
   "title": "Μετεγχειρητικές Οδηγίες",
   "titles": [
     "Μετεγχειρητικές Οδηγίες",
@@ -461,5 +453,6 @@
   "closings": [
     "Ο ιατρός"
   ],
-  "stamp": "no"
+  "stamp": "no",
+  "reviewed": "2026-11-06"
 }

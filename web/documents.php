@@ -108,7 +108,9 @@ function doc_inputs_from_post(array $type, array $post): array {
             } else {
                 $in['blocks'][$id]['on'] = isset($post['blocks_on'][$id]);
             }
-            if (isset($post['btext'][$id])) {
+            // a trusted raw-LaTeX block (format: latex, from the kit import) is not edited here: edited text would be
+            // escaped as markup and print its LaTeX commands; it is changed in the type editor (the doctor's)
+            if (isset($post['btext'][$id]) && ($b['format'] ?? 'markup') !== 'latex') {
                 $t = doc_text($post['btext'][$id]);
                 if (trim(str_replace("\r", '', $t)) !== trim($b['text'])) $in['blocks'][$id]['text'] = $t;
             }
@@ -138,7 +140,7 @@ function doc_view_model(array $type, array $inputs): array {
                 'id' => $b['id'], 'label' => $b['label'] ?? '', 'group' => $b['group'] ?? '',
                 'on' => render_block_on($sec, $b, $inputs),
                 'text' => render_block_text($b, $inputs), 'edited' => $edited, 'original' => $b['text'],
-                'in_group' => isset($b['group']),
+                'in_group' => isset($b['group']), 'is_latex' => ($b['format'] ?? 'markup') === 'latex' && !$edited,
             ];
         }
         $secs[] = [
@@ -148,8 +150,9 @@ function doc_view_model(array $type, array $inputs): array {
             'drug_groups' => (function () use ($sec) { $g = []; foreach (($sec['drugs'] ?? []) as $d) $g[$d['group'] ?? ''][] = $d; return $g; })(),
             'drug_json' => json_encode($sec['drugs'] ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
             'is_list' => in_array($sec['layout'] ?? 'paragraphs', ['itemize', 'enumerate', 'urgentbox'], true),
-            'extra' => $inputs['extra'][$sec['id']][0]['text'] ?? '',
-            'suggestions' => pool_suggest((string)($sec['slot'] ?? $sec['id']), 4, array_merge(array_column($blocks, 'text'), [trim((string)($inputs['extra'][$sec['id']][0]['text'] ?? ''))])),
+            'extra' => $inputs['extra'][$sec['id']][0]['text'] ?? '', 'placeholder' => (string)($sec['placeholder'] ?? ''), 'label' => (string)($sec['label'] ?? ''),
+            'rows' => empty($sec['blocks']) ? 8 : 3,
+            'suggestions' => pool_suggest((string)($sec['slot'] ?? $sec['id']), 4, array_merge(array_column($blocks, 'text'), [trim((string)($inputs['extra'][$sec['id']][0]['text'] ?? ''))]), (string)($sec['heading'] ?? '')),
             'none_on' => !array_filter($blocks, fn($b) => $b['in_group'] && $b['on']),
         ];
     }
@@ -219,7 +222,7 @@ function page_document_new_post($params) {
     $rel = base_release_current();
     if (!$t || !$rel) { $kernel->addStatus('error', 'Unknown document type or no base release.'); doc_redirect('/documents/new'); }
     $pat = $_POST['patient'] ?? [];
-    if (($t['def']['has_patient'] ?? true) !== false && trim((string)($pat['name'] ?? '')) === '') { $kernel->addStatus('error', 'The patient name is required for this type.'); doc_redirect('/documents/new'); }
+    if (render_patient_required($t['def']) && trim((string)($pat['name'] ?? '')) === '') { $kernel->addStatus('error', 'The patient name is required for this type.'); doc_redirect('/documents/new'); }
     $docDate = doc_clean_date($_POST['date'] ?? '') ?: date('Y-m-d');
     $dobOk = doc_clean_date($pat['dob'] ?? '');
     if (trim((string)($pat['age'] ?? '')) === '' && $dobOk !== '') {
@@ -249,6 +252,15 @@ function page_document($params) {
     if (in_array($doc['status'], ['issued', 'withdrawn'], true)) medscribe_audit('doc_opened', (int)$doc['id']);
     $type = doc_typedef((int)$doc['typedef_version_id']);
     if (!$type) return error_404('Type definition not found.');
+    // a save refused while a build held the lock: show what was typed, not what is stored (shown once)
+    $unsaved = $_SESSION['doc_unsaved'][$doc['id']] ?? null;
+    unset($_SESSION['doc_unsaved'][$doc['id']]);
+    if (is_array($unsaved) && in_array($doc['status'], DOC_STATUSES, true)) {
+        foreach (['features', 'feature_undo'] as $k) if (isset($doc['inputs'][$k])) $unsaved[$k] = $doc['inputs'][$k];
+        $doc['inputs'] = $unsaved;
+    } else {
+        $unsaved = null;
+    }
     [, $issues] = render_document($type, $doc['inputs']);
     $build = null;
     if ($doc['last_build_id']) {
@@ -268,6 +280,7 @@ function page_document($params) {
         'build' => $build, 'locked' => !in_array($doc['status'], DOC_STATUSES, true),
         'pdf_url' => ($build && $build['status'] === 'ok') ? '/documents/' . $doc['id'] . '/preview.pdf?b=' . $build['id'] : null,
         'ready' => $doc['status'] === 'review',
+        'busy' => $doc['busy_until'] && strtotime($doc['busy_until']) > time(), 'unsaved' => $unsaved !== null,
         'from_zpms' => !empty($doc['inputs']['patient']['guid']),
         'is_doctor' => issue_is_doctor(), 'is_a5' => ($doc['inputs']['settings']['paper'] ?? ($type['paper'] ?? 'a4')) === 'a5',
     ]);
@@ -283,36 +296,55 @@ function page_document_post($params) {
     $type = doc_typedef((int)$doc['typedef_version_id']);
     if (!$type) return error_404('Type definition not found.');
 
-    $stored = $doc['inputs'];
-    $doc['inputs'] = doc_inputs_from_post($type, $_POST);
-    foreach (['features', 'feature_undo'] as $k) if (isset($stored[$k])) $doc['inputs'][$k] = $stored[$k];   // chips are not form fields
-    $action = $_POST['action'] ?? 'save';
-    // case features (D17): a chip's operations are applied, or undone, to the choices just posted
-    if ($action === 'feature_add' && isset($type['features'][$_POST['feature'] ?? ''])) $doc['inputs'] = render_feature_add($type, $doc['inputs'], (string)$_POST['feature']);
-    if ($action === 'feature_remove') $doc['inputs'] = render_feature_remove($type, $doc['inputs'], (string)($_POST['feature'] ?? ''));
-    // the letterhead version (D10): any released base release; only while the document can still be edited
+    $posted = doc_inputs_from_post($type, $_POST);
+    $action = (string)($_POST['action'] ?? 'save');
     $relId = (int)($_POST['base_release_id'] ?? 0);
-    if ($relId && $relId !== (int)$doc['base_release_id']) {
-        $ok = store_db()->prepare("SELECT 1 FROM base_releases WHERE id = ? AND status = 'released'"); $ok->execute([$relId]);
-        if ($ok->fetchColumn()) {
-            if ($doc['status'] === 'code_reserved') $kernel->addStatus('warning', 'The letterhead version was not changed: the code is reserved (the final PDF is built with the current choice, so change it before requesting the code).');
-            store_db()->prepare('UPDATE documents SET base_release_id = ? WHERE id = ?')->execute([$relId, $id]);
-        }
-    }
-    $status = null;
-    // Handing over to the doctor is the secretary's step (PLAN.md §8); the doctor can set it back to draft.
-    if (in_array($doc['status'], ['draft', 'review'], true)) {
-        if ($action === 'ready') $status = 'review';
-        if ($action === 'draft') $status = 'draft';
-    }
-    doc_save_inputs($id, $doc['inputs'], $status);
 
-    if ($action === 'preview') {
-        $r = doc_preview($doc, $type);
-        $kernel->addStatus($r['ok'] ? 'status' : 'error', $r['ok'] ? 'Preview built.' : 'The preview failed: ' . ($r['error'] ?? 'unknown error'));
-    } else {
-        $kernel->addStatus('status', $action === 'ready' ? 'Marked ready for review.' : 'Saved.');
+    // Everything below runs under the document's step lock, the same one the issue steps take: while any TeX
+    // build of this document is running (preview, final PDF, rebuild) the inputs cannot change under it.
+    $r = issue_locked($id, function () use ($id, $type, $posted, $action, $relId, $kernel) {
+        $doc = doc_load($id);   // again, under the lock: the status may have moved while we waited
+        if (!$doc || !in_array($doc['status'], DOC_STATUSES, true)) return issue_result(false, 'This document is locked.');
+        $stored = $doc['inputs'];
+        $doc['inputs'] = $posted;
+        foreach (['features', 'feature_undo'] as $k) if (isset($stored[$k])) $doc['inputs'][$k] = $stored[$k];   // chips are not form fields
+        // case features (D17): a chip's operations are applied, or undone, to the choices just posted
+        if ($action === 'feature_add' && isset($type['features'][$_POST['feature'] ?? ''])) $doc['inputs'] = render_feature_add($type, $doc['inputs'], (string)$_POST['feature']);
+        if ($action === 'feature_remove') $doc['inputs'] = render_feature_remove($type, $doc['inputs'], (string)($_POST['feature'] ?? ''));
+        // the letterhead version (D10): any released base release, only before the code is reserved (the code's QR
+        // address was checked against the letterhead chosen at that moment)
+        if ($relId && $relId !== (int)$doc['base_release_id']) {
+            $ok = store_db()->prepare("SELECT 1 FROM base_releases WHERE id = ? AND status = 'released'"); $ok->execute([$relId]);
+            if ($ok->fetchColumn()) {
+                if ($doc['status'] === 'code_reserved') {
+                    $kernel->addStatus('warning', 'The letterhead version was not changed: the code is reserved (the final PDF is built with the current choice, so change it before requesting the code).');
+                } else {
+                    store_db()->prepare('UPDATE documents SET base_release_id = ? WHERE id = ?')->execute([$relId, $id]);
+                    $doc['base_release_id'] = $relId;   // a preview in this same request uses the new choice
+                }
+            }
+        }
+        $status = null;
+        // Handing over to the doctor is the secretary's step (PLAN.md §8); the doctor can set it back to draft.
+        if (in_array($doc['status'], ['draft', 'review'], true)) {
+            if ($action === 'ready') $status = 'review';
+            if ($action === 'draft') $status = 'draft';
+        }
+        doc_save_inputs($id, $doc['inputs'], $status);
+
+        if ($action === 'preview') {
+            $b = doc_preview($doc, $type);   // XeLaTeX runs while we still hold the lock
+            return issue_result($b['ok'], $b['ok'] ? 'Preview built.' : 'The preview failed: ' . ($b['error'] ?? 'unknown error'));
+        }
+        return issue_result(true, $action === 'ready' ? 'Marked ready for review.' : 'Saved.');
+    });
+
+    if (!$r['ok'] && $r['retry']) {
+        // another step holds the lock (a build is running): nothing was saved; give the typed form back
+        $_SESSION['doc_unsaved'][$id] = $posted;
+        $r['msg'] = 'Not saved: a PDF of this document is being built right now. Your changes are still in the form; save again in a moment.';
     }
+    $kernel->addStatus($r['ok'] ? 'status' : 'error', $r['msg']);
     doc_redirect("/documents/$id");
 }
 
@@ -320,6 +352,7 @@ function page_document_pdf($params) {
     $id = (int)($params['id'] ?? 0);
     $doc = doc_load($id);
     if (!$doc || !$doc['last_build_id']) return error_404('No preview yet.');
+    if ($doc['status'] === 'withdrawn' && !issue_is_doctor()) return error_403('Only the doctor can open a withdrawn document.');
     $st = store_db()->prepare("SELECT pdf_sha256 FROM builds WHERE id = ? AND status = 'ok'");
     $st->execute([$doc['last_build_id']]);
     $sha = $st->fetchColumn();
@@ -369,11 +402,23 @@ function page_document_print($params) {
     if ($doc['status'] === 'withdrawn' && !issue_is_doctor()) return error_403('Only the doctor can open a withdrawn document.');
     $type = doc_typedef((int)$doc['typedef_version_id']);
     if (($doc['inputs']['settings']['paper'] ?? ($type['paper'] ?? 'a4')) !== 'a5') return error_404('Only A5 documents can be printed two to a sheet.');
-    $pdf = doc_current_pdf($doc);
-    if ($pdf === null) return error_404('Build a preview first.');
-    $r = print_two_up($pdf, ($_GET['mode'] ?? 'seq') === 'dup' ? 'dup' : 'seq', ($_GET['cut'] ?? '1') !== '0', $id, $GLOBALS['kernel']->getUserName() ?: 'user');
-    issue_prune_builds($id, [(int)($r['build_id'] ?? 0)], ['print']);
-    if (!$r['ok']) return error_500('The print layout failed: ' . ($r['error'] ?? ''));
+    // Under the document's lock like every TeX run: the PDF it reads can't change half-way, and its build
+    // pruning can't race a preview's.
+    $out = issue_locked($id, function () use ($id) {
+        $doc = doc_load($id);
+        $pdf = $doc ? doc_current_pdf($doc) : null;
+        if ($pdf === null) return issue_result(false, 'Build a preview first.', false, ['missing' => true]);
+        $r = print_two_up($pdf, ($_GET['mode'] ?? 'seq') === 'dup' ? 'dup' : 'seq', ($_GET['cut'] ?? '1') !== '0', $id, $GLOBALS['kernel']->getUserName() ?: 'user');
+        issue_prune_builds($id, [(int)($r['build_id'] ?? 0)], ['print']);
+        if (!$r['ok']) return issue_result(false, 'The print layout failed: ' . ($r['error'] ?? ''));
+        return issue_result(true, '', false, ['pdf' => $r['pdf']]);
+    });
+    if (!$out['ok']) {
+        if (!empty($out['missing'])) return error_404($out['msg']);
+        if ($out['retry']) http_response_code(409);
+        return error_500($out['msg']);
+    }
+    $r = $out;
     if (in_array($doc['status'], ['issued', 'withdrawn'], true)) medscribe_audit('file_downloaded', $id, 1);
     header('Content-Type: application/pdf');
     header('Content-Disposition: inline; filename="' . ($doc['doc_code'] ?: "doc-$id") . '-2up.pdf"');
