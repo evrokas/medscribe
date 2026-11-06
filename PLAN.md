@@ -1,6 +1,6 @@
-# MedScribe: design plan (v4, for review)
+# MedScribe: design plan (v5, for review)
 
-Status: **draft, 2026-11-05.** Decisions marked ✅ were taken in the planning conversation; open
+Status: **draft, 2026-11-06.** Decisions marked ✅ were taken in the planning conversation; open
 questions are in §11. Nothing is built yet.
 
 Changes since v1:
@@ -14,6 +14,9 @@ Changes since v1:
 - **v4:** the content reuse model (§12): sections as shared slots, history fed automatically by
   every issued document, archive seeding, reuse across types, @tokens, case features and modules
   (D15–D17); future Bayesian proposals (§13); blocks versioned as sources (§5); milestones updated.
+- **v5:** module specification (§12.3); directory layout (§14); DocArc document types and clinics
+  owned by DocArc (D20); two-stage issue, revisions under one DocArc code, withdrawal, document
+  history (§7.4–7.5); a consistency and failure-case review (§7.4 states and failures, §7.2 safety).
 
 ## 1. What MedScribe is for
 
@@ -63,12 +66,12 @@ a full version-control system (no branches or merges; see §5).
 | D3 | **Users: you + secretary.** The secretary prepares drafts; you complete and issue them | ✅ |
 | D4 | **Login: ZeusFw's own users/roles** (ZPMS-style RBAC), not ErnsAuth SSO | ✅ |
 | D5 | **Lifecycle: issued = locked.** Revisions are new versions of the same DocArc record, under the same code, each with a required reason (DocArc's versioning design, §7.4); mistakes are withdrawn, not revised; "copy as new" reuses the inputs for another patient | ✅ |
-| D6 | **Two ways to start:** a "New document" button on the ZPMS patient page (patient already filled in), and MedScribe's own patient search (through ZPMS) | ✅ |
+| D6 | **Ways to start:** a "New document" button on the ZPMS patient page (patient already filled in), MedScribe's own patient search (through ZPMS), or a patient typed by hand who is not in ZPMS (D23) | ✅ |
 | D7 | **All document types are needed;** `vevaiosi-mri` is the first, as the end-to-end pilot | ✅ |
 | D8 | **Every issued document feeds the text pool automatically** (no approval step). Suggestions come from blocks of past issued documents; promoting a block to library/default stays manual and is the point where it is cleaned by hand (§12.1). *Replaces the earlier "save to library on request only"* | ✅ 2026-11-05 |
 | D9 | **Each document is a modified copy of its template.** Beyond choosing blocks, any block's text can be reworded or removed for that document only, and free text can be inserted anywhere. The template is never changed by writing a document | ✅ |
 | D10 | **Base-template versions are selectable.** A new document uses the current released letterhead by default, but an earlier version can be chosen. The choice is recorded with the document | ✅ |
-| D11 | **Ten families + scales.** The six kit families (§6.4) sit within the ten care-pathway families of §6.5, plus an eleventh: **clinical scales & questionnaires** (patient questionnaires and doctor-recorded scales/exam charts, scored automatically) | ✅ |
+| D11 | **Ten families + scales.** The six kit families (§6.4) sit within the ten care-pathway families of §6.5, plus an eleventh: **clinical scales & questionnaires** (patient questionnaires and doctor-recorded scales/exam charts, scored automatically). *The scales family is deferred (2026-11-06): kept for later, not planned now (§6.5 E, M9, Q11–Q13)* | ✅ families · ⏸ scales deferred |
 | D12 | **New types beyond the kit:** pre-operative instructions, fitness certificates (work, driving, travel) and practice documents | ✅ |
 | D13 | **Every type has attributes:** family, legal nature (certificate needs an examination date), audience, clinical anchor, signature, has-patient (§6.5 C) | ✅ |
 | D14 | **Official electronic channels are out of scope** (ΗΔΙΚΑ e-prescription/e-referral, e-ΕΦΚΑ, ΚΕΠΑ file); MedScribe writes the accompanying documents | ✅ |
@@ -78,22 +81,25 @@ a full version-control system (no branches or merges; see §5).
 | D18 | **Types are stored as structured data (Q1 → c).** The master of each type (and block) is structured data in MedScribe's store; a kit-style `.tex` is generated from it for reading diffs as a letter and for export to Overleaf. The generated `.tex` is never edited and re-imported as a type | ✅ 2026-11-05 |
 | D19 | **Base layer: hybrid master (Q7).** Layout *code* (`evrtemplate.tex`, images) is mastered in git (the evrdocs kit) and imported into MedScribe as a draft version. Layout *data* (doctor details, clinics, labels) is mastered in MedScribe, which generates `evr-gr.tex` / `evr-en.tex` from one form so the two languages cannot drift. Base releases (B1, B2…) are made only in MedScribe | ✅ 2026-11-05 |
 | D20 | **DocArc document types are DocArc's.** MedScribe fetches the list from DocArc and links each MedScribe type to **exactly one** of them, so every document gets exactly one DocArc document type and one DocArc code. The link is many-to-one, not 1-1: e.g. all five `odigies` types can share one DocArc type. DocArc has the final word: MedScribe never creates or renames DocArc types, re-checks the link when issuing, and blocks issuing (flagging the type "relink") if DocArc no longer has it. DocArc's clinics are linked to MedScribe's `\Clinic` keys the same way. Issuing is two-stage (§7.4): request the code (DocArc creates the record and returns it), compile with the QR, the doctor approves the final PDF, then send it with the `.tex` source as a supplementary file | ✅ 2026-11-06 |
+| D21 | **Only the doctor issues (Q2).** Every type has a "secretary may issue" setting, off for all types; it can be switched on later for specific types that carry no signature or stamp | ✅ 2026-11-06 |
+| D22 | **Verification code per type (Q5).** Each type sets whether its DocArc record requires a verification code before the QR link serves the PDF; on by default, as DocArc's own default. The code is the patient's AMKA when known, otherwise a random 6-digit code that MedScribe shows the doctor to give the patient (kept with the document, doctor only, so it can be given again). It can be switched off for types a third party must open freely | ✅ 2026-11-06 |
+| D23 | **The patient need not be in ZPMS (Q8), for every type.** The patient can come from ZPMS or be typed by hand, and every printed patient detail can be changed on the document (e.g. the Latin spelling of a name for an English letter). What is printed is the document's own snapshot; changes made there are not written back to ZPMS | ✅ 2026-11-06 |
 
 ## 4. Core concepts
 
 ```
  Template store (versioned, §5)                       Document (one per patient letter)
  ──────────────────────────────                       ─────────────────────────────────
- base:  evrtemplate.tex  v3 ─┐                        patient snapshot (from ZPMS)
+ base:  evrtemplate.tex  v3 ─┐                        patient snapshot (ZPMS or typed)
         evr-gr.tex       v5  ├─ base release B4 ───┐  settings (clinic, title, stamp…)
         evr-en.tex       v2  │                     ├▶ choices, field values, free text,
         images/*         v1  ┘                     │  local edits, medication rows
- type:  vevaiosi-mri     v2 ─ sections → blocks ───┤  status: draft → issued → superseded
+ type:  vevaiosi-mri     v2 ─ sections → blocks ───┤  status: draft → review → issued → superseded/withdrawn
  shared: drug library    v7, purpose phrases v1 ───┘  manifest: every source + version + SHA-256
                                                       DocArc token, .tex, PDF
  content pool (§12)                                   case features (chips) → modules
  ──────────────────                                   ───────────────────────────────
- slot (= a named section) ──< block ──< versions      each feature adds/swaps blocks
+ slot (= a named section) ──< block ──< versions      each feature's module ADD/SET/SWAP…
       tiers: default · library · history              across slots (D17)
 ```
 
@@ -114,8 +120,8 @@ a full version-control system (no branches or merges; see §5).
   A section can be optional, i.e. switched off as a whole: today that is a commented-out
   `\section*` or `UrgentBox`.
 
-  **A section is a slot.** Each section has a stable name (e.g. `wound-care`, `mobilisation`,
-  `follow-up`) besides its printed heading. The same name in two types means the same kind of
+  **A section is a slot.** Each section has a stable dotted name (e.g. `instructions.wound_care`,
+  `instructions.activity`, `followup.schedule`) besides its printed heading. The same name in two types means the same kind of
   content, which is what lets text travel between types (D16). There is no separate slot concept.
 - **Block (phrase):** one sentence or item. Each has:
   - **Default state:** on or off (today: uncommented or commented).
@@ -137,18 +143,21 @@ a full version-control system (no branches or merges; see §5).
     adjusting rows.
   - **The "purpose" sentences:** the 7 "Το παρόν χορηγείται…" alternatives, identical in 9 files.
 - **Case features and modules** (§12.2): structured chips describing the case (procedure, area,
-  levels, complications, comorbidities). Each feature's module is a set of blocks across sections
-  that it adds or swaps in.
+  levels, complications, comorbidities). A feature's module is a versioned list of operations on
+  slots (ADD, SET, SWAP, DISABLE, ENABLE, PROPOSE MEDROW; §12.3).
 - **Document:** one letter for one patient. It holds:
-  - **Inputs:** the type version it started from, a snapshot of the patient, every choice, value,
+  - **Inputs:** the type version it started from, a snapshot of the patient (from ZPMS, with its
+    `guid`, or typed by hand, D23), every choice, value,
     free text and medication row, and its **local edits** (D9): blocks reworded, removed or added
     for this document only.
   - **Its case features**, recorded with every issued document (they rank suggestions now and
     are the data for §13 later).
   - **A manifest** of the exact source versions it was built from (§5.3).
   - **Lifecycle:** draft → *ready for review* (the secretary's hand-over, §8) → issued (locked) →
-    superseded by an approved revision (§7.5), or withdrawn if it was a mistake (§7.4). A draft may also be issued directly by the doctor.
-  - **Once issued:** the DocArc token, plus the exact `.tex` and PDF that were sent there.
+    superseded by an approved revision (§7.5), or withdrawn if it was a mistake (§7.4). A draft may
+    also be issued directly by the doctor. The issue itself passes through the states of §7.4.
+  - **Once issued:** the DocArc code (one for the document's whole life), plus, per revision, the
+    exact `.tex` and PDF that were sent there.
 
 ## 5. Template sources and versioning
 
@@ -156,7 +165,7 @@ a full version-control system (no branches or merges; see §5).
 
 Every file that can end up in a build is a **source** with its own history. A source has a stable
 name, e.g. `base/evrtemplate.tex`, `base/evr-gr.tex`, `base/images/logo-stamp.png`,
-`type/vevaiosi-mri`, `shared/drug-library`, `block/<id>`. There are five kinds:
+`type/vevaiosi-mri`, `shared/drug-library`, `block/<id>`, `module/<id>`. There are six kinds:
 
 | Kind | Examples | Today in the kit |
 |---|---|---|
@@ -165,6 +174,7 @@ name, e.g. `base/evrtemplate.tex`, `base/evr-gr.tex`, `base/images/logo-stamp.pn
 | **Type** (document template) | `vevaiosi-mri`, `odigies-osfyiki`, … | `templates/tpl-*.tex` |
 | **Shared component** | drug library, purpose sentences | copied inside several `tpl-*.tex` |
 | **Block** | one sentence or item of the content pool (§12) | lines inside `tpl-*.tex` and old letters |
+| **Module** | a case feature's list of operations (§12.3) | (none: commented alternatives today) |
 
 A type version lists its sections and the **block versions** that are its defaults, rather than
 containing their text, so a block edited once is updated for every type that uses it (in that
@@ -185,7 +195,9 @@ This works like git but deliberately much simpler:
 - **Released versions never change.** Editing a template always creates a new version. "Going back"
   means releasing a new version with the old content, so the history is never rewritten.
 - **New documents use released versions only.** Draft versions are for trying out a change: you can
-  preview a document against a draft template version before releasing it.
+  preview a document against a draft template version before releasing it. A block version created
+  by issuing a document (new or edited text, D8) counts as released, with tier *history*; it was
+  approved by being issued.
 - **Diffs:** a text diff between any two versions of a source, to see what changed.
 
 ### 5.3 What a document records
@@ -197,6 +209,7 @@ Every build, both previews and issues, records a **manifest** in the database:
 | source name, version number, SHA-256 (base files, assets, type, shared components **and every block version used**) | SHA-256 of the generated document `.tex` |
 | | SHA-256 of the produced PDF |
 | | build environment: XeLaTeX / TeX Live version, MedScribe version, font file hashes |
+| | the build's `SOURCE_DATE_EPOCH` |
 
 Local edits (D9) are stored with the document itself, so the manifest plus the document's inputs
 rebuild it exactly even after the blocks it used have evolved.
@@ -213,8 +226,11 @@ evrtemplate v3, evr-gr v5, vevaiosi-mri v2, …").
 4. Compile.
 
 The result is the same document even after every template has moved on. For **byte-identical**
-PDFs, builds set a fixed creation date (`SOURCE_DATE_EPOCH` with `FORCE_SOURCE_DATE=1`), so a rebuild
-can be checked against the stored PDF hash. The one thing outside MedScribe's control is the TeX
+PDFs, builds set a fixed creation date (`SOURCE_DATE_EPOCH` with `FORCE_SOURCE_DATE=1`), stored in
+the manifest and reused by a rebuild, so a rebuild can be checked against the stored PDF hash. With
+`FORCE_SOURCE_DATE`, TeX's `\today` is that epoch, and `evrtemplate.tex` defaults `\DocDate` to
+`\today`: **MedScribe therefore always writes `\DocDate` explicitly** (the document date), so the
+printed date never depends on the build time. The one thing outside MedScribe's control is the TeX
 installation itself; its version is recorded so that a rebuild on a different TeX Live can be flagged.
 
 ### 5.5 Choosing base versions (D10)
@@ -397,14 +413,18 @@ letters in `overleaf/` by purpose. That is complemented by:
 | Clinical anchor | surgery · visit · none | A surgery-anchored type asks for, or later pulls from ZPMS, the date, procedure and materials |
 | Signature | hand-signed · stamp image · patient signs too · none | Today `\DocClosing` / `\DocStamp`, chosen per type |
 | Has patient | yes · no | Families 9–10 often have none |
+| Secretary may issue | yes · no (all **no**, D21) | Lets specific unsigned types be issued by the secretary later |
+| Verification code | on (AMKA, else random code) · off (D22) | Whether the QR link asks for a code before serving the PDF |
 
 #### D. Gaps: decided 2026-11-05
 
 **Adopted** (D11, D12):
-- **Clinical scales & questionnaires** (family 11).
 - **Pre-operative instructions** (family 2).
 - **Fitness certificates:** work, driving, travel (family 6).
 - **Practice documents** (family 10).
+
+**Deferred** (2026-11-06): **clinical scales & questionnaires** (family 11), with everything in
+E below, M9 and Q11–Q13.
 
 **Not now:**
 - Consultation letter to the referring doctor (family 1).
@@ -415,7 +435,10 @@ letters in `overleaf/` by purpose. That is complemented by:
 New types are written fresh, because there is no kit template to import. Each goes through the same
 review → release path as the imported ones.
 
-#### E. Scales: what they add to the engine
+#### E. Scales: what they add to the engine (deferred, 2026-11-06)
+
+*Kept as a record for later; nothing here is planned now, and no earlier milestone has to prepare
+for it.*
 
 Scales are the one family that is not just text, so they need three additions:
 - **A `scale` section layout.** Each item has its answer options and their scores. MedScribe
@@ -456,8 +479,11 @@ Consequences:
 - **Portable:** the stored `.tex`, together with an export of its base release (§5.6), compiles by
   hand or on Overleaf, which gives you an escape route for any unusual document.
 - **Safe text:** your free text and local edits are **escaped** (`& % $ # _ { } ~ ^ \`), and a small
-  markup is turned into LaTeX: bold, italic, list items, spine levels. Template text is trusted, and
-  may contain LaTeX.
+  markup is turned into LaTeX: bold, italic, list items, spine levels.
+- **Every block records its format:** `markup` (escaped at every render) or `latex` (trusted). Only
+  blocks imported from the kit or the archive, and raw-LaTeX blocks written by the doctor, are
+  `latex`. Text that enters the pool from a document (history, D8) keeps the format it was written
+  in, so text typed by anyone never becomes trusted by being reused.
 
 ### 7.2 Compiling (`.tex` → PDF)
 
@@ -466,6 +492,10 @@ This follows what `~/devel/docs/scripts/build.sh` already does:
   manifest's hashes, so a build never reads a mutable working copy.
 - **XeLaTeX runs:** `xelatex -interaction=nonstopmode -halt-on-error -no-shell-escape`, 2 to 4 passes
   until there is no "Rerun", with a fixed `SOURCE_DATE_EPOCH`.
+- **No reading outside the job:** TeX Live here allows reading any file (`openin_any = a`), so a
+  `latex` block could `\input` a server file such as `config/docarc_api.php` into the PDF. Jobs run
+  with `openin_any=p` (only the job folder and the TeX tree) and `openout_any=p`; raw-LaTeX blocks
+  are a doctor-only feature.
 - **Limits:** a time limit and a size limit per job. Fonts and caches go to a folder Apache's user
   can write to.
 - **On failure:** the error and the end of the log are shown in the form, never a blank page.
@@ -475,16 +505,22 @@ This follows what `~/devel/docs/scripts/build.sh` already does:
 ### 7.3 Preview
 
 **Preview** compiles the draft with a placeholder QR and a "ΠΡΟΣΧΕΔΙΟ" (DRAFT) mark, so a draft can
-never be mistaken for an issued document. The mark needs a small, optional `\DocDraft` switch in
-`evrtemplate.tex` (§11 Q6), which becomes a new base version.
+never be mistaken for an issued document. The mark is the `\DocDraft` switch added to
+`evrtemplate.tex` (Q6, resolved), which must exist as a released base version before M1.
+
+**Checks** (shown on the Preview & issue screen; issuing is blocked until all pass):
+- all required fields filled, no `[placeholders]` left;
+- every module medication row confirmed (§12.3), every module conflict resolved;
+- an examination date for certificate types (§6.5 A);
+- the type's DocArc type and the clinic's DocArc clinic are linked and still exist (D20);
+- no other patient's name or AMKA left in the text (§12.1, swap on insertion).
 
 ### 7.4 Issuing (doctor only)
 
 The QR has to be inside the PDF, so the DocArc code (token) must exist before the final typesetting.
 Issuing has two stages, **request the code** and **approve and send**:
 
-0. **Final check of the draft.** Preview with the draft mark, the checks of §7.3 (fields filled, no
-   `[placeholders]`, medication rows confirmed).
+0. **Final check of the draft.** Preview with the draft mark, and the checks of §7.3.
 1. **Request the code.** MedScribe asks DocArc to create a record, sending everything DocArc's
    record needs:
 
@@ -496,18 +532,40 @@ Issuing has two stages, **request the code** and **approve and send**:
    | patient name | from the patient snapshot, plain text as today |
    | record date | the document date |
    | requesting user | the MedScribe user issuing |
-   | verification code (optional) | per type, if used (§11 Q5) |
+   | verification code | per type (D22): the AMKA if known, otherwise a random 6-digit code; or none |
 
    DocArc validates the type and clinic, **creates the record** and responds with the **document
-   code** (e.g. `POS-2026-7K3QPA`). The record has no file yet.
+   code** (e.g. `POS-2026-7K3QPA`). The record has no file yet. The request carries an
+   **idempotency key** (the MedScribe document id): if the response is lost (timeout) and MedScribe
+   asks again, DocArc returns the record it already created instead of a second one. MedScribe
+   checks that the returned retrieval URL is `\QRBaseURL` + code, so the printed QR resolves.
 2. **Compile the final PDF** with `\DocCode{code}`: the real QR, no draft mark. The manifest is
    recorded.
 3. **The doctor approves.** The final PDF, exactly as it will be archived, is shown with the code and
-   QR. Approving is the only way to continue; going back to edit keeps the code reserved on the draft.
+   QR. Approving **freezes** the document (no further edits by anyone) and stores the approved bytes;
+   only those bytes are sent, never a recompile. Going back to edit instead keeps the code reserved.
+   If the record's details changed meanwhile (patient name, clinic, title, date), MedScribe updates
+   the DocArc record before sending. If the document's **DocArc type** changed (a different
+   MedScribe type), the empty record is deleted and a new code is requested, since the type is part
+   of the code.
 4. **Send to DocArc:** the PDF as the record's **main document** and the **`.tex` source as a
    supplementary file** (plus any non-kit images). DocArc already accepts `.tex` there: its
    supplementary uploads allow any type except a short extension denylist.
 5. **Lock.** MedScribe stores the code, the `.tex`, the PDF and its hash, the inputs and the manifest.
+
+**States and failures.** Each step is a recorded state, so a failure resumes where it stopped rather
+than starting over:
+
+```
+draft ─▶ code reserved ─▶ final compiled ─▶ approved (frozen) ─▶ PDF sent ─▶ .tex sent ─▶ issued
+           │  └─ edit again (code kept) ◀───────┘                   │            │
+           └─ draft deleted → DocArc empty record deleted           └── retry ◀──┘ (same bytes)
+```
+
+- **Timeouts:** lookups keep the family's 3-second limit; uploads to DocArc get a longer one
+  (`config/docarc_api.php`), since a PDF over 3 s is normal.
+- **One issue at a time:** a document being issued is locked against a second "Request code" or
+  "Approve" (double click, second tab, secretary editing).
 
 **One record per document.** Once a code is reserved, MedScribe keeps it on the draft and reuses it:
 going back to edit, a failed compile or a failed upload never creates a second record. If the
@@ -522,7 +580,10 @@ already handed out keeps working and always serves the latest version; DocArc ke
 version, with its own timestamp proof.
 
 - **"Revise"** makes a new draft from the issued inputs; the issued revision itself never changes.
-  It keeps the same patient and the same DocArc code. By default it keeps the same template
+  It keeps the same patient (the snapshot may be refreshed from ZPMS, e.g. a corrected spelling),
+  the same MedScribe type and the same DocArc code and type, even if the type has since been
+  relinked to another DocArc type. Changed record details (patient name, clinic, title) are updated
+  in DocArc before the new version is sent. By default it keeps the same template
   versions, and you can choose to move it to the current ones.
 - **A reason is required.** It is stored with the revision in MedScribe and sent to DocArc as the
   version's **correction note** (staff-only there: never printed, never on the QR page, never in an
@@ -533,21 +594,32 @@ version, with its own timestamp proof.
   revision (§11 Q6).
 - **Issuing a revision** uses the flow of §7.4 without step 1 (the code exists): compile with the
   same code, the doctor approves, MedScribe uploads the PDF as **a new version with the correction
-  note** plus the `.tex` as a supplementary file, then locks. Only then is it a revision; the
+  note** plus the `.tex` as a supplementary file, then locks. The upload states which version it
+  expects to replace; if DocArc's current version is not the one MedScribe sent last (staff replaced
+  or deleted a version in DocArc), nothing is sent and the doctor is alerted. Only then is it a revision; the
   previous one is marked *superseded*. An abandoned draft of a revision touches nothing in DocArc.
 - **Mistakes are not revisions.** A document issued for the wrong patient, or one that must not
   exist, is **withdrawn** (decided 2026-11-06):
   - **DocArc deletes the whole record,** with every version and supplementary file (its
     destructive delete, for data-entry errors). The printed QR then leads nowhere.
   - **MedScribe keeps the document,** marked *withdrawn* with a reason, the date and who withdrew
-    it. Its text is kept out of the pool, and only the doctor can open it.
+    it. Only the doctor can open it. **Its text leaves the pool:** the history blocks it fed in at
+    issue (D8) are no longer suggested, unless another document also used them, and it no longer
+    counts in usage data, module growth or §13's data.
   - **The doctor may delete it from MedScribe as well,** at withdrawal or later, after a
-    confirmation. That removes its inputs, `.tex`, PDF and stored files; the audit log keeps only
-    the event (who, when, document id), never patient details or the reason. Keeping one patient's document as "history" under another's record is a GDPR problem,
-  not an audit trail.
+    confirmation. That removes its inputs, `.tex`, PDF and the stored objects that nothing else
+    references (the store is shared by hash); the audit log keeps only the event (who, when,
+    document id), never patient details or the reason. Copies in backups expire with the backup
+    retention.
+  - **The right document is made with "copy as new"** for the correct patient: a new document and a
+    new code.
+
+  Keeping one patient's document as "history" under another's record is a GDPR problem, not an
+  audit trail.
 - **Dependency:** revisions need DocArc's versioning built first (its build step 1: schema, storage,
   versioning on replace, required note) and exposed through the API. Until then MedScribe offers no
-  "Revise", and never uses DocArc's current destructive replace.
+  "Revise", and never uses DocArc's current destructive replace. The only correction meanwhile is
+  withdraw + copy as new, which gives a new code (the old printed QR stops working) (§11 Q15).
 
 ### 7.5 Document history
 
@@ -568,26 +640,30 @@ Document `POS-2026-2M8XW5` (one DocArc code for all revisions):
   click away.
 - **Drafts are not revisions.** An open draft of a revision is shown above the list as "draft of
   rev 4, not approved", and disappears if abandoned. Rejected or abandoned drafts leave no revision.
-- **Append-only:** revisions are never edited or deleted; the history and the audit log record who
-  approved what and when. The reason text stays out of the audit log (DocArc's rule for correction
+- **Append-only:** revisions are never edited or deleted (the one exception: the doctor deleting a
+  withdrawn document, §7.4); the history and the audit log record who approved what and when. The reason text stays out of the audit log (DocArc's rule for correction
   notes, applied here too); the log carries the revision number.
-- **Revision numbers match DocArc's version numbers,** so both apps name the same thing the same
-  way. A withdrawn document shows as *withdrawn* with its reason; its revisions stay listed but only
+- **Revision numbers follow DocArc's version numbers:** MedScribe stores the version number DocArc
+  returns for each upload rather than counting on its own, so both apps name the same thing the
+  same way. A withdrawn document shows as *withdrawn* with its reason; its revisions stay listed but only
   the doctor can open them, until the doctor deletes the document.
 - **The latest approved revision is the current one** wherever the document is listed (Home,
   patient page); older revisions stay reachable from the history.
+- **Only the current revision feeds the pool.** Text a revision removed or reworded (often because
+  it was wrong) is no longer suggested from that document, and a document counts once in usage
+  data, not once per revision.
 
 ## 8. Users and roles
 
 | Role | Can |
 |---|---|
-| **Secretary** | Pick a patient and a type; create and edit drafts; fill in administrative fields; preview; hand a draft to the doctor by setting it to *ready for review* (an explicit document state, shown on the doctor's Home) |
-| **Doctor** | Everything the secretary can, plus issue, correct and copy documents; edit, version and release types, shared components and the base layer; edit the phrase and drug libraries |
+| **Secretary** | Pick a patient and a type; create and edit drafts, including drafts of revisions; fill in administrative fields; preview; hand a draft to the doctor by setting it to *ready for review* (an explicit document state, shown on the doctor's Home) |
+| **Doctor** | Everything the secretary can, plus request codes, approve and issue, revise, withdraw, delete withdrawn documents and copy documents; write raw-LaTeX blocks; edit, version and release types, shared components and the base layer; edit the phrase and drug libraries |
 | **Admin** | Users, roles, settings, integration keys |
 
 These use ZeusFw's built-in users, roles and permissions, the same mechanism ZPMS uses. Each draft
 records who created it and who issued it. Each template version records who made it and who released
-it. Whether the secretary may issue purely administrative documents is open (§11 Q2).
+it. Only the doctor issues (D21); the per-type "secretary may issue" setting stays off for now.
 
 ## 9. Integrations
 
@@ -605,16 +681,27 @@ The pattern is the one in `CLAUDE.md`: server to server, an API key in a header 
 - The patient's age is calculated from the date of birth **at the document date**.
 - MedScribe stores a **snapshot** of the patient on each document (what was printed), plus the
   `guid`, and never syncs back.
+- **Patients not in ZPMS (D23):** for any type, the patient can be typed by hand (name, and as
+  the type needs: date of birth or age, gender, AMKA). Such a document has no `guid`, so it does not
+  appear on a ZPMS patient page; it is found through MedScribe's own document list. Every printed
+  detail of a ZPMS patient can also be changed on the document (e.g. a Latin-script name for an
+  English letter, optionally proposed by ΕΛΟΤ 743 transliteration), without touching ZPMS.
 
 **DocArc** (changes in the DocArc repo; it has no inbound API today):
 - **New, API-key gated:**
   - **List document types:** `{id, code, label}` from DocArc's `document_types` table. MedScribe
     caches it for the type editor and refreshes it before issuing.
   - **List clinics:** `{id, name}` from DocArc's `clinics` table, linked in MedScribe to its
-    `\Clinic` keys (Mandra, Peristeri…). Like types, DocArc owns them.
+    `\Clinic` keys (Mandra, Peristeri…). Like types, DocArc owns them. A clinic added in MedScribe's
+    Base screen must be linked before documents for it can be issued; DocArc's clinic is optional,
+    so a document can also be sent with none.
   - **Create record (request a code):** takes the DocArc document type, description, clinic,
-    patient name, record date and requesting user (§7.4 step 1), rejects an unknown type or
-    clinic, creates the record without a file and returns the code and retrieval URL.
+    patient name, record date, requesting user, the verification code setting (D22) and an
+    idempotency key (§7.4 step 1), rejects an
+    unknown type or clinic, creates the record without a file (or returns the one already created
+    for that key) and returns the code and retrieval URL.
+  - **Update record details:** patient name, clinic, description, date, while MedScribe's document
+    changes before sending or in a revision (§7.4).
   - **Upload main document:** the PDF, after the doctor approves it (§7.4 step 3).
   - **Upload supplementary files:** the `.tex`.
   - **Upload a new version** (after DocArc builds its versioning): the revised PDF with the required
@@ -641,16 +728,16 @@ Each milestone ends with something you can use or test.
 
 | # | Milestone | Done when |
 |---|---|---|
-| M0 | **Foundations:** ZeusFw app scaffold (same layout as ZPMS), login + roles, config templates, test runner. The **template store** (sources, versions, SHA-256, base releases), the kit import (all files → v1, base release B1), and the compile service running XeLaTeX as Apache's user from a manifest | The unmodified `tpl-vevaiosi-mri.tex` compiles from the store into the same PDF as `scripts/build.sh` gives. A build's manifest lists every file used, with its version and hash |
+| M0 | **Foundations:** ZeusFw app scaffold (same layout as ZPMS), login + roles, config templates, test runner. The **template store** (sources, versions, SHA-256, base releases), the kit import (all files → v1, base release B1), and the compile service running XeLaTeX as Apache's user from a manifest (`openin_any=p`, §7.2). In the kit (git): `\DocDraft` and `\DocRevision` (Q6) | The unmodified `tpl-vevaiosi-mri.tex` compiles from the store into the same PDF as `scripts/build.sh` gives (byte-identical when both use the same `SOURCE_DATE_EPOCH`; build.sh sets none, so add it there or compare page images). A build's manifest lists every file used, with its version and hash |
 | M1 | **Engine + first type**: the type/section/block format, gender variants, field types, local edits, escaping and markup. The form, renderer and preview, with the patient typed in by hand. `vevaiosi-mri` is defined in the new format | A `vevaiosi-mri` is written entirely in the form, and its PDF matches the hand-filled kit version (regression test G3) |
 | M2 | **ZPMS**: patient search and fetch-by-guid endpoints in ZPMS, the "New document" button, the patient snapshot | Opening ZPMS → "New document" → `vevaiosi-mri` arrives with the patient already filled in |
-| M3 | **DocArc + lifecycle**: the DocArc endpoints, the issue flow of §7.4, locking, versions, copy as new, correct. Rebuilding from a manifest. **Issued documents feed the history** (D8) | **G2 is met for `vevaiosi-mri`:** an issued PDF with a working QR, in DocArc, in under a minute. **G5 is met:** after a new base release, an old document still rebuilds to the same PDF hash |
+| M3 | **DocArc + lifecycle**: the DocArc endpoints (§9), the two-stage issue flow with its states and retries (§7.4), locking, copy as new, withdraw, the document history (§7.5). Revise once DocArc's versioning exists. Rebuilding from a manifest. **Issued documents feed the history** (D8) | **G2 is met for `vevaiosi-mri`:** an issued PDF with a working QR, in DocArc, in under a minute. **G5 is met:** after a new base release, an old document still rebuilds to the same PDF hash |
 | M4 | **Template management and short certificates**: an editor for type, section and block versions (draft → released, diffs); base-release selection per document; **the content pool UI: suggestions pane, @tokens, swap on insertion, library screen (promote/merge/hide)**; `vevaiosi-ylikon`, `adeia`, `vevaiosi-amoivis`, `gnomateysi-exetaseon` and the shared purpose sentences | Five types in daily use; changing a clinic phone produces a new base release that new documents use, while old ones keep theirs |
 | M5 | **Prescriptions**: the drug library as a shared component, a medication table editor, `syntagi` (A4) and `syntagi-a5`, two A5 pages on one A4 sheet | A multi-page A5 prescription is printed two pages per sheet, straight from MedScribe |
 | M6 | **Postop instructions + case modules**: the five `odigies` types (the largest import: ~100+ alternatives each, the dural-tear blocks, emergency boxes); **seeding history from the archive (D15)**; **case features and modules (D17)**, e.g. a "dural tear / CSF leak" module | A postop letter in under 5 minutes (G2); adding the "Διαρροή ΕΝΥ" chip brings in its lines across all sections |
 | M7 | **Clinical and other types**: `proegkrisi`, `enimerotiko`, `gnomateysi-farmakon`, `iatrodikastiki`, `synainesi`, `praktiko`, `epistoli`, the English types, and the blank `letter-gr` / `letter-en` | All 21 templates covered (G1) |
 | M8 | **New types (D12)**: pre-operative instructions, fitness certificates (work, driving, travel), practice documents (GDPR notice, information and price list, patient leaflets) | Each type released after your review; practice documents work without a patient |
-| M9 | **Scales (D11)**: the `scale` layout, scoring and interpretation bands, blank questionnaire + result table, structured results, quoting a score in another document. First set: NRS/VAS, ODI, NDI, the neurological exam chart, mJOA, BNI | A patient fills an ODI on paper, the secretary enters it, MedScribe scores it, and the follow-up letter quotes the pre-op and current scores |
+| M9 | ⏸ **Deferred (2026-11-06). Scales (D11)**: the `scale` layout, scoring and interpretation bands, blank questionnaire + result table, structured results, quoting a score in another document. First set: NRS/VAS, ODI, NDI, the neurological exam chart, mJOA, BNI | A patient fills an ODI on paper, the secretary enters it, MedScribe scores it, and the follow-up letter quotes the pre-op and current scores |
 
 **Importing the templates (M1, M4–M7):** a one-off import script reads each `tpl-*.tex` and proposes
 the type's structure. Uncommented lines become blocks that are on by default, commented lines become
@@ -662,15 +749,17 @@ release it as v1.
 
 1. ~~**How is a *type* stored inside its versions?**~~ *Resolved 2026-11-05: (c), structured data
    as the master plus a generated kit-style `.tex` (D18).*
-2. **Secretary issuing:** may the secretary issue administrative documents without you (fee
-   certificate, administrative letter), or does every issue need the doctor?
-3. **Patient gender missing in ZPMS:** ask at document creation every time (proposed), or write it
+2. ~~**Secretary issuing**~~ *Resolved 2026-11-06: no; only the doctor issues, with a per-type
+   "secretary may issue" setting that stays off for now (D21).*
+3. **Patient gender missing in ZPMS** (and always for a patient typed by hand, D23): ask at
+   document creation every time (proposed), or write it
    back to ZPMS? MedScribe never writes to ZPMS in the current design.
 4. ~~**Free-text formatting**~~ *Resolved 2026-11-05: light markup (bold, italic, lists, spine
    levels `L4-5` → `\V{L4-5}`) plus a raw-LaTeX block type as an escape hatch; more formatting only
    if a real document needs it.*
 5. **DocArc details:**
-   - Should an issued document set DocArc's optional *verification code* (e.g. AMKA) per type?
+   - ~~Verification code~~: per type, on by default, AMKA if known, otherwise a random 6-digit
+     code; can be switched off per type (D22, 2026-11-06).
    - ~~Which clinic and requesting-user values should be sent?~~ The DocArc clinic linked to the
      document's `\Clinic` key, and the MedScribe user who issues (§7.4, 2026-11-06).
    - ~~What happens to the empty record of an abandoned draft?~~ DocArc deletes it (2026-11-06).
@@ -684,24 +773,29 @@ release it as v1.
    both empty by default, so hand-written letters are unaffected.
 7. ~~**Who is the master of the base layer after import?**~~ *Resolved 2026-11-05: hybrid —
    code in git, data in MedScribe, releases only in MedScribe (D19).*
-8. **Language:** the English types (`letter-en`, `recommendation-en`) — will they also take the
-   patient from ZPMS, or are they free letters?
+8. ~~**Language**~~ *Resolved 2026-11-06: the English types can take the patient from ZPMS, and
+   like every type they accept a patient typed by hand and any change to the printed details (D23).
+   `recommendation-en` has no patient block.*
 9. **Data kept in MedScribe:** drafts and issued inputs include patient data. Should MedScribe have a
-   GDPR audit log like ZPMS and DocArc (proposed: yes), and how long should drafts that were never
-   issued be kept?
+   GDPR audit log like ZPMS and DocArc (proposed: yes; §7.4–7.5 and §14 already assume one), and how
+   long should drafts that were never issued be kept? Deleting an old draft that holds a reserved
+   code also deletes its empty DocArc record (§7.4).
 10. ~~**Version numbers**~~ *Resolved 2026-11-05: plain integers per source (v1, v2…) and per
     base release (B1, B2…); the change note says what changed.*
 11. **Where do scale results live?** *(deferred to the future, 2026-11-05.)* In MedScribe, linked
     to the ZPMS guid (simplest), or in ZPMS
     as part of the clinical record, with MedScribe sending them there (fits G6 better, but needs a
     ZPMS write API)?
-12. **Which scales, and which Greek versions?** Confirm the first set (M9) and the validated Greek
+12. ⏸ *Deferred with the scales family (2026-11-06).* **Which scales, and which Greek versions?** Confirm the first set (M9) and the validated Greek
     translation you use for each. Check the licence terms for licensed instruments (EQ-5D,
     SF-36/SF-12) before including them.
-13. **Questionnaire entry:** paper only (the secretary types the answers in), or also a tablet form
+13. ⏸ *Deferred with the scales family (2026-11-06).* **Questionnaire entry:** paper only (the secretary types the answers in), or also a tablet form
     the patient fills in at the office?
 14. ~~**Intake of edited and new text on issue**~~ *Resolved 2026-11-05: automatic, no
     approval and no de-identification step (D8, §12.1).*
+15. **Corrections before DocArc versioning exists:** until DocArc builds it, the only way to correct
+    an issued document is withdraw + copy as new, with a new code (the printed QR stops working).
+    Acceptable for that period, or should MedScribe's M3 wait for DocArc's versioning?
 
 ## 12. Content reuse model (draft, 2026-11-05)
 
@@ -742,7 +836,10 @@ them, or writes new ones.
    from an old document:  Ο κ. Ιωάννου, μετά τη μικροδισκεκτομή Ο5-Ι1 …
    inserted now:          Ο κ. Παπαδόπουλος, μετά τη μικροδισκεκτομή Ο4-Ο5 …
    ```
-5. **Anything else the doctor sees and fixes**, as when reusing an old letter today.
+5. **Anything else the doctor sees and fixes**, as when reusing an old letter today. One check
+   backs this up, because Greek names inflect (Ιωάννης / Ιωάννου) and an exact lookup can miss a
+   form: before issuing, MedScribe looks for the name stems and AMKA of every document a block was
+   inserted from, and warns if any is still in the text (§7.3).
 6. **Promotion to library/default is manual**, and is where a block is cleaned by hand (e.g.
    plain-text details turned into @tokens).
 
@@ -771,8 +868,8 @@ Case:  [Μικροδισκεκτομή ×] [Ο4-Ο5 ×] [Διαρροή ΕΝΥ �
 
 - **Features as chips** at the top of the composer, chosen from a controlled vocabulary with
   synonyms and autocompletion.
-- **Each feature has a module:** a set of blocks across slots that it adds or swaps in. Removing
-  the chip removes them. Modules stack, so combinations need no extra writing.
+- **Each feature can have a module:** a list of operations across slots (§12.3). Removing the chip
+  undoes them. Modules stack, so combinations need no extra writing.
 - **Explainable:** every line shows its origin ("added by: Διαρροή ΕΝΥ"). The app proposes; the
   doctor reviews and edits as usual.
 - **No silent prescribing:** a module may add text, but **medication rows it proposes stay
@@ -781,8 +878,7 @@ Case:  [Μικροδισκεκτομή ×] [Ο4-Ο5 ×] [Διαρροή ΕΝΥ �
 - **Doctor's own text only:** modules select existing blocks; the app never writes clinical
   wording.
 - **Modules grow from history:** on issuing a case with a feature, MedScribe notes which blocks were
-  added beyond the base defaults and offers them as (part of) that feature's module. Promotion is
-  manual.
+  added beyond the type's defaults and offers them for a module (§12.3). Promotion is manual.
 - **Groundwork for §13:** each issued document records its features and the blocks chosen, which is
   exactly the training data the probabilistic proposals need. Modules give rule-based selection
   first; statistics refine the ranking and surface lines no module covers yet.
@@ -818,8 +914,14 @@ of their own (they reference existing blocks):
 
 - **SET, not variant blocks, for value-only differences** (decided 2026-11-06): "…για 10 ημέρες"
   is the same block with `days = 10`, not a new block.
-- **Missing slot → op skipped.** A type without `instructions.wound_care` simply ignores that op, so
-  one module serves every type in which its slots exist (D16). A module may be limited to a scope.
+- **Missing slot or block → op skipped, visibly.** A type without `instructions.wound_care` ignores
+  that op, so one module serves every type in which its slots exist (D16). A module may be limited
+  to a scope. Skipped ops are never silent: the chip shows "2 of 7 changes don't apply here" and
+  lists them, since a missing warning line doesn't look missing.
+- **Choice groups:** `ADD` of a block whose choice group already has a block on acts as a `SWAP`
+  within the group, so two alternatives are never both on.
+- **Modules reference released blocks only** (default or library tier); a history block must be
+  promoted before a module can use it.
 
 **Assembly.** Type defaults (origin `default`) → apply each chip's module in the order the chips were
 added → resolve tokens, fields, gender → the doctor edits, adds suggestions, ticks medication rows →
@@ -827,7 +929,8 @@ issue checks (no unconfirmed rows, no `[placeholders]`).
 
 **Rules.**
 - **Removing a chip** undoes only that module's ops: its placements disappear and the fields it set
-  return to their defaults. A line the doctor has edited is kept and marked "origin removed — keep?".
+  return to their defaults, unless the doctor has changed them since. A line the doctor has edited
+  is kept and marked "origin removed — keep?".
 - **Stacking:** modules combine freely. The same block added by two modules appears once, with both
   origins.
 - **Conflicts are the doctor's choice** (decided 2026-11-06): two `SET`s of one field to different
@@ -836,11 +939,13 @@ issue checks (no unconfirmed rows, no `[placeholders]`).
 - **No silent prescribing:** module medication rows are never ticked automatically; the document
   cannot be issued while one is unconfirmed.
 - **Versioned:** the manifest records each module version (e.g. `csf_leak v2`); changing a module
-  never changes an issued document.
+  never changes an issued document. A draft keeps the module version it applied; a revision keeps
+  them like the other template versions.
 
 **Growth from history.** On issue, MedScribe compares the document with the type defaults and offers
-the differences (added blocks, changed fields, medication rows) as part of each chip's module. The
-doctor selects what to keep; promotion is manual.
+the differences (added blocks, changed fields, medication rows) for a module. With several chips the
+app cannot tell which one a difference belongs to, so the doctor assigns each kept difference to a
+chip (or to none); promotion is manual.
 
 **Likely tables** (to confirm in M0): `features`, `modules`, `module_ops` (module version, seq, op,
 slot, block + version, field, value, position), `document_features` (feature, value),
@@ -890,8 +995,8 @@ medscribe/
 │   │
 │   │   feature files, flat, as in ZPMS (required from index.php; functions = route handlers):
 │   ├── rbac.php  rbac_seed.php  audit.php    pattern copied from ZPMS
-│   ├── zpms_client.php  docarc_client.php    cURL clients (3 s timeouts, fail closed)
-│   ├── documents.php       pages: home, list, new, view, correct
+│   ├── zpms_client.php  docarc_client.php    cURL clients (3 s lookups, longer uploads; fail closed)
+│   ├── documents.php       pages: home, list, new, view, history, revise, withdraw
 │   ├── composer.php        composer page + its JSON endpoints (autosave, insert block,
 │   │                       suggestions, palette search)
 │   ├── library.php         library screen: tiers, promote, hide, used-in
@@ -901,12 +1006,12 @@ medscribe/
 │   ├── render.php    (new) inputs → .tex: escaping, markup, @tokens, gender variants
 │   ├── compile.php   (new) XeLaTeX jobs in a temporary folder, manifests
 │   ├── suggest.php   (new) ranking, case features → modules
-│   ├── issue.php     (new) DocArc flow: record → token → compile → upload → lock
+│   ├── issue.php     (new) two-stage issue: request code → compile → approve → send → lock (§7.4)
 │   │
 │   ├── templates/
 │   │   ├── page/  blocks/  menu/  nav/  webforms/      as in ZPMS
-│   │   ├── content/        home, documents_list, composer, issue, library, type_edit,
-│   │   │                   base_edit, settings, audit_log, login
+│   │   ├── content/        home, documents_list, composer, issue, history, library,
+│   │   │                   type_edit, base_edit, settings, audit_log, login
 │   │   └── partials/       block_card, suggestion_card, chip, outline   (erweb's convention)
 │   ├── modules/            header  topbar  userprofile  buildnumber  githash  copyright
 │   ├── js/                 composer.js  suggestions.js  palette.js  preview.js  scripts.js
@@ -916,7 +1021,7 @@ medscribe/
 │   └── files/    = libpath, gitignored, writable by www-data
 │       ├── .htaccess (new)  "Require all denied": PDFs and sources only through PHP
 │       ├── store/objects/ab/cdef…            sources and block versions, by SHA-256
-│       ├── documents/2026/<id>/              document.tex  document.pdf
+│       ├── documents/2026/<id>/rev<N>/       document.tex  document.pdf (as approved)
 │       ├── jobs/                             temporary compile folders, cleaned after each job
 │       └── backups/  logs/
 │
@@ -963,6 +1068,7 @@ medscribe/
   files under `web/files/store/`, so it is backed up with everything else.
 - **The evrdocs kit is not copied into the repo:** `bin/import_kit.php` reads it from the path in
   `config/tex.php`. Only a small copy lives in `tests/fixtures/`.
-- **Likely entities** (`classes/yaml/`, to confirm in M0): `documents`, `document_blocks`,
-  `sources`, `source_versions`, `base_releases`, `types`, `blocks`, `case_features`, `modules`,
-  `audit_log`, plus ZeusFw's users and roles.
+- **Likely entities** (`classes/yaml/`, to confirm in M0): `documents`, `document_revisions`,
+  `document_blocks`, `document_features`, `sources`, `source_versions`, `base_releases`, `types`,
+  `blocks`, `features`, `modules`, `module_ops`, `docarc_types`, `docarc_clinics` (cached lists and
+  links, D20), `audit_log`, plus ZeusFw's users and roles.

@@ -80,7 +80,11 @@ the generation layer. MedScribe should drive this kit, not rewrite it.
   - **Reference script:** `~/devel/docs/scripts/build.sh <file.tex>` (`-o outdir`, `-k` keep temp
     files). It copies the kit into a temp dir, runs `xelatex -interaction=nonstopmode -halt-on-error`
     2–4 times until no "Rerun" message appears, and copies the PDF out. MedScribe's compile step
-    should behave the same way: an isolated temp dir per job and never writing into the kit.
+    should behave the same way: an isolated temp dir per job and never writing into the kit. Two
+    traps found in review (`PLAN.md` §5.4, §7.2): this TeX Live has `openin_any = a`, so jobs must
+    run with `openin_any=p` (or LaTeX in a block can `\input` server files such as API-key
+    configs); and `evrtemplate.tex` defaults `\DocDate` to `\today`, which a fixed
+    `SOURCE_DATE_EPOCH` overrides, so MedScribe must always set `\DocDate` explicitly.
   - **Two A5 pages per A4 sheet:** `scripts/a5-2up.sh [--dup] [-c] <a5.pdf|.tex>` (pdfpages), or
     `latexmk -xelatex templates/tpl-a5-2up.tex`.
 - **Content rules from the kit:** templates contain placeholders only, never real patient data.
@@ -120,7 +124,8 @@ its `CLAUDE.md`, "Link to ZPMS"):
   `zpms_audit('…', ['actor' => '<app>', 'actor_type' => 'api', 'detail' => 'matches=N'])`).
 - **No shared patient ID between apps.** DocArc and APYweb match on the patient's name only. APYweb
   normalises names with `upper_gr_php()` (accents removed, uppercased). ZPMS patients do have a stable
-  `guid`, which MedScribe should store and reuse.
+  `guid`, which MedScribe should store and reuse. A patient may also be typed by hand (no `guid`), for any
+  type, and printed details can be changed per document without writing back (`PLAN.md` D23).
 
 ### ZPMS (`../zpms`): patient data source
 
