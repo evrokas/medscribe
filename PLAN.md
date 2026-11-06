@@ -74,7 +74,7 @@ a full version-control system (no branches or merges; see §5).
 | D14 | **Official electronic channels are out of scope** (ΗΔΙΚΑ e-prescription/e-referral, e-ΕΦΚΑ, ΚΕΠΑ file); MedScribe writes the accompanying documents | ✅ |
 | D15 | **Seed the text pool from the existing archive.** The old letters (`overleaf/archive`, `post-surg`, ~95 files) are imported once into history, with each letter's patient details (`\PatientName`, dates, levels) recorded so the swap on insertion (§12.1) works, so MedScribe starts with years of the doctor's own wording (§12) | ✅ 2026-11-05 |
 | D16 | **Reuse across types.** Suggestions come from the same slot in the same type, then the same family, then all text. Slots are named consistently across types so text can travel between them (§12) | ✅ 2026-11-05 |
-| D17 | **Case features + modules.** A document's case is described with structured feature chips (procedure, area, levels, complications, comorbidities…), not free prose. Each feature has a *module*: blocks spread across slots that it adds or swaps. Modules stack, every line shows which feature added it, and the doctor reviews; medication rows a module proposes stay unticked until confirmed. The app only selects the doctor's own blocks, never writes clinical wording. Free-text → chips is a later convenience (§12.2) | ✅ 2026-11-05 |
+| D17 | **Case features + modules.** A document's case is described with structured feature chips (procedure, area, levels, complications, comorbidities…), not free prose. Each feature has a *module*: blocks spread across slots that it adds, swaps or adjusts (`SET` for value-only changes, §12.3); any feature, value features included, may carry one. Modules stack, conflicts are left to the doctor, every line shows which feature added it, and the doctor reviews; medication rows a module proposes stay unticked until confirmed. The app only selects the doctor's own blocks, never writes clinical wording. Free-text → chips is a later convenience (§12.2) | ✅ 2026-11-05 |
 | D18 | **Types are stored as structured data (Q1 → c).** The master of each type (and block) is structured data in MedScribe's store; a kit-style `.tex` is generated from it for reading diffs as a letter and for export to Overleaf. The generated `.tex` is never edited and re-imported as a type | ✅ 2026-11-05 |
 | D19 | **Base layer: hybrid master (Q7).** Layout *code* (`evrtemplate.tex`, images) is mastered in git (the evrdocs kit) and imported into MedScribe as a draft version. Layout *data* (doctor details, clinics, labels) is mastered in MedScribe, which generates `evr-gr.tex` / `evr-en.tex` from one form so the two languages cannot drift. Base releases (B1, B2…) are made only in MedScribe | ✅ 2026-11-05 |
 
@@ -688,6 +688,61 @@ Case:  [Μικροδισκεκτομή ×] [Ο4-Ο5 ×] [Διαρροή ΕΝΥ �
   dictionary; a language model is an optional upgrade, given only the case description, never
   patient identifiers.
 
+### 12.3 Module specification (2026-11-06)
+
+**Placement.** A block inside one document's section is a *placement*: block id + version, on/off,
+field values, **origin** (`default` · `module:<id>` · `suggestion` · `manual`) and an optional
+local edit. The same block has many placements, one per document. The origin is what makes modules
+explainable and reversible.
+
+**Features.** A controlled vocabulary: key, Greek label, category (procedure, level, area,
+complication, comorbidity…), synonyms, scope (the families or types where it is offered). Some
+features also carry a value (e.g. level `Ο4-Ο5`, which fills `@level`). **Any feature may carry a
+module, value features included** (e.g. `Ο5-Ι1` adding level-specific advice); a feature without a
+module only fills tokens.
+
+**Modules** are versioned lists of operations on **slots**, never on types, and they hold no wording
+of their own (they reference existing blocks):
+
+| Op | Meaning |
+|---|---|
+| `ADD` | insert a block into a slot, at a position |
+| `SET` | change a field value of a block already present (e.g. days 5 → 10) |
+| `SWAP` | replace a default block with a variant, **only when the wording differs** |
+| `DISABLE` | switch off a default block |
+| `ENABLE` | switch on an optional section |
+| `PROPOSE MEDROW` | add a medication row, unticked until the doctor confirms it |
+
+- **SET, not variant blocks, for value-only differences** (decided 2026-11-06): "…για 10 ημέρες"
+  is the same block with `days = 10`, not a new block.
+- **Missing slot → op skipped.** A type without `instructions.wound_care` simply ignores that op, so
+  one module serves every type in which its slots exist (D16). A module may be limited to a scope.
+
+**Assembly.** Type defaults (origin `default`) → apply each chip's module in the order the chips were
+added → resolve tokens, fields, gender → the doctor edits, adds suggestions, ticks medication rows →
+issue checks (no unconfirmed rows, no `[placeholders]`).
+
+**Rules.**
+- **Removing a chip** undoes only that module's ops: its placements disappear and the fields it set
+  return to their defaults. A line the doctor has edited is kept and marked "origin removed — keep?".
+- **Stacking:** modules combine freely. The same block added by two modules appears once, with both
+  origins.
+- **Conflicts are the doctor's choice** (decided 2026-11-06): two `SET`s of one field to different
+  values, or two `SWAP`s of one block, flag the line and the doctor picks. No module priorities and
+  no app-made rule such as "take the larger value".
+- **No silent prescribing:** module medication rows are never ticked automatically; the document
+  cannot be issued while one is unconfirmed.
+- **Versioned:** the manifest records each module version (e.g. `csf_leak v2`); changing a module
+  never changes an issued document.
+
+**Growth from history.** On issue, MedScribe compares the document with the type defaults and offers
+the differences (added blocks, changed fields, medication rows) as part of each chip's module. The
+doctor selects what to keep; promotion is manual.
+
+**Likely tables** (to confirm in M0): `features`, `modules`, `module_ops` (module version, seq, op,
+slot, block + version, field, value, position), `document_features` (feature, value),
+`document_blocks` (slot, seq, block + version, enabled, field values, origin, local text).
+
 ## 13. Future ideas (noted, not planned)
 
 - **Probabilistic (Bayesian) sentence proposals.** Instead of the fixed ranking heuristic of §12,
@@ -704,3 +759,107 @@ Case:  [Μικροδισκεκτομή ×] [Ο4-Ο5 ×] [Διαρροή ΕΝΥ �
   operative note or a letter to a colleague.
 - *(More ideas to be added as the doctor researches further features.)*
 
+
+## 14. Directory layout (2026-11-05)
+
+Copied from ZPMS (the reference ZeusFw app), with conventions also found in erweb and mweb.
+**(new)** marks what is specific to MedScribe.
+
+```
+medscribe/
+├── CLAUDE.md  PLAN.md  README.md  LICENSE  ChangeLog  TODO.md  BUILD_NUMBER
+├── fw -> /var/www/shtml/apps/zeusfw          symlink, gitignored
+│
+├── config/
+│   ├── settings.info.yaml        routes, regions, modules, menu, roles, languages
+│   ├── dictionary.gr.php         t() translations
+│   ├── db.php.in  db.test.php.in  site.info.yaml.in  update.info.yaml.in
+│   ├── zpms_api.php.in           ZPMS URL + X-MedScribe-Api-Key (MedScribe calls ZPMS)
+│   ├── docarc_api.php.in         DocArc URL + key (MedScribe calls DocArc)
+│   └── tex.php.in          (new) XeLaTeX path, kit path, job limits
+│        (the real *.php / *.yaml next to them are gitignored)
+│
+├── web/
+│   ├── index.php  .htaccess  .user.ini
+│   ├── core -> ../fw/core/                   symlink, gitignored
+│   ├── user_classes.php  ClassesEx.php       extends the generated classes
+│   ├── classes/yaml/*.yaml                   entities (generated php/sql gitignored)
+│   │
+│   │   feature files, flat, as in ZPMS (required from index.php; functions = route handlers):
+│   ├── rbac.php  rbac_seed.php  audit.php    pattern copied from ZPMS
+│   ├── zpms_client.php  docarc_client.php    cURL clients (3 s timeouts, fail closed)
+│   ├── documents.php       pages: home, list, new, view, correct
+│   ├── composer.php        composer page + its JSON endpoints (autosave, insert block,
+│   │                       suggestions, palette search)
+│   ├── library.php         library screen: tiers, promote, hide, used-in
+│   ├── types.php           type editor, versions, release
+│   ├── base.php            doctor, clinics, labels, base releases
+│   ├── store.php     (new) content-addressed version store (SHA-256)
+│   ├── render.php    (new) inputs → .tex: escaping, markup, @tokens, gender variants
+│   ├── compile.php   (new) XeLaTeX jobs in a temporary folder, manifests
+│   ├── suggest.php   (new) ranking, case features → modules
+│   ├── issue.php     (new) DocArc flow: record → token → compile → upload → lock
+│   │
+│   ├── templates/
+│   │   ├── page/  blocks/  menu/  nav/  webforms/      as in ZPMS
+│   │   ├── content/        home, documents_list, composer, issue, library, type_edit,
+│   │   │                   base_edit, settings, audit_log, login
+│   │   └── partials/       block_card, suggestion_card, chip, outline   (erweb's convention)
+│   ├── modules/            header  topbar  userprofile  buildnumber  githash  copyright
+│   ├── js/                 composer.js  suggestions.js  palette.js  preview.js  scripts.js
+│   ├── css/                styles.css  composer.css  library.css  …
+│   ├── assets/  fonts/
+│   ├── cache/                                gitignored
+│   └── files/    = libpath, gitignored, writable by www-data
+│       ├── .htaccess (new)  "Require all denied": PDFs and sources only through PHP
+│       ├── store/objects/ab/cdef…            sources and block versions, by SHA-256
+│       ├── documents/2026/<id>/              document.tex  document.pdf
+│       ├── jobs/                             temporary compile folders, cleaned after each job
+│       └── backups/  logs/
+│
+├── bin/
+│   ├── post-update.sh       last resort only, not created until needed (see below)
+│   ├── run_tests.sh  import_dictionary.php  update_from_git.sh  restore.sh
+│   ├── install_git_hooks.sh
+│   ├── import_kit.php       (new) evrdocs kit → v1 sources + base release B1 (D19)
+│   ├── seed_archive.php     (new) old letters → history (D15)
+│   ├── rebuild_document.php (new) rebuild from a manifest, check the PDF hash (G5)
+│   └── lib/
+├── deploy/    backup.conf.example  backup-handler.php  health-handler.php
+│              medscribe-logrotate  medscribe-update.sudoers   (zops, as ZPMS)
+├── sql/       msql.sh  msqldump.sh  admin.sql.in  test/       (sql/backup gitignored)
+├── lib/       zops/                            gitignored, as ZPMS
+├── tests/     run_all.php  bootstrap.php  README.md
+│   ├── lib/          Assert, HttpClient, ServerManager, TestSchema… (from ZPMS)
+│   ├── static/       php_lint, js_lint, template_consistency, dictionary_terms
+│   ├── functional/   auth_csrf, document_crud, composer_api, issue_flow (DocArc mocked)
+│   ├── tex/   (new)  every type compiles; regression PDFs (G3)
+│   └── fixtures/ (new) a small copy of the kit + sample type definitions
+├── githooks/  pre-commit
+├── docs/  plans/
+└── var/  logs/                                 gitignored
+```
+
+- **Flat feature files in `web/`,** as ZPMS: `index.php` `require_once`s each; their functions are
+  the route handlers. No separate engine folder; ZeusFw provides the UI.
+- **Schema updates use `fw/bin/update.sh`** (regenerate from YAML, import missing tables, apply
+  `diff:sql`, load feeders and webforms). No separate migration tool.
+- **Keep `bin/post-update.sh` to a minimum.** Prefer, in this order:
+  1. the entity YAML itself (columns, defaults, indexes), applied by `diff:sql`;
+  2. feeders (`web/content/*.feeder.yaml`) for reference and seed data, loaded by `update.sh`;
+  3. explicit one-off CLI scripts run by hand (`import_kit.php`, `seed_archive.php`), never
+     triggered on every update;
+  4. code that tolerates old rows (e.g. treats a missing value as the default).
+
+  Only a data change none of these can express goes into `bin/post-update.sh`, as an idempotent
+  step, and each such case is raised with the user first.
+- **`web/files/` is `libpath`** (ZPMS convention), but **denied to direct web access**. Apache
+  serves any real file under `web/` directly, since `.htaccess` only rewrites missing paths, so
+  documents are streamed through PHP behind the login.
+- **Backups** use `lib/zops` with `deploy/backup-handler.php`, as ZPMS. The version store is plain
+  files under `web/files/store/`, so it is backed up with everything else.
+- **The evrdocs kit is not copied into the repo:** `bin/import_kit.php` reads it from the path in
+  `config/tex.php`. Only a small copy lives in `tests/fixtures/`.
+- **Likely entities** (`classes/yaml/`, to confirm in M0): `documents`, `document_blocks`,
+  `sources`, `source_versions`, `base_releases`, `types`, `blocks`, `case_features`, `modules`,
+  `audit_log`, plus ZeusFw's users and roles.

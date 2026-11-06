@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-MedScribe is at the very start: the repo contains only `README.md` and `LICENSE` (Apache-2.0). There is
-no code, build, lint or test setup yet. Update this file as soon as real structure and commands exist;
-don't invent conventions that aren't in the code.
+MedScribe is in design: the repo has `README.md`, `LICENSE` (Apache-2.0) and **`PLAN.md`**, the design
+plan (goals, decisions D1–D19, versioning, content reuse model, milestones, open questions, and the
+directory layout in §14). There is no code, build, lint or test setup yet. Read `PLAN.md` before
+building anything. Update this file as soon as real structure and commands exist; don't invent
+conventions that aren't in the code or the plan.
 
 ## What it is
 
@@ -209,15 +211,28 @@ structure rather than inventing a new one:
     the DB (zpms uses `config/dictionary.gr.php` and `bin/import_dictionary.php`).
 - **Entities:** only `web/classes/yaml/<table>.yaml` is committed. It declares the table name, the
   class name and the fields, with `@guid`, `@cdate` and `@cuser` as built-in field types. The generated
-  `web/classes/*.php` and `web/classes/sql/*` files are gitignored. After a schema change, run these
-  from `web/classes` (there is no migration runner, so apply the SQL by hand):
+  `web/classes/*.php` and `web/classes/sql/*` files are gitignored. To add custom behaviour, extend the
+  generated class (`<name>ClassEx`) in a separate file.
+- **Schema updates: `fw/bin/update.sh`, run from the app root.** Don't write a separate migration tool.
+  The script:
+  - regenerates classes and SQL from the YAML (`spill:class:all`, `spill:sql:all`);
+  - imports tables that are missing;
+  - diffs the YAML against the live DB (`diff:sql:all`) and applies the difference;
+  - loads feeders and webforms;
+  - finally runs the app's own executable **`bin/post-update.sh`**, if present.
+
+  It applies SQL through the app's `sql/msql.sh`. Every question has an option, e.g. `--dry-run`,
+  `--non-interactive`, `--web-diff=yes` (see `--help`). **Keep `bin/post-update.sh` to a minimum:**
+  express changes through the entity YAML, feeders (`web/content/*.feeder.yaml`), one-off scripts in
+  `bin/` run by hand, or code that tolerates old rows. Use `post-update.sh` (idempotent steps only)
+  only when none of these can do it, and tell the user each time before adding a step. The individual
+  maker commands, run from `web/classes`, are still useful during development:
   ```sh
   php ../core/maker/maker.php spill:class:all
   php ../core/maker/maker.php update:bootstrap
   php ../core/maker/maker.php spill:sql:all
   php ../core/maker/maker.php form:load yaml/<entity>.yaml   # DB-defined webforms
   ```
-  To add custom behaviour, extend the generated class (`<name>ClassEx`) in a separate file.
 - **Modules:** each module lives in `web/modules/<name>/` as `<name>.info.yaml` plus `<name>.php`.
 - **Runtime folders:** `var/` (sessions, logs), `logs/`, `web/cache`, `web/files` and `backup/` are
   gitignored.
