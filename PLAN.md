@@ -618,8 +618,8 @@ version, with its own timestamp proof.
   audit trail.
 - **Dependency:** revisions need DocArc's versioning built first (its build step 1: schema, storage,
   versioning on replace, required note) and exposed through the API. Until then MedScribe offers no
-  "Revise", and never uses DocArc's current destructive replace. The only correction meanwhile is
-  withdraw + copy as new, which gives a new code (the old printed QR stops working) (§11 Q15).
+  "Revise", and never uses DocArc's current destructive replace. Revise is deferred until DocArc implements its
+  versioning (§11 Q15); withdraw + copy as new remain available.
 
 ### 7.5 Document history
 
@@ -751,9 +751,9 @@ release it as v1.
    as the master plus a generated kit-style `.tex` (D18).*
 2. ~~**Secretary issuing**~~ *Resolved 2026-11-06: no; only the doctor issues, with a per-type
    "secretary may issue" setting that stays off for now (D21).*
-3. **Patient gender missing in ZPMS** (and always for a patient typed by hand, D23): ask at
-   document creation every time (proposed), or write it
-   back to ZPMS? MedScribe never writes to ZPMS in the current design.
+3. ~~**Patient gender missing in ZPMS**~~ *Resolved 2026-11-06: ask.* When ZPMS has no gender,
+   and always for a patient typed by hand (D23), MedScribe asks for it on the document. It is not
+   written back to ZPMS.
 4. ~~**Free-text formatting**~~ *Resolved 2026-11-05: light markup (bold, italic, lists, spine
    levels `L4-5` → `\V{L4-5}`) plus a raw-LaTeX block type as an escape hatch; more formatting only
    if a real document needs it.*
@@ -776,10 +776,11 @@ release it as v1.
 8. ~~**Language**~~ *Resolved 2026-11-06: the English types can take the patient from ZPMS, and
    like every type they accept a patient typed by hand and any change to the printed details (D23).
    `recommendation-en` has no patient block.*
-9. **Data kept in MedScribe:** drafts and issued inputs include patient data. Should MedScribe have a
-   GDPR audit log like ZPMS and DocArc (proposed: yes; §7.4–7.5 and §14 already assume one), and how
-   long should drafts that were never issued be kept? Deleting an old draft that holds a reserved
-   code also deletes its empty DocArc record (§7.4).
+9. **Data kept in MedScribe:** drafts and issued inputs include patient data.
+   - ~~How long are never-issued drafts kept?~~ *Resolved 2026-11-06:* until the user deletes them;
+     there is no automatic expiry. Deleting a draft that holds a reserved code also deletes its
+     empty DocArc record (§7.4).
+   - A GDPR audit log like ZPMS and DocArc: proposed yes, and §7.4–7.5 and §14 already assume one.
 10. ~~**Version numbers**~~ *Resolved 2026-11-05: plain integers per source (v1, v2…) and per
     base release (B1, B2…); the change note says what changed.*
 11. **Where do scale results live?** *(deferred to the future, 2026-11-05.)* In MedScribe, linked
@@ -793,9 +794,9 @@ release it as v1.
     the patient fills in at the office?
 14. ~~**Intake of edited and new text on issue**~~ *Resolved 2026-11-05: automatic, no
     approval and no de-identification step (D8, §12.1).*
-15. **Corrections before DocArc versioning exists:** until DocArc builds it, the only way to correct
-    an issued document is withdraw + copy as new, with a new code (the printed QR stops working).
-    Acceptable for that period, or should MedScribe's M3 wait for DocArc's versioning?
+15. ⏸ *Deferred 2026-11-06 until DocArc implements its versioning.* **Corrections before DocArc
+    versioning exists:** "Revise" is built once DocArc's versioning is available; the question of an
+    interim correction path is not taken up before then.
 
 ## 12. Content reuse model (draft, 2026-11-05)
 
