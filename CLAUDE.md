@@ -165,7 +165,8 @@ DocArc is plain PHP 8.1+ with no framework and SQLite (`data/docarc.sqlite`), in
 - **What storing MedScribe documents needs:** a new API-key-gated endpoint in DocArc, using the
   pattern above, that:
   - lists DocArc's document types (`id`, `code`, `label`). DocArc owns them: MedScribe links each of
-    its types to one or more DocArc types (many-to-many, one default) and never creates them
+    its types to exactly one DocArc type (many-to-one) and never creates them; each document gets
+    one DocArc code for life
     (`PLAN.md` D20);
   - creates a record for a DocArc document type, rejecting unknown ones, and stores the PDF as its
     main document, with the `.tex` source as a supplementary file;

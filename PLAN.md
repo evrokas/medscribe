@@ -77,7 +77,7 @@ a full version-control system (no branches or merges; see §5).
 | D17 | **Case features + modules.** A document's case is described with structured feature chips (procedure, area, levels, complications, comorbidities…), not free prose. Each feature has a *module*: blocks spread across slots that it adds, swaps or adjusts (`SET` for value-only changes, §12.3); any feature, value features included, may carry one. Modules stack, conflicts are left to the doctor, every line shows which feature added it, and the doctor reviews; medication rows a module proposes stay unticked until confirmed. The app only selects the doctor's own blocks, never writes clinical wording. Free-text → chips is a later convenience (§12.2) | ✅ 2026-11-05 |
 | D18 | **Types are stored as structured data (Q1 → c).** The master of each type (and block) is structured data in MedScribe's store; a kit-style `.tex` is generated from it for reading diffs as a letter and for export to Overleaf. The generated `.tex` is never edited and re-imported as a type | ✅ 2026-11-05 |
 | D19 | **Base layer: hybrid master (Q7).** Layout *code* (`evrtemplate.tex`, images) is mastered in git (the evrdocs kit) and imported into MedScribe as a draft version. Layout *data* (doctor details, clinics, labels) is mastered in MedScribe, which generates `evr-gr.tex` / `evr-en.tex` from one form so the two languages cannot drift. Base releases (B1, B2…) are made only in MedScribe | ✅ 2026-11-05 |
-| D20 | **DocArc document types are DocArc's.** MedScribe fetches the list from DocArc and links each MedScribe type to one or more of them (one default; the doctor may pick another at issue). The link is many-to-many, not 1-1: e.g. all five `odigies` types can share one DocArc type. DocArc has the final word: MedScribe never creates or renames DocArc types, re-checks the link when issuing, and blocks issuing (flagging the type "relink") if DocArc no longer has it. DocArc's clinics are linked to MedScribe's `\Clinic` keys the same way. Issuing is two-stage (§7.4): request the code (DocArc creates the record and returns it), compile with the QR, the doctor approves the final PDF, then send it with the `.tex` source as a supplementary file | ✅ 2026-11-06 |
+| D20 | **DocArc document types are DocArc's.** MedScribe fetches the list from DocArc and links each MedScribe type to **exactly one** of them, so every document gets exactly one DocArc document type and one DocArc code. The link is many-to-one, not 1-1: e.g. all five `odigies` types can share one DocArc type. DocArc has the final word: MedScribe never creates or renames DocArc types, re-checks the link when issuing, and blocks issuing (flagging the type "relink") if DocArc no longer has it. DocArc's clinics are linked to MedScribe's `\Clinic` keys the same way. Issuing is two-stage (§7.4): request the code (DocArc creates the record and returns it), compile with the QR, the doctor approves the final PDF, then send it with the `.tex` source as a supplementary file | ✅ 2026-11-06 |
 
 ## 4. Core concepts
 
@@ -99,8 +99,8 @@ a full version-control system (no branches or merges; see §5).
 
 - **Document type** (e.g. "Βεβαίωση συμβατότητας MRI"): the same idea as a `tpl-*.tex` file. It holds:
   - **Defaults:** language, paper size, title (plus alternative titles), closing, stamp, page numbers.
-  - **Its link to DocArc document types** (D20): one or more DocArc types, one of them the default,
-    chosen from the list DocArc publishes. Several MedScribe types may share one DocArc type.
+  - **Its DocArc document type** (D20): exactly one, chosen from the list DocArc publishes. Several
+    MedScribe types may share one DocArc type.
   - **The patient block:** the `\Info` rows it shows (Διάγνωση, Ημ. Χειρουργείου…).
   - **An ordered list of sections.**
 - **Section:** an optional heading plus a *layout*, matching what the kit already uses:
@@ -490,7 +490,7 @@ Issuing has two stages, **request the code** and **approve and send**:
 
    | DocArc field | From MedScribe |
    |---|---|
-   | document type | the linked DocArc type: the type's default, or the one picked here (D20) |
+   | document type | the one DocArc type linked to the document's type (D20) |
    | description (document name) | the document's title, e.g. "Μετεγχειρητικές Οδηγίες" |
    | clinic (location / practice) | the DocArc clinic linked to the document's `\Clinic` key |
    | patient name | from the patient snapshot, plain text as today |
@@ -627,8 +627,9 @@ The pattern is the one in `CLAUDE.md`: server to server, an API key in a header 
   rather than duplicating them.
 - **Type links (D20):** stored in MedScribe as DocArc's type `id`, plus the last code and label
   seen (for display only). The `id` is the key, since DocArc staff can edit codes and labels; what
-  DocArc returns always wins. A MedScribe type links to one or more DocArc types, one the default,
-  and a DocArc type can serve many MedScribe types. Managed in the type editor, picked from DocArc's
+  DocArc returns always wins. A MedScribe type links to exactly one DocArc type, and a DocArc type
+  can serve many MedScribe types. A document has one DocArc code for its whole life, across all
+  its revisions. Managed in the type editor, picked from DocArc's
   list; MedScribe never creates DocArc types.
 - **Patient name only:** DocArc keeps receiving the patient name as plain text, as today.
 
@@ -677,9 +678,10 @@ release it as v1.
      with a correction note (§7.4, 2026-11-06).
    - ~~Withdrawing~~: DocArc deletes the record; MedScribe keeps the document as *withdrawn* and
      deletes it only if the doctor chooses to (§7.4, 2026-11-06).
-6. **Draft mark and revision line:** may a `\DocDraft` switch (the preview's "ΠΡΟΣΧΕΔΙΟ" mark)
-   and a `\DocRevision` line (the printed "Αναθεώρηση N · date · replaces…", §7.4) be added to
-   `evrtemplate.tex` as a new base version? Hand-written letters would be unaffected.
+6. ~~**Draft mark and revision line**~~ *Resolved 2026-11-06: yes.* A `\DocDraft` switch (the
+   preview's "ΠΡΟΣΧΕΔΙΟ" mark) and a `\DocRevision` line (the printed "Αναθεώρηση N · date ·
+   replaces…", §7.4) are added to `evrtemplate.tex` in git as a new layout-code version (D19),
+   both empty by default, so hand-written letters are unaffected.
 7. ~~**Who is the master of the base layer after import?**~~ *Resolved 2026-11-05: hybrid —
    code in git, data in MedScribe, releases only in MedScribe (D19).*
 8. **Language:** the English types (`letter-en`, `recommendation-en`) — will they also take the
