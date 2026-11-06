@@ -425,13 +425,14 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   doctor's note); the JSON files stay the source, so the files and the store never diverge.
 - **Engine additions from the review:** `has_patient: "optional"` (name not required), a section `placeholder` (grey hint in
   its free-text box; a section with no blocks is a free-text box) and `label` (composer name of a heading-less section),
-  `intro` on `medtable`, `datefmt: "long"` (20 Φεβρουαρίου 2026). `proegkrisi` ships the first case feature (chip
+  `intro` on `medtable`, `datefmt: "long"` (20 Φεβρουαρίου 2026), `item: true` blocks in a paragraph topic (a bullet list under
+  the paragraph), and urgentbox blocks with a `label` (a heading line, no bullet). `proegkrisi` ships the first case feature (chip
   "Επανάληψη RF γασσερίου"; kit wording).
 - **Engine additions:** `topics` layout (enumerated topics with bullets, one slot per topic), `medtable` `default_rows` and
   `title_page`, list `bullet`/`list_options`/`list_preamble`, numbered headings, `recipient` setting,
   `has_patient: false` (practice documents), raw-LaTeX blocks read-only in the composer (changed in the type editor),
   **case features** (`features` in a type; chips whose operations
-  enable/disable/set/add and are undone exactly on removal; unit-tested; composer chips; only `proegkrisi`'s RF chip so far:
+  enable/disable/set/add and are undone exactly on removal; unit-tested; composer chips; `proegkrisi`'s RF chip and `odigies-auxeniki`'s Διαρροή ΕΝΥ chip, both in kit wording:
   modules hold clinical wording, which is the doctor's to write).
 - **Regression of imported types** (`bin/check_m1.php`, "auto"): PDF text equal to the filled kit template (blank lines
   ignored; a few differ in sub-pixel spacing only). `php bin/check_auto.php <name>` shows the differences for one type.
@@ -445,5 +446,7 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   **not** been run on the real archive: those letters hold real patients' details, so the doctor runs it.
 - **Not done:** modules for the postop types, the rest of the §12.3 operations (SWAP, PROPOSE MEDROW with confirmation),
   M9 (scales, deferred by the plan).
-- **`odigies-auxeniki` and `odigies-tridymo` are drafts**: the importer flattens nested bullet lists inside a topic, so they
-  do not match the kit template yet (their earlier released versions are retired). Fix by hand in the type editor or improve the importer.
+- **`odigies-auxeniki` and `odigies-tridymo`** (fixed 2026-11-06): before release they were rendered with the kit fixture's
+  values and compared with the filled kit file (equal text), then reviewed like the others. `auxeniki` carries the
+  **"Διαρροή ΕΝΥ" chip** (M6's acceptance case): it switches on the kit's three DURAL TEAR parts (critical instructions,
+  headache/drain-site topics, CSF-leak signs in the emergency box) and the alternative intro line.

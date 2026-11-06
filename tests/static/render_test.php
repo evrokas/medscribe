@@ -167,6 +167,18 @@ $lt = ['name' => 'l', 'lang' => 'gr', 'sections' => [
 [$t3] = render_document($lt, $base);
 eq([str_contains($t3, '\\item {}[1] urgent'), str_contains($t3, '\\item[{Α]}] x'), str_contains($t3, '\\item {}[a] b')], [true, true, true], 'list items starting with [ are guarded, a ] in a label is braced');
 
+// a paragraph topic: consecutive `item` blocks form a bullet list under the paragraph; urgentbox labels are heading lines
+$tt = ['name' => 't', 'lang' => 'gr', 'sections' => [
+    ['id' => 'tp', 'slot' => 'tp', 'layout' => 'topics', 'topics' => [['id' => 't1', 'title' => 'T', 'style' => 'paragraph', 'blocks' => [
+        ['id' => 'p', 'text' => 'Μην οδηγείτε εφόσον:', 'default' => true],
+        ['id' => 'i1', 'text' => 'α,', 'default' => true, 'item' => true], ['id' => 'i2', 'text' => 'β.', 'default' => true, 'item' => true],
+        ['id' => 'p2', 'text' => 'Τέλος.', 'default' => true]]]]],
+    ['id' => 'ub', 'slot' => 'ub', 'layout' => 'urgentbox', 'blocks' => [
+        ['id' => 'h', 'text' => '**Ομάδα:**', 'default' => true, 'label' => ''], ['id' => 'u1', 'text' => 'σημείο', 'default' => true]]]]];
+[$t4] = render_document($tt, $base);
+eq([str_contains($t4, "Μην οδηγείτε εφόσον:\n\n    \\begin{itemize}\n        \\item α,\n        \\item β.\n    \\end{itemize}\n\n    Τέλος."),
+    str_contains($t4, '\\item[] \\textbf{Ομάδα:}'), str_contains($t4, '\\item σημείο')], [true, true, true], 'paragraph topic items become a list; an urgentbox label is a heading line');
+
 // the long Greek date format (genitive month)
 eq([render_format_date('2026-02-20', 'long'), render_format_date('2026-05-01', 'long'), render_format_date('bad', 'long')], ['20 Φεβρουαρίου 2026', '1 Μαΐου 2026', ''], 'long date: Greek genitive month');
 

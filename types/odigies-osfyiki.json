@@ -1,7 +1,7 @@
 {
   "format": 1,
   "name": "odigies-osfyiki",
-  "label": "odigies-osfyiki",
+  "label": "Μετεγχειρητικές οδηγίες: οσφυϊκή μοίρα",
   "lang": "gr",
   "paper": "a4",
   "imported": "kit tpl-odigies-osfyiki.tex",

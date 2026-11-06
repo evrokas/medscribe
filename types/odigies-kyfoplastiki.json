@@ -1,7 +1,7 @@
 {
   "format": 1,
   "name": "odigies-kyfoplastiki",
-  "label": "odigies-kyfoplastiki",
+  "label": "Μετεγχειρητικές οδηγίες: κυφοπλαστική",
   "lang": "gr",
   "paper": "a4",
   "imported": "kit tpl-odigies-kyfoplastiki.tex",

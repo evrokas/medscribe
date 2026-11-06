@@ -15,7 +15,9 @@
  *               composer's free-text box, never printed), label? (the section's name in the composer when it has no heading),
  *               blocks: [...] | use: name + default_block (the blocks come from a shared component)}]
  *     layout: paragraphs | itemize | enumerate | description | patient-info | urgentbox | medtable
- *             (topics: an enumerated list of topics, each `{id, title, style: itemize|paragraph, blocks}`; a topic with no active block is left out)
+ *             (topics: an enumerated list of topics, each `{id, title, style: itemize|paragraph, blocks}`; a topic with no active block is left out;
+ *              in a paragraph topic, consecutive blocks with `item: true` form a bullet list under the paragraph before them)
+ *             (urgentbox: a block with a `label`, even "", prints as a heading line \\item[label] with no bullet)
  *             (medtable: rows from inputs.meds, chosen from a shared drug library: section `library` = component name;
  *              `intro` = markup printed above the table when it has rows)
  *     block:  {id, text, default (on/off), group? (choice group: at most one on), label?
@@ -321,19 +323,29 @@ function render_topics(array $section, array $inputs, array &$ctx): string {
             $c = $ctx; $c['datefmt'] = 'd/m/Y';
             $tex = (($b['format'] ?? 'markup') === 'latex' && !isset($inputs['blocks'][$b['id']]['text'])) ? $raw : render_markup($raw, $c);
             $ctx['issues'] = $c['issues'] ?? [];
-            if (trim($tex) !== '') $parts[] = $tex;
+            if (trim($tex) !== '') $parts[] = [$tex, !empty($b['item'])];
         }
         foreach (($inputs['extra'][$tp['id']] ?? []) as $x) {
             foreach (preg_split('/\n+/', trim((string)($x['text'] ?? ''))) as $line) {
                 $c = $ctx; $t = render_markup($line, $c); $ctx['issues'] = $c['issues'] ?? [];
-                if (trim($t) !== '') $parts[] = $t;
+                if (trim($t) !== '') $parts[] = [$t, false];
             }
         }
         if (!$parts) continue;
         $head = '  \\item \\textbf{' . tex_escape($tp['title']) . '}';
-        $items[] = ($tp['style'] ?? 'itemize') === 'paragraph'
-            ? $head . "\n\n    " . implode("\n\n    ", $parts)
-            : $head . "\n    \\begin{itemize}\n" . implode("\n", array_map(fn($p) => '      \\item ' . render_item_guard($p) . $p, $parts)) . "\n    \\end{itemize}";
+        if (($tp['style'] ?? 'itemize') === 'paragraph') {
+            // paragraphs; consecutive `item` blocks form a bullet list under the paragraph before them
+            $out = []; $list = [];
+            $flush = function () use (&$out, &$list) {
+                if ($list) $out[] = "\\begin{itemize}\n" . implode("\n", array_map(fn($p) => '        \\item ' . render_item_guard($p) . $p, $list)) . "\n    \\end{itemize}";
+                $list = [];
+            };
+            foreach ($parts as [$t, $isItem]) { if ($isItem) { $list[] = $t; continue; } $flush(); $out[] = $t; }
+            $flush();
+            $items[] = $head . "\n\n    " . implode("\n\n    ", $out);
+        } else {
+            $items[] = $head . "\n    \\begin{itemize}\n" . implode("\n", array_map(fn($p) => '      \\item ' . render_item_guard($p[0]) . $p[0], $parts)) . "\n    \\end{itemize}";
+        }
     }
     if (!$items) return '';
     $head = isset($section['heading']) && $section['heading'] !== '' ? '\\section*{' . tex_escape($section['heading']) . "}\n" : '';
@@ -402,7 +414,8 @@ function render_section(array $section, array $inputs, array &$ctx): string {
             $lines = array_map(fn($i) => '  \\Info{' . ($i[0] ?? '') . '}{' . $i[1] . '}', $items);
             return $head . "\\begin{PatientInfo}\n" . implode("\n", $lines) . "\n\\end{PatientInfo}\n";
         case 'urgentbox':
-            $lines = array_map(fn($i) => '  \\item ' . render_item_guard($i[1]) . $i[1], $items);
+            // a block with a `label` (even "") is a heading line inside the box: \item[label], no bullet
+            $lines = array_map(fn($i) => $i[0] !== null ? '  \\item[' . $i[0] . '] ' . $i[1] : '  \\item ' . render_item_guard($i[1]) . $i[1], $items);
             $opt = isset($section['heading']) && $section['heading'] !== '' ? '[' . tex_escape($section['heading']) . ']' : '';
             return "\\begin{UrgentBox}$opt\n" . implode("\n", $lines) . "\n\\end{UrgentBox}\n";
     }

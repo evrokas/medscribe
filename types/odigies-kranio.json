@@ -1,7 +1,7 @@
 {
   "format": 1,
   "name": "odigies-kranio",
-  "label": "odigies-kranio",
+  "label": "Μετεγχειρητικές οδηγίες: κρανιοτομία",
   "lang": "gr",
   "paper": "a4",
   "imported": "kit tpl-odigies-kranio.tex",
