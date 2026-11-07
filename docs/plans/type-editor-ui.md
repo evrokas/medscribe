@@ -1,6 +1,6 @@
 # Type editor UI redesign: plan
 
-**Status:** plan, nothing built yet (2026-11-07).
+**Status:** in progress (2026-11-07). Built: phase 0b. See the "Progress" notes at the end of §7.
 **Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step,
 plus the preview QR placeholder (§6.7), which also changes the composer's preview.
 **Mockups:** canvas https://claude.ai/artifact/DvTosfM1j78w77o9FtvS6i (private to the owner). The same
@@ -330,6 +330,21 @@ Playwright if available) on `odigies-kyfoplastiki`, `proegkrisi`, `adeia`, `synt
 | 10 | Polish: keyboard access (tabs, menus, Move up/down instead of drag, chips focusable), focus rings, contrast, long Greek labels, 1280/1024/narrow widths, empty states (no sections, no fields, no rules). | Manual checklist below. |
 
 Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then remove it.
+
+### Progress
+
+- **Phase 0 baseline (2026-11-07):** static suite 51/51, `check_web`, `check_types_sync`, `check_m1` green.
+- **Phase 0b done (2026-11-07), built differently from §6.7:** the qrcode package's own **draft mode**
+  (`\AtBeginDocument{\qrset{draft}}`, `RENDER_QR_PLACEHOLDER` in `web/render.php`) draws an empty frame of the QR's
+  exact size at both positions. No redefinition of `\qrcode`, no coupling to `\evrQRmm`, no kit change. Trade-off: the
+  frame has no "QR in final copy" note (the draft mark already says it is a preview). Guards: `render_test.php`
+  (preview has it once, before the kit; a final copy has neither it nor `PREVIEW`), `issue_compile_final()` and
+  `issue_send()` refuse a .tex that carries it. The two-up print of an issued document uses the issued revision.
+  **Timing** (XeLaTeX in the sandbox, 2 passes each, 2026-11-07): A4 `odigies-kyfoplastiki` 13.5 s → 12.3 s,
+  A5 `syntagi-a5` 13.2 s → 12.3 s. The QR was *not* the main cost: the kit's preamble alone takes ~5.3 s per pass
+  (bare XeLaTeX 1.4 s, `fontawesome5` +1.7 s, Roboto fonts +1.6 s; the body is negligible; fontconfig cache is fine).
+  XeTeX cannot dump native fonts into a format, so the remaining lever is fewer passes: reusing the previous
+  preview's `.aux` (1 pass instead of 2, ~6 s saved). Not built: still undecided (§6.7).
 
 ## 8. Acceptance checklist (manual, on the server)
 

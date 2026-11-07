@@ -216,6 +216,7 @@ function issue_compile_final(int $id, string $user): array {
         $inputs = $doc['inputs'];
         $inputs['settings']['code'] = $doc['doc_code'];
         [$tex] = render_document($type, $inputs);
+        if (str_contains($tex, RENDER_QR_PLACEHOLDER)) return issue_result(false, 'The final copy would have no real QR code. Nothing was built.');
         $r = compile_job(base_release_files((int)$doc['base_release_id']), ['document.tex' => $tex], 'document.tex', time(), 'issue', $user, $id);
         if (!$r['ok']) return issue_result(false, 'The final PDF failed to build: ' . ($r['error'] ?? '') . ' ' . substr($r['log_tail'] ?? '', -300), false);
         store_put($r['pdf']);
@@ -259,6 +260,8 @@ function issue_send(int $id, string $user, ?array $cfg = null): array {
             $pdf = store_get($build['pdf_sha256']);      // the approved bytes, never a recompile
             $tex = store_get($build['tex_sha256']);
         } catch (Throwable $e) { return issue_result(false, 'The stored final PDF is damaged: ' . $e->getMessage() . '. Nothing was sent.'); }
+        // belt and braces: a preview (QR drawn as a frame) never goes to DocArc
+        if (str_contains($tex, RENDER_QR_PLACEHOLDER)) return issue_result(false, 'The approved PDF is a preview without a real QR code. Nothing was sent.');
         $code = $doc['doc_code'];
 
         if ($doc['status'] === 'approved') {

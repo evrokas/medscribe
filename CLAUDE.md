@@ -486,9 +486,14 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   **"Διαρροή ΕΝΥ" chip** (M6's acceptance case): it switches on the kit's three DURAL TEAR parts (critical instructions,
   headache/drain-site topics, CSF-leak signs in the emergency box) and the alternative intro line.
 
-## Type editor UI redesign (planned, 2026-11-07)
+## Type editor UI redesign (in progress, 2026-11-07)
 
-Plan only, nothing built: `docs/plans/type-editor-ui.md` (decisions, invariants, tab-by-tab spec, backend additions,
+The plan is `docs/plans/type-editor-ui.md` (its §7 "Progress" says what is built) (decisions, invariants, tab-by-tab spec, backend additions,
 phases, acceptance checklist), mockup sources in `docs/plans/type-editor-ui/mockups/`. Decided by the doctor: keep the
 app's top bar; fields show as chips with the stored `@token` on hover; the toolbar offers only what the block markup
 supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `web/js/type_*.js`.
+
+- **QR frame in previews (phase 0b):** a preview's .tex sets the qrcode package's draft mode (`RENDER_QR_PLACEHOLDER`), so
+  the QR is an empty frame of the same size; a final copy keeps the real QR (unchanged bytes). The issue flow refuses a
+  .tex carrying the line. Measured: it saves ~1 s of a ~12–13 s preview; the kit's preamble (fonts) is ~5.3 s of every
+  pass, so the next lever is fewer passes (reusing the previous `.aux`), not decided.

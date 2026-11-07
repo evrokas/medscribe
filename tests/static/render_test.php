@@ -89,6 +89,11 @@ eq(str_contains($tex, '\\providecommand\\DocDate{\\DTMdate{2026-01-15}}') && str
 eq(str_contains($tex, 'DocDraft'), false, 'no draft mark outside preview');
 [$tex2] = render_document($mri, $inp, ['preview' => true]);
 eq(str_contains($tex2, '\\providecommand\\DocDraft{yes}') && str_contains($tex2, '\\DocCode{PREVIEW}'), true, 'preview has draft mark and placeholder code');
+// the QR placeholder (PLAN docs/plans/type-editor-ui.md decision 6): previews only. It relies on the kit loading the qrcode
+// package (\usepackage{qrcode} in evrtemplate.tex) and on that package's draft mode; a final copy has the real QR.
+eq([str_contains($tex2, RENDER_QR_PLACEHOLDER), substr_count($tex2, RENDER_QR_PLACEHOLDER), strpos($tex2, RENDER_QR_PLACEHOLDER) < strpos($tex2, '\\input{evrtemplate}')],
+   [true, 1, true], 'preview: the QR is drawn as a frame (set once, before the kit)');
+eq([str_contains($tex, RENDER_QR_PLACEHOLDER), str_contains($tex, 'qrset'), str_contains($tex, 'PREVIEW')], [false, false, false], 'final copy: no QR placeholder, no PREVIEW code');
 [$tex3, $iss3] = render_document($mri, ['patient' => ['name' => ''], 'settings' => []]);
 $chk = render_checks($mri, ['patient' => ['name' => ''], 'settings' => []], $iss3);
 eq(count($chk) >= 4, true, 'checks report missing name, date, clinic, field and gender');

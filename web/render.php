@@ -497,9 +497,12 @@ function render_checks(array $type, array $inputs, array $issues): array {
     return $c;
 }
 
+/** The line a preview's .tex carries so the QR code is drawn as an empty frame (never in a final copy). */
+const RENDER_QR_PLACEHOLDER = '\\AtBeginDocument{\\qrset{draft}}';
+
 /**
  * The complete .tex for a document.
- * @param array $opts preview => bool (draft mark + placeholder QR code)
+ * @param array $opts preview => bool (draft mark; the QR code drawn as an empty frame), trace => bool (HTML preview only)
  * @return array [tex, issues]
  */
 function render_document(array $type, array $inputs, array $opts = []): array {
@@ -526,7 +529,13 @@ function render_document(array $type, array $inputs, array $opts = []): array {
     $tex .= "\\usepackage[useregional]{datetime2}\n";
     $tex .= $pc('DocLang', $lang) . $pc('Clinic', (string)($s['clinic'] ?? ''));
     $tex .= $pc('DocCode', tex_escape($code));
-    if (!empty($opts['preview'])) $tex .= $pc('DocDraft', 'yes');
+    if (!empty($opts['preview'])) {
+        $tex .= $pc('DocDraft', 'yes');
+        // Previews draw an empty frame of the QR's size instead of computing the code in TeX (the main cost of a preview):
+        // the qrcode package's own draft mode, set once the kit has loaded the package. The final copy (no 'preview') keeps
+        // the real QR, byte-identical to the kit build. Guarded by tests/static/render_test.php and issue.php.
+        $tex .= RENDER_QR_PLACEHOLDER . "\n";
+    }
     if ($paper !== 'a4') $tex .= $pc('DocPaper', $paper);
     if ($prefix !== '') $tex .= $pc('PatientPrefix', $prefix);
     $tex .= $pc('PatientName', tex_escape((string)($p['name'] ?? '')));
