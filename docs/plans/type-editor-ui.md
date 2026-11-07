@@ -1,6 +1,6 @@
 # Type editor UI redesign: plan
 
-**Status:** in progress (2026-11-07). Built: phase 0b. See the "Progress" notes at the end of §7.
+**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4. See the "Progress" notes at the end of §7.
 **Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step,
 plus the preview QR placeholder (§6.7), which also changes the composer's preview.
 **Mockups:** canvas https://claude.ai/artifact/DvTosfM1j78w77o9FtvS6i (private to the owner). The same
@@ -345,6 +345,31 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
   (bare XeLaTeX 1.4 s, `fontawesome5` +1.7 s, Roboto fonts +1.6 s; the body is negligible; fontconfig cache is fine).
   XeTeX cannot dump native fonts into a format, so the remaining lever is fewer passes: reusing the previous
   preview's `.aux` (1 pass instead of 2, ~6 s saved). Not built: still undecided (§6.7).
+- **Phases 1–4 done (2026-11-07)**, files: `web/templates/content/type_edit.zetem` (the old page is
+  `type_edit_classic.zetem`, at `?ui=classic`), `web/css/type-editor.css` (library `type-editor`, scoped `.te`),
+  `web/js/type_editor.js` (shell, Save dialog, unsaved marker, `beforeunload`, Structure tab), `web/js/type_chips.js`
+  (§4.3), `web/js/type_content.js`, `web/js/type_fields.js`; `type_tree.js` exports its parser, token rule and renames
+  as `window.MSTypeTree` (one copy of each). Tests: `tests/js/type_chips_test.js` (every block text of every type file:
+  split/join byte-identical; the §4.3 cases; the naming rule) and `bin/check_chips_dom.js` (Chromium headless shell:
+  every block text round-trips through a real contenteditable; typing, a chip, Enter, bold; a foreign element turns the
+  row plain and writes nothing; an unsafe text opens plain with the note), both in the static suite. Checked in
+  Chromium on the server: tabs and counts, Structure, Content (chips, hover token, choice-group radios, reveal from
+  the preview), Fields, rename dry run (`bedrest_days` → 1 token, 0 operations), Save dialog; an edit in Content
+  changes exactly one value of the definition.
+  **Deviations, decided while building:**
+  - Section name (§3): `label` first, then `heading` (the composer's rule, so the editor never names a section
+    differently from the form), then the plan's fallbacks.
+  - The JSON tab keeps today's Tree/JSON sub-switch; invalid JSON blocks leaving the tab.
+  - "History" toggles the versions table (with Release, diff) in the page until phase 9's review page exists;
+    "Review & release" and "Test PDF" are not shown yet (phases 9 and 5).
+  - Markup (`{Ο|Η}`, `**bold**`, `{v:…}`) is shown as typed, without colour highlighting inside the editable text:
+    highlighting means re-rendering spans while typing (caret risk) and is left for phase 10.
+  - Unsafe characters (U+00A0, CR, zero-width and other control characters) always open as plain text: a
+    contenteditable cannot be trusted to keep them. No real block text has one today.
+  - A stored version is 4-space JSON (the server's `json_encode`); the editor writes 2 spaces, so the text box differs
+    in whitespace after the first edit, as with the tree. The server re-encodes on save, so versions differ only by
+    the edit.
+  - Medication-table default rows and shared-component content are still edited in the JSON tab (phases 7, 8).
 
 ## 8. Acceptance checklist (manual, on the server)
 

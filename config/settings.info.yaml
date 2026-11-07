@@ -45,6 +45,10 @@ libraries:
     css:
       - boxicons:
         src: 'css/bx/css/boxicons.min.css'
+  type-editor:
+    css:
+      - type-editor:
+        src: 'css/type-editor.css'
 
 roles:
   anonymous: []

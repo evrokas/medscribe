@@ -497,3 +497,12 @@ supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `w
   the QR is an empty frame of the same size; a final copy keeps the real QR (unchanged bytes). The issue flow refuses a
   .tex carrying the line. Measured: it saves ~1 s of a ~12–13 s preview; the kit's preamble (fonts) is ~5.3 s of every
   pass, so the next lever is fewer passes (reusing the previous `.aux`), not decided.
+- **The new editor page (phases 1–4):** `type_edit.zetem` + `web/css/type-editor.css` (scoped `.te`) with tabs Structure ·
+  Content · Fields · JSON (shared components: JSON only, for now); the old page stays at `?ui=classic` until phase 10.
+  Scripts: `type_tree.js` (parser, token rule, renames: `window.MSTypeTree`; the JSON tab's tree), `type_chips.js` (block
+  text with fields as chips; a text that does not survive text → DOM → text byte for byte opens as plain text),
+  `type_editor.js` (shell, Save dialog, unsaved marker, Structure tab, the naming rule `sectionName`),
+  `type_content.js`, `type_fields.js` (rename dialog with a dry run on a copy). Every view parses the form's textarea
+  when shown and writes it back (`commit()`): the textarea stays the one source of truth. Tests:
+  `tests/js/type_chips_test.js`, `bin/check_chips_dom.js` (needs a Chromium; the Playwright headless shell in
+  `~/.cache/ms-playwright` is found by itself, or `CHROME=`).

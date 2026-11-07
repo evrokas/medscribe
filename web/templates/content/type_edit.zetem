@@ -1,48 +1,93 @@
+{% attach_library('type-editor') %}
 {% if($kind == 'typedef'): %}<div class="splitpane type-split" data-split-key="medscribe.typeedit.layout" data-split-default="55">{% endif %}
-<div class="page-placeholder type-edit split-left">
-  <div class="page-head"><h2>{{{$src['name']}}}</h2><a class="btn" href="{{rel_url('/types')}}">&larr; {{{t('Types')}}}</a></div>
-  <table class="status-table list">
-    <tr><th>v</th><th>{{{t('Status')}}}</th><th>{{{t('By')}}}</th><th>{{{t('Date')}}}</th><th>{{{t('Note')}}}</th><th>{{{t('Documents')}}}</th><th></th></tr>
-    {% foreach($versions as $v): %}
-    <tr>
-      <td><a href="{{rel_url('/types/' . $kind . '/' . $name . '?v=' . $v['version'])}}">v{{{$v['version']}}}</a></td>
-      <td><span class="badge badge-{{{$v['status'] == 'released' ? 'issued' : 'draft'}}}">{{{$v['status']}}}</span></td>
-      <td>{{{$v['cuser']}}}</td><td>{{{$v['cdate']}}}</td><td>{{{$v['note']}}}</td><td>{{{$v['docs']}}}</td>
-      <td>
-        {% if($v['prev_version']): %}<a href="{{rel_url('/types/' . $kind . '/' . $name . '?a=' . $v['prev_version'] . '&b=' . $v['version'])}}">{{{t('diff with previous')}}}</a>{% endif %}
-        {% if($v['status'] == 'draft'): %}
-        <form method="post" action="{{rel_url('/types/' . $kind . '/' . $name)}}" class="inline-form">{{ csrf_field() }}<input type="hidden" name="version" value="{{{$v['version']}}}"><button type="submit" name="action" value="release">{{{t('Release')}}}</button></form>
-        {% endif %}
-      </td>
-    </tr>
-    {% endforeach %}
-  </table>
-
-  {% if($diff): %}
-  <h3>{{{t('Changes')}}} v{{{$diff['a']}}} &rarr; v{{{$diff['b']}}}</h3>
-  <pre class="diff">{% foreach($diff['lines'] as $l): %}<span class="d{{{$l['op'] == '+' ? 'add' : ($l['op'] == '-' ? 'del' : 'ctx')}}}">{{{$l['op']}}} {{{$l['text']}}}</span>
-{% endforeach %}</pre>
-  {% endif %}
-
-  <h3>{{{t('Edit')}}} (v{{{$shown['version']}}} {{{t('as the starting point')}}})</h3>
-  <p class="muted">{{{t('Tree: drag ⠿ or use ↑↓ to reorder, ✎ to rename (a field rename updates every @field and feature operation; an id rename updates the feature operations). Saving makes a new draft version; nothing changes for new documents until you release it. Saved here, not in the repo: bring released edits into types/*.json with php bin/export_types.php and commit. A type pins its shared components: write "latest" in the shared map to take the latest released version.')}}}</p>
-  <form method="post" action="{{rel_url('/types/' . $kind . '/' . $name)}}">
-    {{ csrf_field() }}
-    {% if($unsaved): %}<p class="notice">{{{t('This text is NOT saved: it was handed back after a refused save (see the message above). Fix it and save again, or reset the text.')}}}</p>{% endif %}
-    <textarea name="text" rows="28" class="code" spellcheck="false">{{{$text}}}</textarea>
-    {% if($can_save_here): %}
-    <input type="hidden" name="version" value="{{{$shown['version']}}}">
-    <p class="muted">{{{t('Version')}}} v{{{$shown['version']}}} {{{t('is a draft: you can save into it, or keep it and save a new version. Once released it can no longer change.')}}}</p>
-    {% else: %}
-    <p class="muted">{% if($shown['status'] == 'released'): %}v{{{$shown['version']}}} {{{t('is released and cannot change: saving makes a new version.')}}}{% else: %}v{{{$shown['version']}}} {{{t('cannot be saved over (a newer version exists, or a document uses it): saving makes a new version.')}}}{% endif %}</p>
-    {% endif %}
-    <label>{% if($can_save_here): %}{{{t('Change note (required for a new version; for this version it replaces the note when filled in)')}}}{% else: %}{{{t('Change note (required)')}}}{% endif %} <input type="text" name="note" maxlength="500" size="60" required></label>
-    <div class="actions">
-      {% if($can_save_here): %}<button type="submit" name="action" value="save_here" class="primary" formnovalidate>{{{t('Validate and save in')}}} v{{{$shown['version']}}}</button>{% endif %}
-      <button type="submit" name="action" value="save" {% if(!$can_save_here): %}class="primary"{% endif %}>{{{t('Validate and save as a new version')}}}</button>
-      <button type="submit" name="action" value="discard" formnovalidate>{{{t('Reset the text')}}}</button>
+<div class="page-placeholder type-edit te split-left" data-kind="{{{$kind}}}" data-name="{{{$name}}}" data-shared-labels="{{{$shared_labels}}}">
+  <div class="te-head">
+    <div class="te-title">
+      <a class="te-crumb" href="{{rel_url('/types')}}">{{{t('Types')}}} &rsaquo;</a>
+      <h2>{{{$type_label}}}</h2>
+      <code class="te-code">{{{$kind == 'shared' ? 'shared/' : ''}}}{{{$name}}}</code>
+      {% if($shown['status'] == 'released'): %}<span class="te-pill te-pill-released">{{{t('Released')}}} v{{{$shown['version']}}}</span>{% else: %}<span class="te-pill te-pill-draft">{{{t('Draft')}}} v{{{$shown['version']}}}</span>{% endif %}
+      {% if($latest_released && $latest_released != $shown['version']): %}<span class="te-note muted">{{{t('new documents use')}}} v{{{$latest_released}}}</span>{% endif %}
+      <span class="te-unsaved" hidden>&#9679; {{{t('Unsaved changes')}}}</span>
     </div>
+    <div class="te-actions">
+      <button type="button" class="te-btn te-open-history{% if($diff): %} on{% endif %}" title="{{{t('Versions, differences and release')}}}">{{{t('History')}}} ({{{count($versions)}}})</button>
+      <button type="button" class="te-btn te-primary te-open-save">{{{t('Save…')}}}</button>
+    </div>
+  </div>
+
+  <div class="te-history"{% if(!$diff): %} hidden{% endif %}>
+    <table class="status-table list">
+      <tr><th>v</th><th>{{{t('Status')}}}</th><th>{{{t('By')}}}</th><th>{{{t('Date')}}}</th><th>{{{t('Note')}}}</th><th>{{{t('Documents')}}}</th><th></th></tr>
+      {% foreach($versions as $v): %}
+      <tr{% if($v['version'] == $shown['version']): %} class="te-shown"{% endif %}>
+        <td><a href="{{rel_url('/types/' . $kind . '/' . $name . '?v=' . $v['version'])}}" title="{{{t('Edit with this version as the starting point')}}}">v{{{$v['version']}}}</a></td>
+        <td><span class="badge badge-{{{$v['status'] == 'released' ? 'issued' : 'draft'}}}">{{{$v['status']}}}</span></td>
+        <td>{{{$v['cuser']}}}</td><td>{{{$v['cdate']}}}</td><td>{{{$v['note']}}}</td><td>{{{$v['docs']}}}</td>
+        <td>
+          {% if($v['prev_version']): %}<a href="{{rel_url('/types/' . $kind . '/' . $name . '?a=' . $v['prev_version'] . '&b=' . $v['version'] . '&v=' . $shown['version'])}}">{{{t('diff with previous')}}}</a>{% endif %}
+          {% if($v['status'] == 'draft'): %}
+          <form method="post" action="{{rel_url('/types/' . $kind . '/' . $name)}}" class="inline-form">{{ csrf_field() }}<input type="hidden" name="version" value="{{{$v['version']}}}"><button type="submit" name="action" value="release">{{{t('Release')}}}</button></form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endforeach %}
+    </table>
+    {% if($diff): %}
+    <h3>{{{t('Changes')}}} v{{{$diff['a']}}} &rarr; v{{{$diff['b']}}}</h3>
+    <pre class="diff">{% foreach($diff['lines'] as $l): %}<span class="d{{{$l['op'] == '+' ? 'add' : ($l['op'] == '-' ? 'del' : 'ctx')}}}">{{{$l['op']}}} {{{$l['text']}}}</span>
+{% endforeach %}</pre>
+    {% endif %}
+    <p class="muted">{{{t('Saved in the database only: bring released versions into types/*.json with php bin/export_types.php, review and commit.')}}}</p>
+  </div>
+
+  {% if($unsaved): %}<p class="notice">{{{t('This text is NOT saved: it was handed back after a refused save (see the message above). Fix it and save again, or reset the text.')}}}</p>{% endif %}
+  <textarea class="te-saved-text" hidden aria-hidden="true" tabindex="-1">{{{$saved_text}}}</textarea>
+
+  <form method="post" action="{{rel_url('/types/' . $kind . '/' . $name)}}" class="te-form">
+    {{ csrf_field() }}
+    <div class="te-panel-box">
+      <div class="te-tabs" role="tablist">
+        {% if($kind == 'typedef'): %}
+        <button type="button" role="tab" data-tab="structure">{{{t('Structure')}}} <span class="te-count"></span></button>
+        <button type="button" role="tab" data-tab="content">{{{t('Content')}}}</button>
+        <button type="button" role="tab" data-tab="fields">{{{t('Fields')}}} <span class="te-count"></span></button>
+        <button type="button" role="tab" data-tab="rules">{{{t('Case rules')}}} <span class="te-count"></span></button>
+        {% endif %}
+        <button type="button" role="tab" data-tab="json">{{{t('JSON')}}}</button>
+        <span class="te-say" aria-live="polite"></span>
+      </div>
+      {% if($kind == 'typedef'): %}
+      <div class="te-panel" data-tab="structure" hidden></div>
+      <div class="te-panel" data-tab="content" hidden></div>
+      <div class="te-panel" data-tab="fields" hidden></div>
+      <div class="te-panel" data-tab="rules" hidden></div>
+      {% endif %}
+      <div class="te-panel te-json" data-tab="json">
+        <p class="muted">{{{t('Every key of the definition. Tree: drag ⠿ or use ↑↓ to reorder, ✎ to rename (a field rename updates every @field and case-rule operation; an id rename updates the case-rule operations).')}}}</p>
+        <textarea name="text" rows="28" class="code" spellcheck="false">{{{$text}}}</textarea>
+      </div>
+    </div>
+
+    <dialog class="te-save">
+      <h3>{{{t('Save')}}}</h3>
+      {% if($can_save_here): %}
+      <input type="hidden" name="version" value="{{{$shown['version']}}}">
+      <p class="muted">v{{{$shown['version']}}} {{{t('is a draft: you can save into it, or keep it and save a new version. Once released it can no longer change.')}}}</p>
+      {% else: %}
+      <p class="muted">{% if($shown['status'] == 'released'): %}v{{{$shown['version']}}} {{{t('is released and cannot change: saving makes a new version.')}}}{% else: %}v{{{$shown['version']}}} {{{t('cannot be saved over (a newer version exists, or a document uses it): saving makes a new version.')}}}{% endif %}</p>
+      {% endif %}
+      <label class="te-prop">{% if($can_save_here): %}{{{t('Change note (required for a new version; for this version it replaces the note when filled in)')}}}{% else: %}{{{t('Change note (required)')}}}{% endif %} <input type="text" name="note" maxlength="500" class="te-input" required></label>
+      <p class="muted">{{{t('Every save is checked first (valid JSON, layouts, unique ids, known @tokens, ...). A new version is a draft: nothing changes for new documents until it is released.')}}}</p>
+      <div class="actions">
+        {% if($can_save_here): %}<button type="submit" name="action" value="save_here" class="primary" formnovalidate>{{{t('Validate and save in')}}} v{{{$shown['version']}}}</button>{% endif %}
+        <button type="submit" name="action" value="save" {% if(!$can_save_here): %}class="primary"{% endif %}>{{{t('Validate and save as a new version')}}}</button>
+        <button type="submit" name="action" value="discard" formnovalidate>{{{t('Reset the text')}}}</button>
+        <button type="button" class="te-close-save">{{{t('Cancel')}}}</button>
+      </div>
+    </dialog>
   </form>
+  <p class="muted te-classic"><a href="{{rel_url('/types/' . $kind . '/' . $name . '?ui=classic&v=' . $shown['version'])}}">{{{t('Classic editor')}}}</a></p>
 </div>
 {% if($kind == 'typedef'): %}
   <div class="composer-splitter" role="separator" aria-orientation="vertical" tabindex="0" title="{{{t('Drag to change the width of the preview')}}}">
@@ -66,3 +111,9 @@
 <script src="{{rel_url('/js/sections.js')}}"></script>
 {% endif %}
 <script src="{{rel_url('/js/type_tree.js')}}"></script>
+<script src="{{rel_url('/js/type_chips.js')}}"></script>
+<script src="{{rel_url('/js/type_editor.js')}}"></script>
+{% if($kind == 'typedef'): %}
+<script src="{{rel_url('/js/type_content.js')}}"></script>
+<script src="{{rel_url('/js/type_fields.js')}}"></script>
+{% endif %}

@@ -109,6 +109,18 @@ function page_type_preview_post($params) {
     $send(['ok' => true, 'errors' => $errors, 'checks' => array_values(array_filter($checks, fn($c) => $c['level'] !== 'ok')), 'html' => $html]);
 }
 
+/** The label of every shared component (its latest version), for naming the sections that use one: [name => label]. */
+function types_shared_labels(): array {
+    $out = [];
+    $rows = store_db()->query("SELECT s.name, v.sha256 FROM sources s JOIN source_versions v ON v.source_id = s.id
+                                WHERE s.kind = 'shared' ORDER BY v.version")->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($rows as $r) {   // the last row of a source wins: its latest version
+        $d = json_decode(store_get($r['sha256']), true);
+        $out[substr($r['name'], strlen('shared/'))] = is_array($d) && is_string($d['label'] ?? null) ? $d['label'] : substr($r['name'], 7);
+    }
+    return $out;
+}
+
 function page_type_edit($params) {
     $src = types_source((string)($params['kind'] ?? ''), (string)($params['name'] ?? ''));
     if (!$src) return error_404('Unknown source.');
@@ -126,9 +138,15 @@ function page_type_edit($params) {
             catch (Throwable $e) { $diff = ['a' => $a, 'b' => $b, 'lines' => [['op' => '@', 'text' => $e->getMessage()]]]; }
         }
     }
-    return Renderer::render("type_edit.zetem", [
+    $saved = store_get($cur['sha256']);
+    $def = json_decode($saved, true);
+    // the redesigned editor (docs/plans/type-editor-ui.md); ?ui=classic keeps the old page until the redesign is accepted
+    $template = ($_GET['ui'] ?? '') === 'classic' ? 'type_edit_classic.zetem' : 'type_edit.zetem';
+    return Renderer::render($template, [
         'src' => $src, 'kind' => (string)$params['kind'], 'name' => (string)$params['name'], 'versions' => $versions,
-        'shown' => $cur, 'text' => $_SESSION['type_edit_text'][$src['name']] ?? store_get($cur['sha256']), 'diff' => $diff,
+        'shown' => $cur, 'text' => $_SESSION['type_edit_text'][$src['name']] ?? $saved, 'diff' => $diff, 'saved_text' => $saved,
+        'type_label' => is_array($def) && is_string($def['label'] ?? null) && $def['label'] !== '' ? $def['label'] : (string)$params['name'],
+        'shared_labels' => json_encode(types_shared_labels(), JSON_UNESCAPED_UNICODE),
         'unsaved' => isset($_SESSION['type_edit_text'][$src['name']]),
         // the shown version can be saved over while it is the latest version, still a draft, and no document uses it
         'can_save_here' => $cur['status'] === 'draft' && (int)$cur['version'] === (int)$versions[0]['version'] && (int)$cur['docs'] === 0,

@@ -117,6 +117,8 @@
   function tokenRe(name) {
     return new RegExp('(?<![\\\\\\p{L}\\p{N}_@])@' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![a-z0-9_])', 'gu');
   }
+  // every @token, whichever its name (the same rule as tokenRe: whole, unescaped; the greedy name ends where tokenRe's does)
+  function anyTokenRe() { return /(?<![\\\p{L}\p{N}_@])@([a-z][a-z0-9_]*)/gu; }
   function fieldUses(root, name) {
     var re = tokenRe(name), c = 0;
     walk(root, function (n) { if (n.t === 's') { var m = n.v.match(re); if (m) c += m.length; } });
@@ -204,13 +206,13 @@
   }
 
   // ---------- new items ----------
-  function nextId(old, fallback) {
-    var m = /^(.*?)(\d+)$/.exec(old || ''), prefix = m ? m[1] : fallback, ids = Object.assign(allIds(state.root), state.taken), max = 0;
+  function nextId(old, fallback, root) {
+    var m = /^(.*?)(\d+)$/.exec(old || ''), prefix = m ? m[1] : fallback, ids = Object.assign(allIds(root || state.root), state.taken), max = 0;
     Object.keys(ids).forEach(function (id) { if (id.indexOf(prefix) === 0) { var r = id.slice(prefix.length); if (/^\d+$/.test(r)) max = Math.max(max, +r); } });
     return prefix + (max + 1);
   }
-  function freshIds(n) {   // a copy gets new ids (and nothing else changes)
-    walk(n, function (x, p) { if (p[p.length - 1] === 'id' && x.t === 's') { x.v = nextId(x.v, 'x'); state.taken[x.v] = 1; } });
+  function freshIds(n, root) {   // a copy gets new ids (and nothing else changes)
+    walk(n, function (x, p) { if (p[p.length - 1] === 'id' && x.t === 's') { x.v = nextId(x.v, 'x', root); state.taken[x.v] = 1; } });
   }
   function blankLike(n) {
     var c = {t: n.t};
@@ -442,6 +444,7 @@
     ta.scrollIntoView({block: 'nearest'});
   }
   function reveal(src) {
+    if (window.MSTypeEditor && !window.MSTypeEditor.jsonActive()) return;   // another tab of the editor shows it
     if (!state.host.hidden && state.root) { var loc = locate(state.root, src); if (loc) revealInTree(loc); else say('Not found in the definition: ' + src); }
     else revealInJson(src);
   }
@@ -469,6 +472,8 @@
     }
     var start = 'tree'; try { start = localStorage.getItem(KEY) || 'tree'; } catch (e) {}
     show(start);
+    // the redesigned editor (type_editor.js) shows this view in its JSON tab and asks it to re-read the text
+    state.refresh = function () { if (!host.hidden) show('tree'); };
     window.addEventListener('ms-reveal', function (e) { reveal(e.detail); });
     // the textarea is always kept in step, so saving needs nothing more; this only guards a stale edit
     form.addEventListener('submit', function () { if (!host.hidden && state.root) sync(); });
@@ -476,6 +481,15 @@
   if (typeof document === 'undefined') { /* node */ }
   else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
+  // the building blocks the other views of the editor (type_editor.js) reuse, so there is one parser, one token rule and
+  // one set of renames
+  var api = {parse: parse, ser: ser, get: get, sval: sval, clone: clone, walk: walk, kindOf: kindOf, sections: sections,
+             allBlocks: allBlocks, allOps: allOps, allIds: allIds, tokenRe: tokenRe, anyTokenRe: anyTokenRe, fieldUses: fieldUses, renameField: renameField,
+             renameRef: renameRef, locate: locate, BUILTINS: BUILTINS, ENUMS: ENUMS, DATEFMTS: DATEFMTS,
+             nextId: function (root, old, fallback) { return nextId(old, fallback, root); },
+             freshIds: function (root, n) { state.taken = {}; freshIds(n, root); },
+             refresh: function () { if (state.refresh) state.refresh(); }};
+  if (typeof window !== 'undefined') window.MSTypeTree = api;
   // for tests (node): round-trip and renames
-  if (typeof module !== 'undefined') module.exports = {parse: parse, ser: ser, renameField: renameField, tokenRe: tokenRe, locate: locate};
+  if (typeof module !== 'undefined') module.exports = api;
 })();
