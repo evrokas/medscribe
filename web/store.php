@@ -122,6 +122,36 @@ function source_add_version(array $source, string $bytes, string $note, string $
     return source_latest((int)$source['id']);
 }
 
+/**
+ * Overwrite a draft version in place (the type editor's "Save in this version"). Allowed only while it is still a
+ * draft, is the latest version of its source and no document uses it, so nothing that was ever released or used
+ * changes. The old bytes stay in the store (a type may pin a shared component's draft by its hash). Returns the
+ * updated row, or null when the version may not be changed. A null $note keeps the old note.
+ */
+function source_update_draft(int $versionId, string $bytes, ?string $note, string $user = 'system'): ?array {
+    $sha = store_put($bytes);
+    $db = store_db();
+    $db->beginTransaction();
+    try {
+        $st = $db->prepare('SELECT * FROM source_versions WHERE id = ? FOR UPDATE'); $st->execute([$versionId]);
+        $v = $st->fetch(PDO::FETCH_ASSOC);
+        $latest = $v ? source_latest((int)$v['source_id']) : null;
+        $used = $db->prepare('SELECT COUNT(*) FROM documents WHERE typedef_version_id = ?'); $used->execute([$versionId]);
+        if (!$v || $v['status'] !== 'draft' || !$latest || (int)$latest['id'] !== (int)$v['id'] || (int)$used->fetchColumn() > 0) {
+            $db->rollBack();
+            return null;
+        }
+        $db->prepare('UPDATE source_versions SET sha256 = ?, size = ?, note = ?, cuser = ? WHERE id = ?')
+           ->execute([$sha, strlen($bytes), $note ?? $v['note'], $user, $versionId]);
+        $db->commit();
+    } catch (Throwable $e) {
+        $db->rollBack();
+        throw $e;
+    }
+    $st = $db->prepare('SELECT * FROM source_versions WHERE id = ?'); $st->execute([$versionId]);
+    return $st->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
 /** draft -> released. Released versions never change; releasing twice is a no-op. */
 function source_release(int $versionId): void {
     store_db()->prepare("UPDATE source_versions SET status = 'released' WHERE id = ? AND status = 'draft'")

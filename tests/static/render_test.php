@@ -182,5 +182,16 @@ eq([str_contains($t4, "Μην οδηγείτε εφόσον:\n\n    \\begin{item
 // the long Greek date format (genitive month)
 eq([render_format_date('2026-02-20', 'long'), render_format_date('2026-05-01', 'long'), render_format_date('bad', 'long')], ['20 Φεβρουαρίου 2026', '1 Μαΐου 2026', ''], 'long date: Greek genitive month');
 
+// date formats: the field's own datefmt wins, then the block's datefmt, then d/m/Y
+$dt = ['fields' => ['op' => ['type' => 'date', 'label' => 'Op', 'datefmt' => 'long'], 'ad' => ['type' => 'date', 'label' => 'Adm']]];
+$dctx = ['values' => ['op' => '2026-02-20', 'ad' => '2026-02-20'], 'gender' => '', 'fields' => $dt['fields'], 'issues' => []];
+$dsec = ['id' => 'd', 'layout' => 'paragraphs', 'blocks' => [['id' => 'd1', 'text' => '@op @ad', 'default' => true], ['id' => 'd2', 'text' => '@op @ad', 'default' => true, 'datefmt' => 'j/n/Y']]];
+eq(trim(render_section($dsec, [], $dctx)), "20 Φεβρουαρίου 2026 20/02/2026\n\n20 Φεβρουαρίου 2026 20/2/2026", 'datefmt: the field format wins everywhere; a block format serves dates without one');
+eq(trim(render_section(['id' => 'x', 'layout' => 'paragraphs', 'blocks' => []], ['extra' => ['x' => [['text' => 'στις @op']]]], $dctx)), 'στις 20 Φεβρουαρίου 2026', 'datefmt: free text uses the field format');
+eq(render_validate_type(['name' => 'x', 'lang' => 'gr', 'sections' => [], 'fields' => ['a' => ['type' => 'text', 'label' => 'A', 'datefmt' => 'd/m/Y']]]), ['field a: datefmt is only for date fields (type "date")'], 'datefmt only on date fields');
+// trace mode tags the source; off, nothing changes
+$tctx = $dctx + ['trace' => true];
+eq(trim(render_section($dsec, ['blocks' => ['d2' => ['on' => false]]], $tctx)), '\\MSsrc{block:d1}{\\MSsrc{field:op}{20 Φεβρουαρίου 2026} \\MSsrc{field:ad}{20/02/2026}}', 'trace: blocks and fields are tagged');
+
 echo $fail ? "$fail of $n render tests FAILED\n" : '';
 exit($fail ? 1 : 0);

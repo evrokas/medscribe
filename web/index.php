@@ -6,6 +6,7 @@ require_once(__FWDIR__ . '/bootstrap.php');
 require_once(__DIR__ . '/store.php');
 require_once(__DIR__ . '/compile.php');
 require_once(__DIR__ . '/render.php');
+require_once(__DIR__ . '/render_html.php');
 require_once(__DIR__ . '/zpms_client.php');
 require_once(__DIR__ . '/docarc_client.php');
 require_once(__DIR__ . '/audit.php');

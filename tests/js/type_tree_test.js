@@ -24,6 +24,18 @@ const j = JSON.parse(tt.ser(root));
 ok(j.sections[0].blocks[0].text === 'a @proc, b @f30, c \\@f3, d x@f3, e @f3_x @proc.', 'rename: only whole, unescaped @f3 tokens');
 ok(j.features.k.ops[0].field === 'proc' && j.features.k.ops[1].field === 'f30', 'rename: feature operations');
 ok(c === 3, 'rename: count of uses (' + c + ')');
+// a click in the preview finds its source: fields, blocks (also inside topics), sections, title; and its place in the text
+{
+  const text = fs.readFileSync(path.join(dir, 'odigies-auxeniki.json'), 'utf8'), r = tt.parse(text);
+  const at = src => { const l = tt.locate(r, src); return l ? l.path.join('/') : null; };
+  ok(at('field:f1') === 'fields/f1', 'locate a field');
+  ok(at('block:s1_b2') === 'sections/0/blocks/1', 'locate a block');
+  ok(/^sections\/2\/topics\/0\/blocks\/\d+$/.test(at('block:s3_b3') || ''), 'locate a block in a topic (' + at('block:s3_b3') + ')');
+  ok(at('section:s3') === 'sections/2' && at('topic:s3_t1') === 'sections/2/topics/0', 'locate a section and a topic');
+  ok(at('title') === 'title' && at('block:nope') === null, 'locate the title; an unknown id is not found');
+  const l = tt.locate(r, 'block:s1_b2'), n = l.chain[l.chain.length - 1];
+  ok(JSON.parse(text.slice(n._a, n._b)).id === 's1_b2', 'the parser knows where a node is in the text');
+}
 let bad = false; try { tt.parse('{"a": 1,}'); } catch (e) { bad = /line 1/.test(e.message); }
 ok(bad, 'a JSON error names its line');
 console.log((n - fail) + '/' + n + ' type tree checks passed');

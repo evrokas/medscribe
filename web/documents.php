@@ -145,6 +145,7 @@ function doc_view_model(array $type, array $inputs): array {
         }
         $secs[] = [
             'id' => $sec['id'], 'heading' => $sec['heading'] ?? '', 'slot' => $sec['slot'] ?? $sec['id'],
+            'src' => (isset($sec['topic_of']) ? 'topic:' : 'section:') . $sec['id'],   // the type editor's preview finds it in the definition
             'layout' => $sec['layout'] ?? 'paragraphs', 'optional' => !empty($sec['optional']),
             'on' => render_section_on($sec, $inputs), 'blocks' => $blocks, 'is_med' => ($sec['layout'] ?? '') === 'medtable', 'meds' => $inputs['meds'][$sec['id']] ?? [],
             'drug_groups' => (function () use ($sec) { $g = []; foreach (($sec['drugs'] ?? []) as $d) $g[$d['group'] ?? ''][] = $d; return $g; })(),
@@ -154,9 +155,24 @@ function doc_view_model(array $type, array $inputs): array {
             'rows' => empty($sec['blocks']) ? 8 : 3,
             'suggestions' => pool_suggest((string)($sec['slot'] ?? $sec['id']), 4, array_merge(array_column($blocks, 'text'), [trim((string)($inputs['extra'][$sec['id']][0]['text'] ?? ''))]), (string)($sec['heading'] ?? '')),
             'none_on' => !array_filter($blocks, fn($b) => $b['in_group'] && $b['on']),
+            // folded at first when it has items to pick and none is picked (a free-text-only section stays open)
+            'collapsed' => (!empty($sec['optional']) && !render_section_on($sec, $inputs)) || ($blocks || ($sec['layout'] ?? '') === 'medtable') && !array_filter($blocks, fn($b) => $b['on'])
+                           && trim((string)($inputs['extra'][$sec['id']][0]['text'] ?? '')) === '' && empty($inputs['meds'][$sec['id']]),
+            'summary' => ($sec['layout'] ?? '') === 'medtable' ? count($inputs['meds'][$sec['id']] ?? []) . ' ' . t('rows')
+                         : ($blocks ? count(array_filter($blocks, fn($b) => $b['on'])) . '/' . count($blocks) . ' ' . t('on') : ''),
         ];
     }
     return $secs;
+}
+
+/** The variables of composer_type_part.zetem (the composer's values, case features and sections). */
+function doc_type_part_data(array $type, array $inputs, int $docId, bool $locked): array {
+    return [
+        'doc_id' => $docId, 'locked' => $locked,
+        'fields' => doc_field_rows($type, $inputs), 'sections' => doc_view_model($type, $inputs),
+        'feature_defs' => array_map(fn($id, $f) => ['id' => $id, 'label' => $f['label'] ?? $id, 'on' => in_array($id, $inputs['features'] ?? [], true)],
+                                    array_keys($type['features'] ?? []), array_values($type['features'] ?? [])),
+    ];
 }
 
 /** Fields with their current values for the form. */
@@ -277,16 +293,17 @@ function page_document($params) {
         $st->execute([$doc['last_build_id']]);
         $build = $st->fetch(PDO::FETCH_ASSOC) ?: null;
     }
+    $locked = !in_array($doc['status'], DOC_STATUSES, true);
+    $typePart = Renderer::render("composer_type_part.zetem", doc_type_part_data($type, $doc['inputs'], (int)$doc['id'], $locked));
     return Renderer::render("document_edit.zetem", [
+        'type_part' => $typePart,
         'doc' => $doc, 'type_label' => $type['label'] ?? $type['name'], 'p' => $doc['inputs']['patient'] ?? [], 's' => $doc['inputs']['settings'] ?? [],
         'releases' => store_db()->query("SELECT id, number FROM base_releases WHERE status = 'released' ORDER BY number DESC")->fetchAll(PDO::FETCH_ASSOC),
         'tokens' => array_merge(['patient', 'age', 'amka', 'clinic', 'date'], array_keys($type['fields'] ?? [])),
-        'feature_defs' => array_map(fn($id, $f) => ['id' => $id, 'label' => $f['label'] ?? $id, 'on' => in_array($id, $doc['inputs']['features'] ?? [], true)], array_keys($type['features'] ?? []), array_values($type['features'] ?? [])),
         'has_recipient' => !empty($type['recipient']), 'has_patient' => ($type['has_patient'] ?? true) !== false,
         'titles' => $type['titles'] ?? [], 'closings' => $type['closings'] ?? [],
-        'fields' => doc_field_rows($type, $doc['inputs']), 'sections' => doc_view_model($type, $doc['inputs']),
         'clinics' => RENDER_CLINICS, 'checks' => render_checks($type, $doc['inputs'], $issues),
-        'build' => $build, 'locked' => !in_array($doc['status'], DOC_STATUSES, true),
+        'build' => $build, 'locked' => $locked,
         'pdf_url' => ($build && $build['status'] === 'ok') ? '/documents/' . $doc['id'] . '/preview.pdf?b=' . $build['id'] : null,
         'ready' => $doc['status'] === 'review',
         'busy' => $doc['busy_until'] && strtotime($doc['busy_until']) > time(), 'unsaved' => $unsaved !== null,

@@ -25,6 +25,9 @@
     style: ['itemize', 'paragraph'], heading_level: ['section', 'subsection'], format: ['markup', 'latex'],
     op: ['enable', 'disable', 'set', 'add']
   };
+  // date formats offered for "datefmt" (any PHP date() format can be typed): shown as "value — example"
+  var DATEFMTS = [['d/m/Y', '20/02/2026'], ['j/n/Y', '20/2/2026'], ['d-m-Y', '20-02-2026'], ['d.m.Y', '20.02.2026'], ['d/m/y', '20/02/26'],
+                  ['long', '20 Φεβρουαρίου 2026'], ['m/Y', '02/2026'], ['Y', '2026']];
   var LONG = ['text', 'intro', 'placeholder', 'list_preamble', 'title_page'];
 
   // ---------- JSON with key order ----------
@@ -35,14 +38,15 @@
     function err(m) { var line = s.slice(0, i).split('\n').length; throw new Error(m + ' (line ' + line + ')'); }
     function ws() { while (i < s.length && ' \t\n\r'.indexOf(s[i]) >= 0) i++; }
     function str() { reStr.lastIndex = i; var m = reStr.exec(s); if (!m) err('bad string'); i = reStr.lastIndex; return JSON.parse(m[0]); }
-    function val() {
-      ws(); var c = s[i], e;
+    function val() { ws(); var at = i, n = val0(); n._a = at; n._b = i; return n; }
+    function val0() {
+      var c = s[i], e;
       if (c === '{') {
         i++; e = []; ws(); if (s[i] === '}') { i++; return {t: 'o', e: e}; }
         for (;;) {
           ws(); if (s[i] !== '"') err('a key in quotes expected');
-          var k = str(); ws(); if (s[i++] !== ':') err('":" expected');
-          e.push([k, val()]); ws();
+          var ka = i, k = str(); ws(); if (s[i++] !== ':') err('":" expected');
+          e.push([k, val(), ka]); ws();
           if (s[i] === ',') { i++; continue; } if (s[i] === '}') { i++; return {t: 'o', e: e}; }
           err('"," or "}" expected');
         }
@@ -129,12 +133,21 @@
         var d = get(n, 'default'), g = sval(n, 'group');
         return sval(n, 'id') + (d && d.t === 'b' && !d.v ? ' (off)' : '') + (g ? ' [group ' + g + ']' : '') + ' · ' + snippet(sval(n, 'text'), 70);
       case 'topic': return sval(n, 'id') + ' · ' + sval(n, 'title');
-      case 'field': return sval(n, 'label') + ' · ' + sval(n, 'type') + ' · used ' + fieldUses(state.root, path[1]) + '×';
+      case 'field': return sval(n, 'label') + ' · ' + sval(n, 'type') + (sval(n, 'datefmt') ? ' (' + sval(n, 'datefmt') + ')' : '') + ' · used ' + fieldUses(state.root, path[1]) + '×';
       case 'feature': return sval(n, 'label');
       case 'op': return sval(n, 'op') + ' ' + (sval(n, 'block') || sval(n, 'field') || sval(n, 'section'));
     }
     if (n.t === 'a') return n.e.length + ' item' + (n.e.length === 1 ? '' : 's');
     if (n.t === 'o') return n.e.length + ' key' + (n.e.length === 1 ? '' : 's');
+    return '';
+  }
+
+  // the preview's name for a node (data-src of its printed text), or '' when nothing printed comes from it
+  function previewSrc(n, path) {
+    var k = kindOf(path);
+    if ((k === 'block' || k === 'section' || k === 'topic') && path[0] === 'sections') return k + ':' + sval(n, 'id');
+    if (k === 'field') return 'field:' + path[1];
+    if (path.length === 1 && (path[0] === 'title' || path[0] === 'closing')) return path[0];
     return '';
   }
 
@@ -256,7 +269,7 @@
   // ---------- rendering ----------
   function changed(note) { render(); sync(); if (note) say(note); }
   function say(msg) { if (state.status) { state.status.textContent = msg; clearTimeout(state.t); state.t = setTimeout(function () { state.status.textContent = ''; }, 6000); } }
-  function sync() { state.textarea.value = ser(state.root) + '\n'; }
+  function sync() { state.textarea.value = ser(state.root) + '\n'; state.textarea.dispatchEvent(new Event('tt-change')); }
   function el(tag, cls, text) { var x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; }
   function btn(label, title, fn) { var b = el('button', 'tt-btn', label); b.type = 'button'; b.title = title; b.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); fn(); }); return b; }
 
@@ -287,6 +300,12 @@
       sel.addEventListener('change', function () { n.v = sel.value; sync(); refreshHints(); });
       return sel;
     }
+    if (key === 'datefmt') {
+      var df = el('input', 'tt-str tt-datefmt'); df.type = 'text'; df.value = n.v; df.setAttribute('list', 'tt-datefmts'); df.spellcheck = false;
+      df.title = 'A PHP date() format (d = day, m = month, Y = year, j/n = without leading zero), or long = 20 Φεβρουαρίου 2026';
+      df.addEventListener('input', function () { n.v = df.value.trim(); sync(); });
+      return df;
+    }
     var big = LONG.indexOf(key) >= 0 || n.v.length > 60 || n.v.indexOf('\n') >= 0;
     var inp = el(big ? 'textarea' : 'input', 'tt-str');
     if (big) { inp.rows = Math.min(12, Math.max(2, Math.ceil(n.v.length / 90) + (n.v.match(/\n/g) || []).length)); } else inp.type = 'text';
@@ -303,7 +322,7 @@
 
   function member(n, path, parent, idx) {
     var isRoot = !parent, key = path[path.length - 1];
-    var row = el('div', 'tt-row tt-' + n.t);
+    var row = el('div', 'tt-row tt-' + n.t); n._row = row;
     var head = el('div', 'tt-head');
     if (!isRoot) {
       var handle = el('span', 'tt-handle', '⠿'); handle.title = 'Drag to move'; handle.draggable = true;
@@ -340,6 +359,8 @@
       }
       if (key === 'group' && pk === 'block' && n.v) head.appendChild(btn('✎ all', 'Rename this choice group in every block', function () { renameGroup(parent); }));
     }
+    var srcOf = previewSrc(n, path);
+    if (srcOf) head.appendChild(btn('\u2316', 'Show this in the preview', function () { window.dispatchEvent(new CustomEvent('ms-show', {detail: srcOf})); }));
     if (!isRoot) {
       var tools = el('span', 'tt-tools');
       if (parent.t === 'o') tools.appendChild(btn('✎', 'Rename this key' + (path.length === 2 && path[0] === 'fields' ? ' (every @' + key + ' follows)' : ''), function () { renameKey(parent, path.slice(0, -1), idx); }));
@@ -358,6 +379,8 @@
       var body = el('div', 'tt-body');
       if (n.t === 'o') n.e.forEach(function (p, j) { body.appendChild(member(p[1], path.concat([p[0]]), n, j)); });
       else n.e.forEach(function (x, j) { body.appendChild(member(x, path.concat([j]), n, j)); });
+      if (kindOf(path) === 'field' && sval(n, 'type') === 'date' && !get(n, 'datefmt'))
+        body.appendChild(btn('+ date format', 'How this date prints everywhere it is used (it wins over the datefmt of blocks)', function () { var v = s('d/m/Y'); n.e.push(['datefmt', v]); changed(); }));
       body.appendChild(btn(n.t === 'o' ? (path.length === 1 && path[0] === 'fields' ? '+ field' : '+ key') : '+ item', 'Add', function () {
         if (n.t === 'o') addKey(n, path);
         else { var it = newItem(n, path); if (it) { it._open = true; n.e.push(it); changed(); } }
@@ -365,6 +388,62 @@
       row.appendChild(body);
     }
     return row;
+  }
+
+  // ---------- finding a piece of the document (a click in the preview) ----------
+  // src: field:<name> | block:<id> | section:<id> | topic:<id> | extra:<section or topic id> | title | closing
+  // returns the path to the node and the chain of nodes from the root, or null
+  function locate(root, src) {
+    var m = /^([a-z]+)(?::(.*))?$/.exec(src || ''); if (!m) return null;
+    var kind = m[1], id = m[2], found = null;
+    function chainOf(path) {
+      var chain = [root], n = root;
+      path.forEach(function (k) { n = typeof k === 'number' ? n.e[k] : get(n, k); chain.push(n); });
+      return chain;
+    }
+    if (kind === 'title' || kind === 'closing') return get(root, kind) ? {path: [kind], chain: chainOf([kind])} : null;
+    if (kind === 'field') return get(get(root, 'fields'), id) ? {path: ['fields', id], chain: chainOf(['fields', id])} : null;
+    walk(root, function (n, path) {
+      if (found || n.t !== 'o') return;
+      var k = kindOf(path);
+      var ok = (kind === 'block' && k === 'block') || (kind === 'section' && k === 'section') || (kind === 'topic' && k === 'topic')
+            || (kind === 'extra' && (k === 'section' || k === 'topic'));
+      if (ok && sval(n, 'id') === id) found = path;
+    });
+    return found ? {path: found, chain: chainOf(found)} : null;
+  }
+  function revealInTree(loc) {
+    loc.chain.forEach(function (n) { if (n.t === 'o' || n.t === 'a') n._open = true; });
+    var target = loc.chain[loc.chain.length - 1];
+    if (target.t === 'o' || target.t === 'a') target._open = true;
+    render();
+    var row = target._row; if (!row) return;
+    state.host.querySelectorAll('.tt-hit').forEach(function (x) { x.classList.remove('tt-hit'); });
+    row.classList.add('tt-hit');
+    var head = row.querySelector('.tt-head'), hr = head.getBoundingClientRect(), tr = state.host.getBoundingClientRect();
+    state.host.scrollTop += hr.top - tr.top - state.host.clientHeight / 3;   // the tree scrolls inside its box
+    head.scrollIntoView({block: 'nearest'});
+    var ed = row.querySelector(':scope > .tt-head > .tt-str, :scope > .tt-body > .tt-row > .tt-head > .tt-str');
+    if (ed && !ed.readOnly) ed.focus({preventScroll: true});
+    setTimeout(function () { row.classList.remove('tt-hit'); }, 2500);
+  }
+  function revealInJson(src) {
+    var ta = state.textarea, root;
+    try { root = parse(ta.value); } catch (e) { return; }
+    var loc = locate(root, src); if (!loc) return;
+    var node = loc.chain[loc.chain.length - 1], parentNode = loc.chain[loc.chain.length - 2], a = node._a, b = node._b;
+    var last = loc.path[loc.path.length - 1];
+    if (parentNode && parentNode.t === 'o') parentNode.e.forEach(function (p) { if (p[0] === last && p[1] === node) a = p[2]; });
+    ta.focus({preventScroll: true});
+    ta.setSelectionRange(a, b);
+    var cs = getComputedStyle(ta), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.3;
+    var line = ta.value.slice(0, a).split('\n').length - 1;
+    ta.scrollTop = Math.max(0, line * lh - ta.clientHeight / 3);
+    ta.scrollIntoView({block: 'nearest'});
+  }
+  function reveal(src) {
+    if (!state.host.hidden && state.root) { var loc = locate(state.root, src); if (loc) revealInTree(loc); else say('Not found in the definition: ' + src); }
+    else revealInJson(src);
   }
 
   // ---------- page wiring ----------
@@ -377,6 +456,9 @@
     bar.appendChild(bTree); bar.appendChild(bJson); bar.appendChild(status);
     ta.parentNode.insertBefore(bar, ta); ta.parentNode.insertBefore(host, ta);
     state.host = host; state.status = status; state.textarea = ta;
+    var dl = el('datalist'); dl.id = 'tt-datefmts';
+    DATEFMTS.forEach(function (d) { var o = el('option'); o.value = d[0]; o.label = d[1]; dl.appendChild(o); });
+    document.body.appendChild(dl);
     function show(view) {
       if (view === 'tree') {
         try { state.root = parse(ta.value); } catch (e) { alert('The JSON has an error, fix it first: ' + e.message); view = 'json'; }
@@ -387,6 +469,7 @@
     }
     var start = 'tree'; try { start = localStorage.getItem(KEY) || 'tree'; } catch (e) {}
     show(start);
+    window.addEventListener('ms-reveal', function (e) { reveal(e.detail); });
     // the textarea is always kept in step, so saving needs nothing more; this only guards a stale edit
     form.addEventListener('submit', function () { if (!host.hidden && state.root) sync(); });
   }
@@ -394,5 +477,5 @@
   else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
   // for tests (node): round-trip and renames
-  if (typeof module !== 'undefined') module.exports = {parse: parse, ser: ser, renameField: renameField, tokenRe: tokenRe};
+  if (typeof module !== 'undefined') module.exports = {parse: parse, ser: ser, renameField: renameField, tokenRe: tokenRe, locate: locate};
 })();

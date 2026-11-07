@@ -215,6 +215,12 @@ routes:
     handler: page_type_edit_post
     method: post
     access: doctor
+  type_preview_post:
+    title: "Type preview"
+    url: "/types/{kind}/{name}/preview"
+    handler: page_type_preview_post
+    method: post
+    access: doctor
   library:
     title:
       gr: "Βιβλιοθήκη"

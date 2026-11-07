@@ -1,4 +1,5 @@
-<div class="page-placeholder type-edit">
+{% if($kind == 'typedef'): %}<div class="splitpane type-split" data-split-key="medscribe.typeedit.layout" data-split-default="55">{% endif %}
+<div class="page-placeholder type-edit split-left">
   <div class="page-head"><h2>{{{$src['name']}}}</h2><a class="btn" href="{{rel_url('/types')}}">&larr; {{{t('Types')}}}</a></div>
   <table class="status-table list">
     <tr><th>v</th><th>{{{t('Status')}}}</th><th>{{{t('By')}}}</th><th>{{{t('Date')}}}</th><th>{{{t('Note')}}}</th><th>{{{t('Documents')}}}</th><th></th></tr>
@@ -29,8 +30,39 @@
     {{ csrf_field() }}
     {% if($unsaved): %}<p class="notice">{{{t('This text is NOT saved: it was handed back after a refused save (see the message above). Fix it and save again, or reset the text.')}}}</p>{% endif %}
     <textarea name="text" rows="28" class="code" spellcheck="false">{{{$text}}}</textarea>
-    <label>{{{t('Change note (required)')}}} <input type="text" name="note" maxlength="500" size="60" required></label>
-    <div class="actions"><button type="submit" name="action" value="save" class="primary">{{{t('Validate and save as a new version')}}}</button><button type="submit" name="action" value="discard" formnovalidate>{{{t('Reset the text')}}}</button></div>
+    {% if($can_save_here): %}
+    <input type="hidden" name="version" value="{{{$shown['version']}}}">
+    <p class="muted">{{{t('Version')}}} v{{{$shown['version']}}} {{{t('is a draft: you can save into it, or keep it and save a new version. Once released it can no longer change.')}}}</p>
+    {% else: %}
+    <p class="muted">{% if($shown['status'] == 'released'): %}v{{{$shown['version']}}} {{{t('is released and cannot change: saving makes a new version.')}}}{% else: %}v{{{$shown['version']}}} {{{t('cannot be saved over (a newer version exists, or a document uses it): saving makes a new version.')}}}{% endif %}</p>
+    {% endif %}
+    <label>{% if($can_save_here): %}{{{t('Change note (required for a new version; for this version it replaces the note when filled in)')}}}{% else: %}{{{t('Change note (required)')}}}{% endif %} <input type="text" name="note" maxlength="500" size="60" required></label>
+    <div class="actions">
+      {% if($can_save_here): %}<button type="submit" name="action" value="save_here" class="primary" formnovalidate>{{{t('Validate and save in')}}} v{{{$shown['version']}}}</button>{% endif %}
+      <button type="submit" name="action" value="save" {% if(!$can_save_here): %}class="primary"{% endif %}>{{{t('Validate and save as a new version')}}}</button>
+      <button type="submit" name="action" value="discard" formnovalidate>{{{t('Reset the text')}}}</button>
+    </div>
   </form>
 </div>
+{% if($kind == 'typedef'): %}
+  <div class="composer-splitter" role="separator" aria-orientation="vertical" tabindex="0" title="{{{t('Drag to change the width of the preview')}}}">
+    <button type="button" data-dir="left" title="{{{t('Widen the preview')}}}">&#9664;</button>
+    <button type="button" data-dir="right" title="{{{t('Narrow the preview')}}}">&#9654;</button>
+  </div>
+  <div class="split-right type-preview" data-url="{{rel_url('/types/' . $kind . '/' . $name . '/preview')}}">
+    <div class="pv-bar">
+      <button type="button" class="tt-btn" data-mode="form" title="{{{t('The input form a document of this type gets')}}}">{{{t('Form')}}}</button>
+      <button type="button" class="tt-btn" data-mode="print" title="{{{t('What the PDF would contain (HTML approximation, no letterhead)')}}}">{{{t('Print')}}}</button>
+      <select class="pv-gender" title="{{{t('Sample patient')}}}"><option value="M">{{{t('Male')}}}</option><option value="F">{{{t('Female')}}}</option></select>
+      <button type="button" class="tt-btn pv-refresh" title="{{{t('Refresh')}}}">&#8635;</button>
+      <span class="pv-status muted"></span>
+    </div>
+    <div class="pv-msgs"></div>
+    <div class="pv-body"></div>
+  </div>
+</div>
+<script src="{{rel_url('/js/splitter.js')}}"></script>
+<script src="{{rel_url('/js/type_preview.js')}}"></script>
+<script src="{{rel_url('/js/sections.js')}}"></script>
+{% endif %}
 <script src="{{rel_url('/js/type_tree.js')}}"></script>

@@ -1,5 +1,5 @@
-<div class="composer">
-  <form method="post" action="{{rel_url('/documents/' . $doc['id'])}}" class="composer-form">
+<div class="composer splitpane" data-split-key="medscribe.composer.layout">
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'])}}" class="composer-form split-left">
     {{ csrf_field() }}
     <div class="page-head">
         <h2>#{{{$doc['id']}}} {{{$type_label}}}</h2>
@@ -63,101 +63,7 @@
       </div>
     </fieldset>
 
-    {% if(count($fields)): %}
-    <fieldset {% if($locked): %}disabled{% endif %}>
-      <legend>{{{t('Values')}}}</legend>
-      <div class="row">
-        {% foreach($fields as $f): %}
-        <label>{{{$f['label']}}}{% if($f['required']): %} *{% endif %}
-          {% if($f['type'] == 'date'): %}
-          <input type="date" name="fields[{{{$f['id']}}}]" value="{{{$f['value']}}}">
-          {% else: %}
-          <input type="text" name="fields[{{{$f['id']}}}]" value="{{{$f['value']}}}" placeholder="{{{$f['placeholder']}}}" size="40" maxlength="1000">
-          {% endif %}
-        </label>
-        {% endforeach %}
-      </div>
-    </fieldset>
-    {% endif %}
-
-    {% if(count($feature_defs) && !$locked): %}
-    <fieldset class="features"><legend>{{{t('Case features')}}}</legend>
-      <p class="muted">{{{t('Adding a feature switches on the lines it brings; removing it puts them back. You can still edit everything by hand.')}}}</p>
-      {% foreach($feature_defs as $fd): %}
-      {% if($fd['on']): %}<span class="chip">{{{$fd['label']}}} <button type="submit" name="action" value="feature_remove" formaction="{{rel_url('/documents/' . $doc['id'] . '?feature=' . $fd['id'])}}" class="chip-x" title="{{{t('Remove')}}}" onclick="this.form.feature.value='{{{$fd['id']}}}'">&times;</button></span>
-      {% else: %}<button type="submit" name="action" value="feature_add" class="chip-add" onclick="this.form.feature.value='{{{$fd['id']}}}'">+ {{{$fd['label']}}}</button>{% endif %}
-      {% endforeach %}
-      <input type="hidden" name="feature" value="">
-    </fieldset>
-    {% endif %}
-
-    {% foreach($sections as $sec): %}
-    <fieldset class="section" {% if($locked): %}disabled{% endif %}>
-      <legend>{{{$sec['label'] ?: ($sec['heading'] ?: $sec['slot'])}}} <span class="muted">{{{$sec['slot']}}} &middot; {{{$sec['layout']}}}</span></legend>
-      {% if($sec['optional']): %}
-      <label class="inline"><input type="checkbox" name="sections_on[{{{$sec['id']}}}]" value="1" {% if($sec['on']): %}checked{% endif %}> {{{t('Include this section')}}}</label>
-      {% endif %}
-      {% if($sec['is_med']): %}
-      <table class="medrows" id="meds-{{{$sec['id']}}}" data-sec="{{{$sec['id']}}}">
-        <thead><tr><th>{{{t('Drug')}}}</th><th>{{{t('Dose')}}}</th><th>{{{t('Frequency')}}}</th><th>{{{t('Days')}}}</th><th>{{{t('Notes')}}}</th><th></th></tr></thead>
-        <tbody>
-        {% foreach($sec['meds'] as $mi => $m): %}
-        <tr>
-          <td><input type="text" name="meds[{{{$sec['id']}}}][{{{$mi}}}][name]" value="{{{$m['name']}}}"></td>
-          <td><input type="text" name="meds[{{{$sec['id']}}}][{{{$mi}}}][dose]" value="{{{$m['dose']}}}" size="8"></td>
-          <td><textarea name="meds[{{{$sec['id']}}}][{{{$mi}}}][freq]" rows="1">{{{$m['freq']}}}</textarea></td>
-          <td><input type="text" name="meds[{{{$sec['id']}}}][{{{$mi}}}][days]" value="{{{$m['days']}}}" size="4"></td>
-          <td><textarea name="meds[{{{$sec['id']}}}][{{{$mi}}}][notes]" rows="1">{{{$m['notes']}}}</textarea></td>
-          <td><button type="button" class="med-del" title="{{{t('Remove')}}}">&times;</button></td>
-        </tr>
-        {% endforeach %}
-        </tbody>
-      </table>
-      <p>
-        <select class="med-add" data-table="meds-{{{$sec['id']}}}" data-drugs="{{{$sec['drug_json']}}}">
-          <option value="">{{{t('Add from the drug library...')}}}</option>
-          {% foreach($sec['drug_groups'] as $gname => $gdrugs): %}
-          <optgroup label="{{{$gname}}}">{% foreach($gdrugs as $dg): %}<option value="{{{$dg['id']}}}">{{{$dg['name']}}} {{{$dg['dose']}}}</option>{% endforeach %}</optgroup>
-          {% endforeach %}
-        </select>
-        <button type="button" class="med-blank" data-table="meds-{{{$sec['id']}}}">{{{t('Add an empty row')}}}</button>
-        <span class="muted">{{{t('In a cell, {br} starts a new line.')}}}</span>
-      </p>
-      {% endif %}
-      {% foreach($sec['blocks'] as $b): %}
-      <div class="block {% if($b['on']): %}on{% else: %}off{% endif %}">
-        <div class="block-pick">
-          {% if($b['in_group']): %}
-          <label class="inline"><input type="radio" name="groups[{{{$b['group']}}}]" value="{{{$b['id']}}}" {% if($b['on']): %}checked{% endif %}> {{{$b['label'] ?: ''}}}</label>
-          {% else: %}
-          <label class="inline"><input type="checkbox" name="blocks_on[{{{$b['id']}}}]" value="1" {% if($b['on']): %}checked{% endif %}> {{{$b['label'] ?: ''}}}</label>
-          {% endif %}
-        </div>
-        {% if($b['is_latex']): %}
-        <textarea rows="{{{max(2, min(8, intdiv(mb_strlen($b['text']), 90) + 1))}}}" readonly class="latex-block">{{{$b['text']}}}</textarea>
-        <span class="muted">{{{t('LaTeX block: it can be switched on or off here; its text is changed in the type editor.')}}}</span>
-        {% else: %}
-        <textarea name="btext[{{{$b['id']}}}]" rows="{{{max(2, min(8, intdiv(mb_strlen($b['text']), 90) + 1))}}}">{{{$b['text']}}}</textarea>
-        {% endif %}
-        {% if($b['edited']): %}<span class="edited">{{{t('edited for this document')}}}</span>{% endif %}
-      </div>
-      {% endforeach %}
-      {% if($sec['blocks'] && $sec['blocks'][0]['in_group']): %}
-      <label class="inline"><input type="radio" name="groups[{{{$sec['blocks'][0]['group']}}}]" value="" {% if($sec['none_on']): %}checked{% endif %}> {{{t('None')}}}</label>
-      {% endif %}
-      {% if(count($sec['suggestions'])): %}
-      <div class="suggestions"><span class="muted">{{{t('From your earlier documents')}}}:</span>
-        {% foreach($sec['suggestions'] as $sg): %}
-        <button type="button" class="suggestion" data-target="extra-{{{$sec['id']}}}" data-insert="{{{$sg['text']}}}" title="{{{t('Insert; used in')}}} {{{$sg['uses']}}} {{{t('documents')}}}">{{{mb_strimwidth($sg['text'], 0, 90, '…')}}}</button>
-        {% endforeach %}
-      </div>
-      {% endif %}
-      <details {% if($sec['extra']): %}open{% endif %}>
-        <summary>{{{$sec['is_list'] ? t('Add items (one per line)') : t('Add free text')}}}</summary>
-        <textarea id="extra-{{{$sec['id']}}}" name="extra[{{{$sec['id']}}}]" rows="{{{$sec['rows']}}}" placeholder="{% if($sec['placeholder'] !== ''): %}{{{$sec['placeholder']}}}{% else: %}{{{t('Written for this document only')}}}{% endif %}">{{{$sec['extra']}}}</textarea>
-      </details>
-    </fieldset>
-    {% endforeach %}
+    {{ $type_part }}
 
     <p class="palette"><label class="inline">{{{t('Insert a field into the text you are writing')}}}:
       <select id="token-palette"><option value="">@...</option>{% foreach($tokens as $tk): %}<option value="{{{$tk}}}">@{{{$tk}}}</option>{% endforeach %}</select></label></p>
@@ -185,7 +91,7 @@
     <button type="button" data-dir="right" title="{{{t('Narrow the preview')}}}">&#9654;</button>
   </div>
 
-  <div class="composer-preview">
+  <div class="composer-preview split-right">
     {% if($pdf_url && $is_a5): %}<p class="print-links">{{{t('Print two A5 per A4 sheet')}}}: <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=seq')}}" target="_blank">{{{t('pages in order')}}}</a> &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=dup')}}" target="_blank">{{{t('each page twice')}}}</a></p>{% endif %}
     {% if($pdf_url): %}
     <iframe src="{{rel_url($pdf_url)}}" title="{{{t('Preview')}}}"></iframe>
@@ -196,6 +102,8 @@
     {% endif %}
   </div>
 
+  <script src="{{rel_url('/js/splitter.js')}}"></script>
+  <script src="{{rel_url('/js/sections.js')}}"></script>
   <script>
   (function () {
     var last = null;
@@ -226,40 +134,6 @@
       var list = JSON.parse(sel.dataset.drugs), d = list.filter(function (x) { return x.id === sel.value; })[0];
       if (d) addRow(sel.dataset.table, d); sel.value = '';
     }); });
-    // Splitter between the form and the preview: drag it, or use its buttons (form only / both / preview only).
-    var comp = document.querySelector('.composer'), sp = comp.querySelector('.composer-splitter'), KEY = 'medscribe.composer.layout';
-    var states = ['form-max', 'split', 'pdf-max'], layout = {state: 'split', split: 52};
-    try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && states.indexOf(saved.state) >= 0) layout = saved; } catch (e) {}
-    function apply() {
-      comp.classList.remove('form-max', 'pdf-max');
-      if (layout.state !== 'split') comp.classList.add(layout.state);
-      comp.style.setProperty('--split', layout.split + '%');
-      sp.querySelector('[data-dir=left]').disabled = layout.state === 'pdf-max';
-      sp.querySelector('[data-dir=right]').disabled = layout.state === 'form-max';
-      sp.setAttribute('aria-valuenow', layout.state === 'split' ? Math.round(layout.split) : (layout.state === 'pdf-max' ? 0 : 100));
-      try { localStorage.setItem(KEY, JSON.stringify(layout)); } catch (e) {}
-    }
-    function step(dir) { var i = states.indexOf(layout.state) + (dir === 'left' ? 1 : -1); layout.state = states[Math.max(0, Math.min(2, i))]; apply(); }
-    sp.querySelectorAll('button').forEach(function (b) {
-      b.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
-      b.addEventListener('click', function () { step(b.dataset.dir); });
-    });
-    sp.addEventListener('pointerdown', function (e) {
-      if (layout.state !== 'split') return;
-      e.preventDefault(); sp.setPointerCapture(e.pointerId); comp.classList.add('dragging');
-      var r = comp.getBoundingClientRect(), cs = getComputedStyle(comp), left = r.left + parseFloat(cs.paddingLeft), width = r.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-      function move(ev) { layout.split = Math.max(20, Math.min(80, (ev.clientX - left) / width * 100)); comp.style.setProperty('--split', layout.split + '%'); }
-      function up() { comp.classList.remove('dragging'); sp.removeEventListener('pointermove', move); sp.removeEventListener('pointerup', up); sp.removeEventListener('pointercancel', up); apply(); }
-      sp.addEventListener('pointermove', move); sp.addEventListener('pointerup', up); sp.addEventListener('pointercancel', up);
-    });
-    sp.addEventListener('dblclick', function () { layout = {state: 'split', split: 52}; apply(); });
-    sp.addEventListener('keydown', function (e) {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      e.preventDefault();
-      if (layout.state !== 'split') { step(e.key === 'ArrowLeft' ? 'left' : 'right'); return; }
-      layout.split = Math.max(20, Math.min(80, layout.split + (e.key === 'ArrowLeft' ? -3 : 3))); apply();
-    });
-    apply();
     var pal = document.getElementById('token-palette');
     if (pal) pal.addEventListener('change', function () { if (pal.value && last) insert(last, '@' + pal.value); pal.value = ''; });
   })();

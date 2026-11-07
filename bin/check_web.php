@@ -78,7 +78,7 @@ foreach ($types as $t) {
     $page = $dc->get("/documents/$id")['body'];
     $def = json_decode(store_get($db->query("SELECT v.sha256 FROM sources s JOIN source_versions v ON v.source_id=s.id WHERE s.name='typedef/$t' AND v.status='released' ORDER BY v.version DESC LIMIT 1")->fetchColumn()), true);
     $defaultOn = 0; foreach ($def['sections'] as $s) foreach (($s['blocks'] ?? []) as $b) if (!empty($b['default']) && !isset($b['group'])) $defaultOn++;
-    preg_match_all('/<div class="block on">/', $page, $on);
+    preg_match_all('/<div class="block on"[ >]/', $page, $on);
     check("new $t: the type's default-on blocks are on in the new draft ($defaultOn)", $defaultOn === 0 || count($on[0]) >= $defaultOn, count($on[0]) . ' on');
 }
 
@@ -152,6 +152,46 @@ $r = $dc->post('/types/typedef/adeia', ['csrf_token' => $dc->token('/types/typed
 check('type editor: invalid JSON is not saved', (int)$db->query("SELECT COUNT(*) FROM source_versions v JOIN sources s ON s.id=v.source_id WHERE s.name='typedef/adeia'")->fetchColumn() === 1);
 $r = $dc->post('/types/typedef/adeia', ['csrf_token' => $dc->token('/types/typedef/adeia'), 'action' => 'save', 'text' => $db ? store_get($db->query("SELECT v.sha256 FROM sources s JOIN source_versions v ON v.source_id=s.id WHERE s.name='typedef/adeia' ORDER BY v.version DESC LIMIT 1")->fetchColumn()) : '', 'note' => '']);
 check('type editor: a change note is required', (int)$db->query("SELECT COUNT(*) FROM source_versions v JOIN sources s ON s.id=v.source_id WHERE s.name='typedef/adeia'")->fetchColumn() === 1);
+
+// ---- the type editor's preview: the unsaved text as the printed document (HTML) and as the composer form
+$adeia = store_get($db->query("SELECT v.sha256 FROM sources s JOIN source_versions v ON v.source_id=s.id WHERE s.name='typedef/adeia' ORDER BY v.version DESC LIMIT 1")->fetchColumn());
+$edited = str_replace('"title": "', '"title": "PREVIEWTEST ', $adeia);
+$pv = fn($c, array $f) => json_decode($c->post('/types/typedef/adeia/preview', $f + ['csrf_token' => $dc->token('/types/typedef/adeia')])['body'], true);
+$r = $pv($dc, ['text' => $edited, 'mode' => 'print', 'gender' => 'F']);
+check('type preview: print shows the unsaved text, rendered by the engine', ($r['ok'] ?? false) && str_contains($r['html'] ?? '', 'PREVIEWTEST') && str_contains($r['html'], 'pv-doc') && str_contains($r['html'], 'data-src="block:') && str_contains($r['html'], 'data-src="block:') && !preg_match('/\\\\[a-z]+/i', strip_tags($r['html'])));
+$r = $pv($dc, ['text' => $adeia, 'mode' => 'form']);
+check('type preview: form shows the composer sections', ($r['ok'] ?? false) && str_contains($r['html'] ?? '', 'class="section"'));
+$kr = store_get($db->query("SELECT v.sha256 FROM sources s JOIN source_versions v ON v.source_id=s.id WHERE s.name='typedef/odigies-kranio' AND v.status='released' ORDER BY v.version DESC LIMIT 1")->fetchColumn());
+$r = $pv($dc, ['text' => $kr, 'mode' => 'form']);
+check('input form: a section with nothing picked starts folded, one with picks starts open', ($r['ok'] ?? false)
+    && preg_match('/class="section collapsed"/', $r['html']) && preg_match('/class="section"/', $r['html']) && substr_count($r['html'], 'class="sec-body"') === substr_count($r['html'], 'fieldset class="section'));
+$r = $pv($dc, ['text' => '{"name": "adeia"', 'mode' => 'print']);
+check('type preview: invalid JSON gives the error, no preview', isset($r['ok']) && !$r['ok'] && count($r['errors'] ?? []) > 0);
+$r = $dc->post('/types/typedef/adeia/preview', ['text' => $adeia, 'mode' => 'print']);
+check('type preview: CSRF is enforced', !(json_decode($r['body'], true)['ok'] ?? false));
+check('type preview: nothing was saved', (int)$db->query("SELECT COUNT(*) FROM source_versions v JOIN sources s ON s.id=v.source_id WHERE s.name='typedef/adeia'")->fetchColumn() === 1);
+
+// ---- saving into a draft version: in place while it is the latest draft; never once released or superseded (a throw-away type)
+$wtName = 'wt-draft-test';
+$wtDef = json_decode($adeia, true); $wtDef['name'] = $wtName;
+$wtSrc = source_ensure('typedef/' . $wtName, 'typedef', 'types/' . $wtName . '.json');
+$v1 = source_add_version($wtSrc, json_encode($wtDef, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n", 'first', 'draft', 'wt_doctor');
+$wtCount = fn() => (int)$db->query("SELECT COUNT(*) FROM source_versions WHERE source_id = " . (int)$wtSrc['id'])->fetchColumn();
+$wtText = fn(int $v) => store_get($db->query("SELECT sha256 FROM source_versions WHERE source_id = " . (int)$wtSrc['id'] . " AND version = $v")->fetchColumn());
+$page = $dc->get("/types/typedef/$wtName")['body'];
+check('draft: the page offers "save in v1"', str_contains($page, 'value="save_here"'));
+$edit = function (string $title) use ($wtDef) { $d = $wtDef; $d['title'] = $title; return json_encode($d, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); };
+$dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/$wtName"), 'action' => 'save_here', 'version' => 1, 'text' => $edit('IN PLACE'), 'note' => '']);
+check('draft: saved in the same version, its note kept', $wtCount() === 1 && json_decode($wtText(1), true)['title'] === 'IN PLACE'
+    && $db->query("SELECT note FROM source_versions WHERE source_id = " . (int)$wtSrc['id'])->fetchColumn() === 'first');
+$dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/$wtName"), 'action' => 'save', 'text' => $edit('V2'), 'note' => 'second']);
+$dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/$wtName"), 'action' => 'save_here', 'version' => 1, 'text' => $edit('NOT ALLOWED'), 'note' => '']);
+check('draft: an older draft cannot be saved over once a newer version exists', $wtCount() === 2 && json_decode($wtText(1), true)['title'] === 'IN PLACE');
+source_release((int)$db->query("SELECT id FROM source_versions WHERE source_id = " . (int)$wtSrc['id'] . " AND version = 2")->fetchColumn());
+check('released: the page no longer offers "save in"', !str_contains($dc->get("/types/typedef/$wtName")['body'], 'value="save_here"'));
+$dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/$wtName"), 'action' => 'save_here', 'version' => 2, 'text' => $edit('NOT ALLOWED'), 'note' => '']);
+check('released: a released version never changes', $wtCount() === 2 && json_decode($wtText(2), true)['title'] === 'V2');
+$db->exec("DELETE FROM source_versions WHERE source_id = " . (int)$wtSrc['id']); $db->exec("DELETE FROM sources WHERE id = " . (int)$wtSrc['id']);
 
 // ---- clean up
 foreach ($docs as $d) { issue_prune_builds($d, [], ['preview', 'issue', 'test', 'rebuild']); $db->prepare('DELETE FROM documents WHERE id = ?')->execute([$d]); }

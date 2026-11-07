@@ -43,6 +43,7 @@ table:
 
 # Immutable, linear versions of a source (PLAN.md §5.2). The bytes live in the
 # content-addressed store (web/files/store/objects/ab/cdef...), keyed by sha256.
-# - status  draft | released | retired. A released version never changes.
+# - status  draft | released | retired. A released version never changes; the latest draft, while no
+#   document uses it, may be saved over (source_update_draft, the type editor's "Save in vN").
 # - (source_id, version) is unique by construction (store.php allocates the number
 #   inside a transaction).

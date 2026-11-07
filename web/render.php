@@ -7,7 +7,8 @@
  *
  * TYPE DEFINITION (JSON, versioned in the store as `typedef/<name>`):
  *   name, label, lang (gr|en), paper (a4|a5), title, closing, stamp (yes|no), has_patient? (false = a practice document with no patient; "optional" = a patient may be given, the name is not required),
- *   fields: {id: {type: text|date|number, label, default?, placeholder?, required?}}
+ *   fields: {id: {type: text|date|number, label, default?, placeholder?, required?, datefmt? (date fields: how the date prints
+ *            everywhere it is used, also in a block with its own datefmt; without one: the block's datefmt, else d/m/Y)}}
  *   reviewed?: date  the doctor reviewed the wording (an imported type: its kit file is no longer the reference)
  *   titles?: [..]  closings?: [..]   alternatives offered for the title / closing (the first is the default)
  *   shared?: {name: sha256}          shared components this type uses, pinned by hash (see render_resolve_type)
@@ -22,7 +23,8 @@
  *              `intro` = markup printed above the table when it has rows)
  *     block:  {id, text, default (on/off), group? (choice group: at most one on), label?
  *              (description term / patient-info row label), format? markup|latex,
- *              datefmt? (date format inside this block: a PHP date() format, or "long" = 20 Φεβρουαρίου 2026)}
+ *              datefmt? (date format inside this block, for every date in it: a PHP date() format such as d/m/Y, j/n/Y, d-m-Y, or "long" =
+ *              20 Φεβρουαρίου 2026; for the dates in it that have no datefmt of their own)}
  *
  * BLOCK TEXT MARKUP (everything else is escaped, so text can never break the build):
  *   {Ο|Η}      gender variant: first = male, second = female, from the patient's gender
@@ -239,14 +241,11 @@ function render_markup(string $text, array &$ctx): string {
                 $val = $ctx['values'][$name];
                 $ftype = $ctx['fields'][$name]['type'] ?? ($name === 'date' ? 'date' : 'text');
                 if ($ftype === 'date' && $val !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $val)) {
-                    $val = render_format_date($val, $ctx['datefmt'] ?? 'd/m/Y');
+                    $val = render_format_date($val, $ctx['fields'][$name]['datefmt'] ?? ($ctx['datefmt'] ?? 'd/m/Y'));   // field > block > d/m/Y
                 }
-                if ($val === '') {
-                    $ctx['issues']['missing'][$name] = true;
-                    $out .= tex_escape('[' . ($ctx['fields'][$name]['label'] ?? $name) . ']');
-                } else {
-                    $out .= tex_escape($val);
-                }
+                $piece = $val === '' ? tex_escape('[' . ($ctx['fields'][$name]['label'] ?? $name) . ']') : tex_escape($val);
+                if ($val === '') $ctx['issues']['missing'][$name] = true;
+                $out .= render_trace($ctx, 'field:' . $name, $piece, isset($ctx['fields'][$name]));
                 break;
         }
     }
@@ -285,7 +284,7 @@ function render_medtable(array $section, array $inputs, array &$ctx): string {
         if (trim((string)($r['name'] ?? '')) === '') continue;
         $cells = [];
         foreach (['name', 'dose', 'freq', 'days', 'notes'] as $k) {
-            $c = $ctx; $c['datefmt'] = 'd/m/Y';
+            $c = $ctx; $c['datefmt'] = null;
             $cells[] = '{' . render_markup(trim((string)($r[$k] ?? '')), $c) . '}';
             $ctx['issues'] = $c['issues'] ?? [];
         }
@@ -320,19 +319,19 @@ function render_topics(array $section, array $inputs, array &$ctx): string {
         foreach (($tp['blocks'] ?? []) as $b) {
             if (!render_block_on($section, $b, $inputs)) continue;
             $raw = render_block_text($b, $inputs);
-            $c = $ctx; $c['datefmt'] = 'd/m/Y';
+            $c = $ctx; $c['datefmt'] = $b['datefmt'] ?? null;
             $tex = (($b['format'] ?? 'markup') === 'latex' && !isset($inputs['blocks'][$b['id']]['text'])) ? $raw : render_markup($raw, $c);
             $ctx['issues'] = $c['issues'] ?? [];
-            if (trim($tex) !== '') $parts[] = [$tex, !empty($b['item'])];
+            if (trim($tex) !== '') $parts[] = [render_trace($ctx, 'block:' . $b['id'], $tex), !empty($b['item'])];
         }
         foreach (($inputs['extra'][$tp['id']] ?? []) as $x) {
             foreach (preg_split('/\n+/', trim((string)($x['text'] ?? ''))) as $line) {
                 $c = $ctx; $t = render_markup($line, $c); $ctx['issues'] = $c['issues'] ?? [];
-                if (trim($t) !== '') $parts[] = [$t, false];
+                if (trim($t) !== '') $parts[] = [render_trace($ctx, 'extra:' . $tp['id'], $t), false];
             }
         }
         if (!$parts) continue;
-        $head = '  \\item \\textbf{' . tex_escape($tp['title']) . '}';
+        $head = '  \\item \\textbf{' . render_trace($ctx, 'topic:' . $tp['id'], tex_escape($tp['title'])) . '}';
         if (($tp['style'] ?? 'itemize') === 'paragraph') {
             // paragraphs; consecutive `item` blocks form a bullet list under the paragraph before them
             $out = []; $list = [];
@@ -348,13 +347,24 @@ function render_topics(array $section, array $inputs, array &$ctx): string {
         }
     }
     if (!$items) return '';
-    $head = isset($section['heading']) && $section['heading'] !== '' ? '\\section*{' . tex_escape($section['heading']) . "}\n" : '';
+    $head = isset($section['heading']) && $section['heading'] !== '' ? '\\section*{' . render_trace($ctx, 'section:' . $section['id'], tex_escape($section['heading'])) . "}\n" : '';
     return $head . '\\begin{enumerate}' . (string)($section['list_options'] ?? '') . "\n" . (($section['list_preamble'] ?? '') === '\\setlength{\\parskip}{6pt}' ? "\\setlength{\\parskip}{6pt}\n" : '') . implode("\n", $items) . "\n\\end{enumerate}\n";
 }
 
 /** "{}" when an \item's text starts with "[" (LaTeX would read it as the item's optional label), else "". */
 function render_item_guard(string $tex): string {
     return str_starts_with(ltrim($tex), '[') ? '{}' : '';
+}
+
+/**
+ * Trace mode (render_document's opts['trace'], used only by the type editor's HTML preview, never for a PDF): wrap a
+ * piece in \MSsrc{kind:id}{...} so the preview knows which field, block, section or topic it came from. Raw LaTeX that
+ * opens lists or environments is left unwrapped (a group around it would not survive the HTML conversion).
+ */
+function render_trace(array $ctx, string $src, string $tex, bool $when = true): string {
+    if (empty($ctx['trace']) || !$when) return $tex;
+    if (preg_match('/\\\\(?:item|begin|end)\b|(?<!\\\\)&/', $tex)) return $tex;
+    return '\\MSsrc{' . $src . '}{' . $tex . '}';
 }
 
 /** One section as LaTeX; '' when off or empty. */
@@ -367,13 +377,15 @@ function render_section(array $section, array $inputs, array &$ctx): string {
     $blocks = $section['blocks'] ?? [];
     foreach ($blocks as $b) {
         if (!render_block_on($section, $b, $inputs)) continue;
-        $c = $ctx; $c['datefmt'] = $b['datefmt'] ?? 'd/m/Y';
+        $c = $ctx; $c['datefmt'] = $b['datefmt'] ?? null;
         $raw = render_block_text($b, $inputs);
         $tex = (($b['format'] ?? 'markup') === 'latex' && !isset($inputs['blocks'][$b['id']]['text']))
              ? $raw : render_markup($raw, $c);
         $ctx['issues'] = $c['issues'] ?? [];
         $label = isset($b['label']) ? render_markup($b['label'], $ctx) : null;
         if (trim($tex) === '') continue;
+        $tex = render_trace($ctx, 'block:' . $b['id'], $tex);
+        if ($label !== null && $label !== '') $label = render_trace($ctx, 'block:' . $b['id'], $label);
         // an inline block continues the previous paragraph of this section (consecutive source lines in the kit)
         if (!empty($b['inline']) && $layout === 'paragraphs' && $items) { $items[count($items) - 1][1] .= ' ' . $tex; continue; }
         $items[] = [$label, $tex, $b];
@@ -383,10 +395,10 @@ function render_section(array $section, array $inputs, array &$ctx): string {
         // paragraphs: one block of text; lists: one item per line
         $texts = $isList ? preg_split('/\n+/', trim((string)($x['text'] ?? ''))) : [(string)($x['text'] ?? '')];
         foreach ($texts as $one) {
-            $c = $ctx; $c['datefmt'] = 'd/m/Y';
+            $c = $ctx; $c['datefmt'] = null;
             $tex = render_markup($one, $c);
             $ctx['issues'] = $c['issues'] ?? [];
-            if (trim($tex) !== '') $items[] = [null, $tex, null];
+            if (trim($tex) !== '') $items[] = [null, render_trace($ctx, 'extra:' . $section['id'], $tex), null];
         }
     }
     if (($ctx['has_patient'] ?? true) === false && $layout === 'patient-info') return '';   // practice documents have no patient
@@ -394,7 +406,7 @@ function render_section(array $section, array $inputs, array &$ctx): string {
 
  $cmd = ($section['heading_level'] ?? 'section') === 'subsection' ? 'subsection' : 'section';
     $star = !empty($section['numbered']) ? '' : '*';
-    $head = isset($section['heading']) && $section['heading'] !== '' ? "\\$cmd$star{" . tex_escape($section['heading']) . "}\n" : '';
+    $head = isset($section['heading']) && $section['heading'] !== '' ? "\\$cmd$star{" . render_trace($ctx, 'section:' . $section['id'], tex_escape($section['heading'])) . "}\n" : '';
     switch ($layout) {
         case 'paragraphs':
             return $head . implode("\n\n", array_column($items, 1)) . "\n";
@@ -416,7 +428,7 @@ function render_section(array $section, array $inputs, array &$ctx): string {
         case 'urgentbox':
             // a block with a `label` (even "") is a heading line inside the box: \item[label], no bullet
             $lines = array_map(fn($i) => $i[0] !== null ? '  \\item[' . $i[0] . '] ' . $i[1] : '  \\item ' . render_item_guard($i[1]) . $i[1], $items);
-            $opt = isset($section['heading']) && $section['heading'] !== '' ? '[' . tex_escape($section['heading']) . ']' : '';
+            $opt = isset($section['heading']) && $section['heading'] !== '' ? '[' . render_trace($ctx, 'section:' . $section['id'], tex_escape($section['heading'])) . ']' : '';
             return "\\begin{UrgentBox}$opt\n" . implode("\n", $lines) . "\n\\end{UrgentBox}\n";
     }
     throw new InvalidArgumentException("unsupported layout $layout");
@@ -435,6 +447,11 @@ function render_validate_type(array $t): array {
     if (!in_array($t['lang'] ?? '', ['gr', 'en'], true)) $e[] = 'lang must be gr or en';
     $seenS = []; $seenB = [];
     foreach (['titles', 'closings'] as $k) if (isset($t[$k]) && (!is_array($t[$k]) || array_filter($t[$k], fn($x) => !is_string($x)))) $e[] = "$k must be a list of strings";
+    foreach (($t['fields'] ?? []) as $fid => $f) {
+        if (!isset($f['datefmt'])) continue;
+        if (!is_string($f['datefmt']) || $f['datefmt'] === '') $e[] = "field $fid: datefmt must be a date format such as d/m/Y, or \"long\"";
+        elseif (($f['type'] ?? 'text') !== 'date') $e[] = "field $fid: datefmt is only for date fields (type \"date\")";
+    }
     foreach (($t['sections'] ?? []) as $s) {
         if (empty($s['id'])) { $e[] = 'section without id'; continue; }
         if (isset($seenS[$s['id']])) $e[] = "duplicate section {$s['id']}";
@@ -490,7 +507,8 @@ function render_document(array $type, array $inputs, array $opts = []): array {
     $p = $inputs['patient'] ?? [];
     $lang = $type['lang'] ?? 'gr';
     $ctx = ['values' => render_values($type, $inputs), 'gender' => (string)($p['gender'] ?? ''),
-            'fields' => $type['fields'] ?? [], 'issues' => [], 'has_patient' => ($type['has_patient'] ?? true) !== false];
+            'fields' => $type['fields'] ?? [], 'issues' => [], 'has_patient' => ($type['has_patient'] ?? true) !== false,
+            'trace' => !empty($opts['trace'])];
 
     $body = [];
     foreach ($type['sections'] as $sec) {

@@ -384,6 +384,27 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   operations; a choice group → all its blocks; a shared key → `use`/`library`. A section's name on the composer form is
   `label`, else `heading`, else `slot`. Test: `tests/js/type_tree_test.js` (all type files round-trip unchanged), run by the
   static suite.
+- **Preview ⇄ source:** `render_document(..., ['trace' => true])` (preview only, never a PDF) wraps fields, blocks, extra text,
+  section and topic headings in `\MSsrc{kind:id}{...}` (`render_trace()`; raw LaTeX with lists/environments stays unwrapped);
+  `render_html.php` turns them into `<span data-src>`. Hovering printed text shows a ⌖ that selects its source in the tree (or
+  the JSON text: the tree's parser records each node's offsets); the ⌖ of a tree row highlights its text in the preview.
+- **Date format:** a date field may carry `datefmt` (how it prints everywhere, also in blocks with their own `datefmt`); a
+  block's `datefmt` serves the dates without one (the kit imports set `d-m-Y` on most blocks); else `d/m/Y`. The type editor's
+  previews put a real date (default or today) in date fields so the format shows. Formats are PHP `date()` patterns or `long` (20 Φεβρουαρίου 2026); `datefmt` is valid only on date fields. The
+  tree offers a list of formats and a "+ date format" button on date fields.
+- **Draft versions can be saved in place** (`source_update_draft()`, action `save_here`): only the latest version, while still a
+  draft and used by no document; a released version never changes (a new version is the only way), and the old bytes stay in
+  the store.
+- **Folding sections in the input form** (`web/js/sections.js`, composer and Form preview): a click on a section's legend folds
+  it; "Expand all"/"Collapse all". A section starts folded when it has items (blocks or a medication table) and none is picked,
+  no free text and no rows, or when it is an optional section switched off (`collapsed` in `doc_view_model()`); a
+  free-text-only section starts open.
+- **Preview panel of the type editor** (typedef only; `web/js/type_preview.js`, `POST /types/typedef/{name}/preview`): the
+  unsaved text, refreshed after each edit, as **Form** (the composer's `composer_type_part.zetem`, the same template the composer
+  uses, inside a disabled fieldset) or **Print** (`web/render_html.php`: runs `render_document()` and turns the body LaTeX into
+  HTML, so it cannot drift from the engine; labels and doctor details come from the base release's `evr-<lang>.tex`; no
+  letterhead, QR or page layout: the PDF stays the reference). Sample inputs: `types_sample_inputs()` (field default, else
+  placeholder, else label; Male/Female patient). The splitter of both pages is `web/js/splitter.js` (`.splitpane`).
 - **Letterhead version per document (D10):** a select in the composer (any released base release).
 - **Content pool** (`web/pool.php`, D8/D16): at issue, text the doctor wrote or edited (local edits and free text,
   not unchanged type blocks) is stored per slot with the patient's name, AMKA, field values and dates turned back
