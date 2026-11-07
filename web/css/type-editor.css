@@ -242,3 +242,17 @@
 .te .te-pick-head { margin: .6rem 0 .2rem; font-weight: 700; font-size: .82rem; color: #1A3E7A; }
 .te .te-btn.te-pick { justify-content: flex-start; min-height: 1.8rem; padding: .25rem .6rem; border-color: transparent; text-align: left; font: .9rem/1.4 'IBM Plex Serif', Georgia, serif; white-space: normal; }
 .te .te-btn.te-pick:hover { background: var(--te-accent-soft); }
+
+/* shared components: Content (sentences, drug library) and Used by */
+.te .te-search { max-width: 22rem; margin: .4rem 0 .6rem; }
+.te table.te-drugs { border-collapse: collapse; font-size: .85rem; }
+.te table.te-drugs th { font-size: .78rem; padding: .3rem .3rem; }
+.te table.te-drugs td { padding: 1px 2px; vertical-align: top; }
+.te .te-drug-group th { padding-top: .8rem; color: #1A3E7A; font-size: .82rem; border-bottom: 1px solid var(--te-line-2); }
+.te textarea.te-cell { width: 100%; min-width: 4rem; box-sizing: border-box; padding: .2rem .3rem; border: 1px solid transparent; border-radius: 5px; font: inherit; resize: vertical; background: transparent; }
+.te textarea.te-cell:hover { border-color: var(--te-line); }
+.te textarea.te-cell:focus { outline: none; border-color: var(--te-accent); background: #fff; }
+.te table.te-drugs td.te-tools { white-space: nowrap; }
+.te table.te-usedby td { vertical-align: top; font-size: .88rem; }
+.te tr.te-flag td { background: #FFF8E1; }
+.te .te-group > .te-block .te-ic { color: var(--te-ink-2); font-size: .85rem; padding-top: .35rem; }

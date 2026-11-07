@@ -462,7 +462,7 @@
     form.addEventListener('submit', function () { submitting = true; });
     window.addEventListener('beforeunload', function (e) { if (ed.dirty && !submitting) { e.preventDefault(); e.returnValue = ''; } });
     markUnsaved();
-    show(recall('tab') || (ed.views.structure && ed.kind === 'typedef' ? 'structure' : 'json'));
+    show(recall('tab') || (ed.kind === 'typedef' ? 'structure' : 'content'));
   }
 
   if (typeof window !== "undefined") window.MSTypeEditor = {

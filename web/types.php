@@ -197,6 +197,36 @@ function page_type_pdf($params) {
     exit();
 }
 
+/**
+ * The types that pin a shared component (plan §6.3), from each type's latest version: the pinned component version, the
+ * default choice of the sections using it, whether a section uses it at all, and the latest released component version.
+ */
+function types_used_by(string $component): array {
+    $db = store_db();
+    $versions = [];   // sha256 => component version
+    $st = $db->prepare("SELECT v.sha256, v.version, v.status FROM sources s JOIN source_versions v ON v.source_id = s.id WHERE s.name = ?");
+    $st->execute(['shared/' . $component]);
+    foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) $versions[$r['sha256']] = (int)$r['version'];
+    $latest = source_released_by_name('shared/' . $component);
+    $out = [];
+    foreach ($db->query("SELECT id, name FROM sources WHERE kind = 'typedef' ORDER BY name")->fetchAll(PDO::FETCH_ASSOC) as $src) {
+        $v = source_latest((int)$src['id']);
+        if (!$v) continue;
+        $def = json_decode(store_get($v['sha256']), true);
+        $pin = $def['shared'][$component] ?? null;
+        if (!is_string($pin)) continue;
+        $defaults = []; $used = false;
+        foreach (($def['sections'] ?? []) as $sec) {
+            if (($sec['use'] ?? null) === $component) { $used = true; if (isset($sec['default_block'])) $defaults[] = (string)$sec['default_block']; }
+            if (($sec['library'] ?? null) === $component) $used = true;
+        }
+        $out[] = ['type' => substr($src['name'], strlen('typedef/')), 'label' => (string)($def['label'] ?? $src['name']), 'version' => (int)$v['version'],
+                  'status' => $v['status'], 'pinned' => $versions[$pin] ?? null, 'latest' => $latest ? (int)$latest['version'] : null,
+                  'defaults' => $defaults, 'used' => $used];
+    }
+    return $out;
+}
+
 /** The label of every shared component (its latest version), for naming the sections that use one: [name => label]. */
 function types_shared_labels(): array {
     $out = [];
@@ -235,6 +265,7 @@ function page_type_edit($params) {
         'shown' => $cur, 'text' => $_SESSION['type_edit_text'][$src['name']] ?? $saved, 'diff' => $diff, 'saved_text' => $saved,
         'type_label' => is_array($def) && is_string($def['label'] ?? null) && $def['label'] !== '' ? $def['label'] : (string)$params['name'],
         'shared_labels' => json_encode(types_shared_labels(), JSON_UNESCAPED_UNICODE),
+        'used_by' => (string)$params['kind'] === 'shared' ? types_used_by((string)$params['name']) : [],
         'unsaved' => isset($_SESSION['type_edit_text'][$src['name']]),
         // the shown version can be saved over while it is the latest version, still a draft, and no document uses it
         'can_save_here' => $cur['status'] === 'draft' && (int)$cur['version'] === (int)$versions[0]['version'] && (int)$cur['docs'] === 0,
@@ -357,6 +388,26 @@ function page_type_edit_post($params) {
             header('location: ' . rel_url("$url/review?v=" . $row['version'])); exit();
         } elseif ($row['status'] !== 'draft') $kernel->addStatus('error', 'Version ' . $row['version'] . ' is already released.');
         else { source_release((int)$row['id']); $kernel->addStatus('status', 'Version ' . $row['version'] . ' released: new documents use it from now on.'); }
+    } elseif ($action === 'update_pin' && $kind === 'typedef') {
+        // a new draft version of this type with the component pinned to its latest release (plan §6.3)
+        $comp = (string)($_POST['component'] ?? '');
+        $v = source_latest((int)$src['id']);
+        $def = $v ? json_decode(store_get($v['sha256']), true) : null;
+        $rel = preg_match('/^[a-z0-9-]{1,64}$/', $comp) ? source_released_by_name('shared/' . $comp) : null;
+        if (!is_array($def) || !isset($def['shared'][$comp]) || !$rel) $kernel->addStatus('error', 'Nothing to update.');
+        elseif ($def['shared'][$comp] === $rel['sha256']) $kernel->addStatus('status', "$name already uses $comp v{$rel['version']}.");
+        else {
+            $def['shared'][$comp] = 'latest';
+            [$errors, $bytes] = types_check('typedef', json_encode($def, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            if ($errors) $kernel->addStatus('error', "$name cannot use $comp v{$rel['version']}: " . implode('; ', $errors));
+            else {
+                $extra = trim((string)($_POST['note'] ?? ''));
+                $nv = source_add_version($src, $bytes, mb_substr("Update $comp to v{$rel['version']}" . ($extra !== '' ? ": $extra" : ''), 0, 500), 'draft', $user);
+                $kernel->addStatus('status', "$name v{$nv['version']} (draft) uses $comp v{$rel['version']}. Review and release it to put it into use.");
+            }
+        }
+        $back = (string)($_POST['back'] ?? '');
+        if (preg_match('#^/types/shared/[a-z0-9-]+$#', $back)) { header('location: ' . rel_url($back)); exit(); }
     } elseif ($action === 'discard') {
         unset($_SESSION['type_edit_text'][$src['name']]);
     }

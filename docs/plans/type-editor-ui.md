@@ -1,6 +1,6 @@
 # Type editor UI redesign: plan
 
-**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 5, 6, 9. See the "Progress" notes at the end of §7.
+**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 5, 6, 7, 9. See the "Progress" notes at the end of §7.
 **Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step,
 plus the preview QR placeholder (§6.7), which also changes the composer's preview.
 **Mockups:** canvas https://claude.ai/artifact/DvTosfM1j78w77o9FtvS6i (private to the owner). The same
@@ -409,6 +409,16 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
   shows 7 sentences; with the rule 2 visible sentences are struck (the 2 others it turns off are not on by default, so
   "strikes 4" in §8 is not reachable with the sample) and 3 are added; `odigies-auxeniki`'s Διαρροή ΕΝΥ shows its 25
   operations. `check_web.php` covers the marks.
+- **Phase 7 done (2026-11-07):** `/types/shared/{name}` has tabs **Content · Used by · JSON** (`web/js/type_shared.js`).
+  Content: the sentences (alternatives) with "default in N types: …"; renaming or deleting one that a type uses as its
+  default choice is refused in the browser with the list of types (the server's check unchanged); or the drug library as a
+  grouped, searchable table whose cells show `{br}` as a new line (a cell that already holds a real new line is edited
+  as it is). Used by (`types_used_by()`, server-rendered): each type's latest version, the component version it pins
+  (resolved from the hash), its default choice, "Pinned, but no section uses it", and **Update pin** when a newer release
+  exists: `action=update_pin` on the type makes a new **draft** type version with the component's latest release and the
+  note "Update <name> to vN" (to review and release like any change). Checked: `purpose` lists 14 types, `preop-odigies`
+  flagged (the plan's "13 types" are the 13 that use it); a no-op edit through the drug cells leaves the library
+  unchanged; `check_web.php` covers listing, the offer and the new draft (only the hash differs).
 
 ## 8. Acceptance checklist (manual, on the server)
 

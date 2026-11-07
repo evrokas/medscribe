@@ -227,6 +227,27 @@ $dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/
 check('released: a released version never changes', $wtCount() === 2 && json_decode($wtText(2), true)['title'] === 'V2');
 $db->exec("DELETE FROM source_versions WHERE source_id = " . (int)$wtSrc['id']); $db->exec("DELETE FROM sources WHERE id = " . (int)$wtSrc['id']);
 
+// ---- shared components: Used by and "Update pin" (plan §6.3), on a throw-away component and type
+$cSrc = source_ensure('shared/wt-comp', 'shared', 'types/shared/wt-comp.json');
+$comp = fn(string $t) => json_encode(['format' => 1, 'name' => 'wt-comp', 'label' => 'WT', 'group' => 'wt-comp', 'blocks' => [['id' => 'a', 'text' => $t]]], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n";
+$c1 = source_add_version($cSrc, $comp('A one'), 'first', 'released', 'wt_doctor');
+$pDef = json_decode($adeia, true); $pDef['name'] = 'wt-pin-test'; $pDef['shared'] = ['wt-comp' => $c1['sha256']];
+foreach ($pDef['sections'] as &$ps) if (isset($ps['use'])) { $ps['use'] = 'wt-comp'; $ps['default_block'] = 'a'; } unset($ps);
+$pSrc = source_ensure('typedef/wt-pin-test', 'typedef', 'types/wt-pin-test.json');
+source_add_version($pSrc, json_encode($pDef, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n", 'first', 'released', 'wt_doctor');
+$ub = $dc->get('/types/shared/wt-comp')['body'];
+check('used by: the type that pins the component is listed, no update offered while it is current', str_contains($ub, 'wt-pin-test') && !str_contains($ub, 'form="pin-wt-pin-test"'));
+$c2 = source_add_version($cSrc, $comp('A two'), 'second', 'released', 'wt_doctor');
+$ub = $dc->get('/types/shared/wt-comp')['body'];
+check('used by: a newer release offers "Update pin"', str_contains($ub, 'form="pin-wt-pin-test"'));
+$dc->post('/types/typedef/wt-pin-test', ['csrf_token' => $dc->token('/types/shared/wt-comp'), 'action' => 'update_pin', 'component' => 'wt-comp', 'back' => '/types/shared/wt-comp']);
+$pv = $db->query("SELECT version, status, note, sha256 FROM source_versions WHERE source_id = " . (int)$pSrc['id'] . " ORDER BY version DESC")->fetchAll(PDO::FETCH_ASSOC);
+$pNew = json_decode(store_get($pv[0]['sha256']), true); $pOld = json_decode(store_get($pv[1]['sha256'] ?? $pv[0]['sha256']), true);
+$pOld['shared']['wt-comp'] = $c2['sha256'];
+check('update pin: a new draft version of the type with the new hash, nothing else changed', count($pv) === 2 && $pv[0]['status'] === 'draft'
+    && $pNew['shared']['wt-comp'] === $c2['sha256'] && $pNew == $pOld && str_starts_with($pv[0]['note'], 'Update wt-comp to v2'), json_encode([$pv[0]['note'] ?? '', count($pv)]));
+foreach ([$pSrc, $cSrc] as $x) { $db->exec("DELETE FROM source_versions WHERE source_id = " . (int)$x['id']); $db->exec("DELETE FROM sources WHERE id = " . (int)$x['id']); }
+
 // ---- the archive seeder runs when called from the app root with a relative path (it once did nothing: the boot changes folder)
 $seedTmp = sys_get_temp_dir() . '/ms-seed-' . bin2hex(random_bytes(4)); mkdir($seedTmp);
 file_put_contents("$seedTmp/x.tex", "\\providecommand\\PatientName{Δοκιμή Τεστ}\n\\begin{document}\nΗ θεραπεία συνεχίζεται κανονικά για δύο εβδομάδες.\n\\end{document}\n");

@@ -1,6 +1,6 @@
 {% attach_library('type-editor') %}
 {% if($kind == 'typedef'): %}<div class="splitpane type-split" data-split-key="medscribe.typeedit.layout" data-split-default="55">{% endif %}
-<div class="page-placeholder type-edit te split-left" data-kind="{{{$kind}}}" data-name="{{{$name}}}" data-shared-labels="{{{$shared_labels}}}">
+<div class="page-placeholder type-edit te split-left" data-kind="{{{$kind}}}" data-name="{{{$name}}}" data-shared-labels="{{{$shared_labels}}}" data-used-by="{{{json_encode($used_by, JSON_UNESCAPED_UNICODE)}}}">
   <div class="te-head">
     <div class="te-title">
       <a class="te-crumb" href="{{rel_url('/types')}}">{{{t('Types')}}} &rsaquo;</a>
@@ -52,6 +52,9 @@
         <button type="button" role="tab" data-tab="content">{{{t('Content')}}}</button>
         <button type="button" role="tab" data-tab="fields">{{{t('Fields')}}} <span class="te-count"></span></button>
         <button type="button" role="tab" data-tab="rules">{{{t('Case rules')}}} <span class="te-count"></span></button>
+        {% else: %}
+        <button type="button" role="tab" data-tab="content">{{{t('Content')}}}</button>
+        <button type="button" role="tab" data-tab="usedby">{{{t('Used by')}}} <span class="te-count">{{{count($used_by)}}}</span></button>
         {% endif %}
         <button type="button" role="tab" data-tab="json">{{{t('JSON')}}}</button>
         <span class="te-say" aria-live="polite"></span>
@@ -61,6 +64,24 @@
       <div class="te-panel" data-tab="content" hidden></div>
       <div class="te-panel" data-tab="fields" hidden></div>
       <div class="te-panel" data-tab="rules" hidden></div>
+      {% else: %}
+      <div class="te-panel" data-tab="content" hidden></div>
+      <div class="te-panel" data-tab="usedby" hidden>
+        <p class="muted">{{{t('Each type pins the version of this component it was released with. Releasing a new version of the component changes no type; "Update pin" makes a new draft version of the type that uses the latest release (review and release it like any change).')}}}</p>
+        {% if(!$used_by): %}<p class="muted">{{{t('No type uses this component.')}}}</p>{% endif %}
+        <table class="list te-usedby">
+          <tr><th>{{{t('Type')}}}</th><th>{{{t('Its version')}}}</th><th>{{{t('Pins')}}}</th><th>{{{t('Default choice')}}}</th><th></th></tr>
+          {% foreach($used_by as $u): %}
+          <tr{% if(!$u['used']): %} class="te-flag"{% endif %}>
+            <td><a href="{{rel_url('/types/typedef/' . $u['type'])}}">{{{$u['label']}}}</a> <code class="te-did">{{{$u['type']}}}</code>{% if(!$u['used']): %}<div class="te-check-warn">{{{t('Pinned, but no section uses it')}}}</div>{% endif %}</td>
+            <td>v{{{$u['version']}}} <span class="muted">{{{$u['status']}}}</span></td>
+            <td>{% if($u['pinned']): %}v{{{$u['pinned']}}}{% else: %}<span class="te-check-error">{{{t('unknown')}}}</span>{% endif %}{% if($u['latest'] && $u['pinned'] && $u['latest'] > $u['pinned']): %} <span class="te-check-warn">({{{t('latest')}}} v{{{$u['latest']}}})</span>{% endif %}</td>
+            <td>{{{implode(', ', $u['defaults'])}}}</td>
+            <td>{% if($u['latest'] && $u['pinned'] !== $u['latest']): %}<button type="submit" form="pin-{{{$u['type']}}}" class="te-btn">{{{t('Update pin')}}}</button>{% endif %}</td>
+          </tr>
+          {% endforeach %}
+        </table>
+      </div>
       {% endif %}
       <div class="te-panel te-json" data-tab="json">
         <p class="muted">{{{t('Every key of the definition. Tree: drag ⠿ or use ↑↓ to reorder, ✎ to rename (a field rename updates every @field and case-rule operation; an id rename updates the case-rule operations).')}}}</p>
@@ -86,6 +107,9 @@
       </div>
     </dialog>
   </form>
+  {% foreach($used_by as $u): %}{% if($u['latest'] && $u['pinned'] !== $u['latest']): %}
+  <form id="pin-{{{$u['type']}}}" method="post" action="{{rel_url('/types/typedef/' . $u['type'])}}" hidden>{{ csrf_field() }}<input type="hidden" name="action" value="update_pin"><input type="hidden" name="component" value="{{{$name}}}"><input type="hidden" name="back" value="/types/shared/{{{$name}}}"></form>
+  {% endif %}{% endforeach %}
   <p class="muted te-classic"><a href="{{rel_url('/types/' . $kind . '/' . $name . '?ui=classic&v=' . $shown['version'])}}">{{{t('Classic editor')}}}</a></p>
 </div>
 {% if($kind == 'typedef'): %}
@@ -117,4 +141,6 @@
 <script src="{{rel_url('/js/type_content.js')}}"></script>
 <script src="{{rel_url('/js/type_fields.js')}}"></script>
 <script src="{{rel_url('/js/type_rules.js')}}"></script>
+{% else: %}
+<script src="{{rel_url('/js/type_shared.js')}}"></script>
 {% endif %}
