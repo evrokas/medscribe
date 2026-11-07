@@ -60,6 +60,8 @@ table.list { width: 100%; } table.list th { text-align: left; padding: .35rem .8
 fieldset { border: 1px solid var(--border-color); border-radius: 8px; margin: 0 0 1rem; padding: .8rem 1rem; }
 legend { font-weight: 600; padding: 0 .4rem; } legend .muted { font-weight: 400; font-size: .8rem; }
 .splitpane { --split: 52%; display: grid; grid-template-columns: minmax(0, var(--split)) 14px minmax(0, 1fr); column-gap: .3rem; row-gap: 1.2rem; max-width: 1800px; margin: 1.2rem auto; padding: 0 1rem; }
+/* fixed columns: a hidden pane must not let the others slide into its column */
+.splitpane > .split-left { grid-column: 1; } .splitpane > .composer-splitter { grid-column: 2; } .splitpane > .split-right { grid-column: 3; }
 .splitpane.right-max { grid-template-columns: 0 14px minmax(0, 1fr); } .splitpane.right-max > .split-left { display: none; }
 .splitpane.left-max { grid-template-columns: minmax(0, 1fr) 14px 0; } .splitpane.left-max > .split-right { display: none; }
 .composer-splitter { position: sticky; top: .5rem; height: calc(100vh - 1rem); cursor: col-resize; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem; touch-action: none; }
@@ -81,7 +83,7 @@ legend { font-weight: 600; padding: 0 .4rem; } legend .muted { font-weight: 400;
 .check-error { border-color: #c62828; background: #fdecea; } .check-warn { border-color: #f9a825; background: #fff8e1; } .check-ok { border-color: #2e7d32; background: #edf7ee; }
 .actions { display: flex; gap: .6rem; flex-wrap: wrap; } .delete-form { grid-column: 1 / -1; }
 .notice { padding: .5rem .8rem; background: #fff3cd; border-radius: 6px; }
-@media (max-width: 900px) { .splitpane, .splitpane.right-max, .splitpane.left-max { grid-template-columns: 1fr; } .composer-splitter { display: none; } .splitpane.right-max > .split-left { display: block; } .splitpane.left-max > .split-right { display: flex; } .composer-preview { position: static; height: 80vh; } }
+@media (max-width: 900px) { .splitpane, .splitpane.right-max, .splitpane.left-max { grid-template-columns: 1fr; } .splitpane > .split-left, .splitpane > .split-right { grid-column: 1; } .composer-splitter { display: none; } .splitpane.right-max > .split-left { display: block; } .splitpane.left-max > .split-right { display: flex; } .composer-preview { position: static; height: 80vh; } }
 .building { opacity: .6; pointer-events: none; }
 .patient-search { position: relative; margin-bottom: .6rem; }
 .results { list-style: none; margin: .2rem 0 0; padding: 0; border: 1px solid var(--border-color); border-radius: 6px; background: #fff; max-height: 14rem; overflow: auto; }
