@@ -94,8 +94,37 @@ function page_type_preview_post($params) {
     if (!is_array($type)) $send(['ok' => false, 'errors' => $errors]);
     $gender = ($_POST['gender'] ?? 'M') === 'F' ? 'F' : 'M';
     $inputs = types_sample_inputs($type, $gender);
+    // preview with case rules (plan §6.2): the sample with these rules applied in order; in print mode what they turn off
+    // stays visible, marked, and what they turn on or add is marked too
+    $features = array_values(array_filter((array)($_POST['features'] ?? []), fn($f) => is_string($f) && isset($type['features'][$f])));
+    $marks = null;
     try {
-        if (($_POST['mode'] ?? 'form') === 'print') {
+        if ($features && ($_POST['mode'] ?? 'form') === 'print') {
+            $rel = base_release_current();
+            $labels = $rel ? render_html_kit_labels((int)$rel['id'], $type['lang'] ?? 'gr') : [];
+            $with = $inputs; foreach ($features as $f) $with = render_feature_add($type, $with, $f);
+            $srcs = function (string $html) { preg_match_all('/data-src="((?:block|extra):[^"]+)"/', $html, $m); return array_unique($m[1]); };
+            [$h0] = render_html_document($type, $inputs, $labels);
+            [$h1, $issues] = render_html_document($type, $with, $labels);
+            $before = $srcs($h0); $after = $srcs($h1);
+            $del = array_values(array_diff($before, $after)); $ins = array_values(array_diff($after, $before));
+            // show what was turned off next to what is on: those blocks on again (outside choice groups), then marked
+            // (a block of a choice group comes back as the group's choice when the rules left the group without one)
+            $groupOf = [];
+            foreach (render_expand_sections($type) as $sec) foreach (($sec['blocks'] ?? []) as $b) if (isset($b['group'])) $groupOf[$b['id']] = $b['group'];
+            $union = $with;
+            foreach ($del as $d) {
+                if (!str_starts_with($d, 'block:')) continue;
+                $id = substr($d, 6);
+                if (!isset($groupOf[$id])) $union['blocks'][$id]['on'] = true;
+                elseif (($union['groups'][$groupOf[$id]] ?? null) === '') $union['groups'][$groupOf[$id]] = $id;
+            }
+            [$html] = render_html_document($type, $union, $labels);
+            $set = [];
+            foreach ($features as $f) foreach (($type['features'][$f]['ops'] ?? []) as $op) if (($op['op'] ?? '') === 'set') $set[] = 'field:' . $op['field'];
+            $marks = ['del' => $del, 'ins' => $ins, 'set' => array_values(array_unique($set))];
+            $checks = render_checks($type, $with, $issues);
+        } elseif (($_POST['mode'] ?? 'form') === 'print') {
             $rel = base_release_current();
             [$html, $issues] = render_html_document($type, $inputs, $rel ? render_html_kit_labels((int)$rel['id'], $type['lang'] ?? 'gr') : []);
             $checks = render_checks($type, $inputs, $issues);
@@ -107,7 +136,7 @@ function page_type_preview_post($params) {
         $send(['ok' => false, 'errors' => array_merge($errors, ['Cannot be shown: ' . $e->getMessage()])]);
     }
     $send(['ok' => true, 'errors' => $errors, 'checks' => array_values(array_filter($checks, fn($c) => $c['level'] !== 'ok')), 'html' => $html,
-           'lints' => types_lint($type)]);
+           'lints' => types_lint($type), 'marks' => $marks]);
 }
 
 /**

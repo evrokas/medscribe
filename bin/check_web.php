@@ -171,6 +171,13 @@ $r = $dc->post('/types/typedef/adeia/preview', ['text' => $adeia, 'mode' => 'pri
 check('type preview: CSRF is enforced', !(json_decode($r['body'], true)['ok'] ?? false));
 check('type preview: nothing was saved', (int)$db->query("SELECT COUNT(*) FROM source_versions v JOIN sources s ON s.id=v.source_id WHERE s.name='typedef/adeia'")->fetchColumn() === 1);
 
+// ---- preview with a case rule (plan §6.2): what it turns off stays visible, marked; what it turns on is marked
+$pq = store_get($db->query("SELECT v.sha256 FROM sources s JOIN source_versions v ON v.source_id=s.id WHERE s.name='typedef/proegkrisi' AND v.status='released' ORDER BY v.version DESC LIMIT 1")->fetchColumn());
+$pr = json_decode($dc->post('/types/typedef/proegkrisi/preview', ['csrf_token' => $dc->token('/types/typedef/proegkrisi'), 'text' => $pq, 'mode' => 'print', 'features' => [array_key_first(json_decode($pq, true)['features'] ?? ['x' => 1])]])['body'], true);
+$prDel = $pr['marks']['del'] ?? []; $prIns = $pr['marks']['ins'] ?? [];
+check('preview with a case rule: turned-off and turned-on sentences, both shown', !empty($pr['ok']) && $prDel && $prIns
+    && !array_filter(array_merge($prDel, $prIns), fn($x) => !str_contains($pr['html'], 'data-src="' . $x . '"')), json_encode($pr['marks'] ?? null));
+
 // ---- the type editor's test PDF (plan §6.4): one build at a time per user, served to that user only, one kept
 $typePdfs = fn() => (int)$db->query("SELECT COUNT(*) FROM builds WHERE purpose = 'type-preview' AND cuser = 'wt_doctor'")->fetchColumn();
 store_mkdir(dirname(__DIR__) . '/web/files/jobs');

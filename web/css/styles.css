@@ -174,3 +174,6 @@ fieldset.section.collapsed { padding-bottom: .2rem; }
 .pv-approx { margin: .4rem .2rem; font-size: .75rem; }
 .pv-pdf-bar { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; padding: .4rem 0 .6rem; } .pv-pdf-note { font-size: .82rem; }
 .pv-pdf-frame { width: 100%; height: calc(100vh - 12rem); min-height: 480px; border: 1px solid var(--border-color); background: #fff; }
+.pv-paper .pv-del { text-decoration: line-through; text-decoration-color: #c62828; color: #9b2c2c; background: #fdecea; }
+.pv-paper .pv-ins { background: #ddf5ea; color: #0e6640; }
+.pv-legend { margin: .2rem 0 .5rem; font-size: .8rem; } .pv-legend .pv-del { text-decoration: line-through; color: #9b2c2c; background: #fdecea; padding: 0 .3rem; } .pv-legend .pv-ins { background: #ddf5ea; color: #0e6640; padding: 0 .3rem; }

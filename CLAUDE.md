@@ -513,3 +513,5 @@ supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `w
   source"; lints in `types_lint()` (`web/type_diff.php`); a **PDF** tab: `POST /types/typedef/{name}/pdf` compiles the
   unsaved text with the sample values (purpose `type-preview`, one build kept per user, a per-user lock, 409 while one
   runs), `GET …/pdf?b=ID` serves it to its user.
+- **Case rules tab (phase 6):** `web/js/type_rules.js`; the preview takes `features[]` and returns `marks` (del/ins/set
+  sources) so the panel strikes or greens what a rule changes.

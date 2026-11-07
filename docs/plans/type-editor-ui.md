@@ -1,6 +1,6 @@
 # Type editor UI redesign: plan
 
-**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 5, 9. See the "Progress" notes at the end of §7.
+**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 5, 6, 9. See the "Progress" notes at the end of §7.
 **Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step,
 plus the preview QR placeholder (§6.7), which also changes the composer's preview.
 **Mockups:** canvas https://claude.ai/artifact/DvTosfM1j78w77o9FtvS6i (private to the owner). The same
@@ -399,6 +399,16 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
     `flock` refuses a second build while one runs (409). Built on request (not after every edit), marked stale when the
     text or gender changes. Measured: ~11–12.6 s, 2 passes. `check_web.php` covers 409, serving, another user refused,
     one kept, invalid text refused before building.
+- **Phase 6 done (2026-11-07):** `web/js/type_rules.js` (Case rules tab): rules with chip label and id, their operations
+  as sentences ("Turns off «…» (section › topic)", the choice-group effect as in `render_feature_add()`, "Sets the field
+  <chip> to [value]", "Adds text to <section>: [text]"), reorder/remove, missing targets in red, a searchable sentence
+  picker, field and section pickers. "Preview with this rule" (§6.2): `page_type_preview_post` takes `features[]`,
+  renders the sample without and with the rules, and shows the with-rules page in which what they turned off is put back
+  (a block of a choice group as the group's choice when the rules cleared it) and marked: struck through red, turned
+  on/added/set green. Leaving the tab turns the rule preview off (a view's `hide()`). Checked: `proegkrisi`'s RF rule
+  shows 7 sentences; with the rule 2 visible sentences are struck (the 2 others it turns off are not on by default, so
+  "strikes 4" in §8 is not reachable with the sample) and 3 are added; `odigies-auxeniki`'s Διαρροή ΕΝΥ shows its 25
+  operations. `check_web.php` covers the marks.
 
 ## 8. Acceptance checklist (manual, on the server)
 

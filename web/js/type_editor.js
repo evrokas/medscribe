@@ -116,6 +116,7 @@
         alert('The JSON has an error, fix it first: ' + err);
       }
     }
+    if (ed.tab && ed.tab !== name && ed.views[ed.tab] && ed.views[ed.tab].hide) ed.views[ed.tab].hide();
     ed.tab = name;
     Object.keys(ed.panels).forEach(function (k) { ed.panels[k].hidden = k !== name; ed.buttons[k].classList.toggle('on', k === name); ed.buttons[k].setAttribute('aria-selected', k === name ? 'true' : 'false'); });
     if (name === 'json') T.refresh();

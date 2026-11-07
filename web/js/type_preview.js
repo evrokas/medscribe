@@ -9,7 +9,12 @@
   var ta = document.querySelector('.type-edit textarea[name=text]'), form = ta.form;
   var body = panel.querySelector('.pv-body'), msgs = panel.querySelector('.pv-msgs'), status = panel.querySelector('.pv-status');
   var gender = panel.querySelector('.pv-gender'), KEY = 'medscribe.typeedit.preview';
-  var mode = 'print', timer = null, seq = 0, pending = null;
+  var mode = 'print', timer = null, seq = 0, pending = null, features = [];
+  // the Case rules tab asks for a preview with its rule applied (an empty list = without)
+  window.addEventListener('ms-preview-features', function (e) {
+    features = (e.detail || []).slice();
+    if (features.length && mode !== 'print') setMode('print'); else refresh();
+  });
   try { mode = localStorage.getItem(KEY) || 'print'; } catch (e) {}
   function el(tag, cls, text) { var x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; }
   // one message; "Go to source" when the issue knows where it was found (plan §6.1)
@@ -39,6 +44,16 @@
     body.innerHTML = mode === 'form' ? '<fieldset disabled class="form-preview">' + r.html + '</fieldset>'
       : '<div class="pv-paper">' + r.html + '</div><p class="pv-approx muted">HTML approximation: no letterhead, QR code or page breaks.' + (pdfBtn ? ' The PDF tab is the reference.' : '') + '</p>';
     body.appendChild(target); place(null);
+    if (r.marks) {   // a preview with case rules: what they turn off is struck through, what they turn on, add or set is green
+      var m = r.marks;
+      (m.del || []).forEach(function (x) { body.querySelectorAll('[data-src="' + cssq(x) + '"]').forEach(function (e) { e.classList.add('pv-del'); }); });
+      (m.ins || []).concat(m.set || []).forEach(function (x) { body.querySelectorAll('[data-src="' + cssq(x) + '"]').forEach(function (e) { e.classList.add('pv-ins'); }); });
+      var lg = el('div', 'pv-legend', 'With the case rule' + (features.length > 1 ? 's' : '') + ': ');
+      lg.appendChild(el('span', 'pv-del', 'turned off')); lg.appendChild(document.createTextNode(' · '));
+      lg.appendChild(el('span', 'pv-ins', 'turned on, added or set'));
+      if (!(m.del || []).length && !(m.ins || []).length && !(m.set || []).length) lg.appendChild(document.createTextNode(' · no visible change with the sample values'));
+      body.insertBefore(lg, body.firstChild);
+    }
     if (pending) { var p = pending; pending = null; highlight(p); }
   }
   function refresh() {
@@ -46,6 +61,7 @@
     if (mode === 'pdf') { pdfView(); return; }
     var my = ++seq, fd = new FormData(form);
     fd.set('text', ta.value); fd.set('mode', mode); fd.set('gender', gender.value);
+    features.forEach(function (f) { fd.append('features[]', f); });
     status.textContent = '…';
     fetch(panel.dataset.url, {method: 'POST', body: fd, credentials: 'same-origin'})
       .then(function (r) { return r.json(); })

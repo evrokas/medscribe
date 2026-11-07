@@ -222,3 +222,23 @@
 .te .te-vers li.on { background: var(--te-accent-soft); }
 .te a.te-btn { text-decoration: none; }
 .te .te-check-note { color: #6B7891; }
+
+/* the Case rules tab */
+.te .te-rule { grid-template-columns: auto minmax(0, 1fr); }
+.te .te-rule > .te-meta { grid-column: 2; }
+.te .te-ops { margin: 0 0 .6rem; padding-left: 1.4rem; display: flex; flex-direction: column; gap: .35rem; }
+.te .te-op { position: relative; padding: .4rem 6rem .4rem .5rem; border-radius: 8px; background: var(--te-bg); }
+.te .te-op > .te-tools { position: absolute; right: .3rem; top: .3rem; }
+.te .te-op-missing { background: #FDE8E8; }
+.te .te-opline { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem; font-size: .92rem; }
+.te .te-opline textarea { flex-basis: 100%; margin-top: .3rem; }
+.te .te-optext { font-family: 'IBM Plex Serif', Georgia, serif; }
+.te .te-opline .te-hint { flex-basis: 100%; font-size: .78rem; color: #6B7891; }
+.te .te-opval { width: auto; flex: 1 1 10rem; }
+.te .te-missing { color: var(--te-bad); font-weight: 600; }
+.te .te-opadd { flex-wrap: wrap; }
+.te .te-picker { width: min(52rem, 94vw); }
+.te .te-pick-list { max-height: 55vh; overflow: auto; margin: .6rem 0; display: flex; flex-direction: column; gap: 2px; }
+.te .te-pick-head { margin: .6rem 0 .2rem; font-weight: 700; font-size: .82rem; color: #1A3E7A; }
+.te .te-btn.te-pick { justify-content: flex-start; min-height: 1.8rem; padding: .25rem .6rem; border-color: transparent; text-align: left; font: .9rem/1.4 'IBM Plex Serif', Georgia, serif; white-space: normal; }
+.te .te-btn.te-pick:hover { background: var(--te-accent-soft); }
