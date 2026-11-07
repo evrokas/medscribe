@@ -1,7 +1,8 @@
 # Type editor UI redesign: plan
 
 **Status:** plan, nothing built yet (2026-11-07).
-**Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step.
+**Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step,
+plus the preview QR placeholder (§6.7), which also changes the composer's preview.
 **Mockups:** canvas https://claude.ai/artifact/DvTosfM1j78w77o9FtvS6i (private to the owner). The same
 screens are committed as source under `docs/plans/type-editor-ui/mockups/*.dc.html`. They are plain HTML
 and inline CSS inside a `<x-dc>` wrapper; read them for layout, colours and wording, don't serve them.
@@ -31,6 +32,10 @@ presented, plus the few backend additions listed in §6.
    choice group and preview source. A *topic* (layout `topics`) holds blocks. The proposal from the
    design zip (`medscribe-ui-redesign.zip`) treated a topic as one multi-sentence "instruction"; that is
    wrong for this data and must not be built.
+6. **Previews show a rectangle with a note where the QR code goes; only the final review copy gets the
+   real QR** (decided 2026-11-07). Applies to every draft preview (composer preview, the type editor's
+   PDF tab). The final PDF the doctor approves (`issue.php`, step `final_compiled`) keeps the real QR,
+   built exactly as today. Reason: computing the QR in TeX is the main cost of a ~12 s preview. See §6.7.
 
 ## 2. Invariants (must still hold after every phase)
 
@@ -252,10 +257,10 @@ New GET page `/types/{kind}/{name}/review?v=N` (doctor):
    note "Update <name> to vN" (+ the doctor's note).
 4. **Test PDF from the editor** (PDF tab and "Test PDF" button). Compile the unsaved text with the
    sample inputs through the existing path (`render_document` → `compile_job` in the sandbox, with
-   `\DocDraft` set and the placeholder QR, as the composer preview does), purpose `type-preview`, not
+   `\DocDraft` set and the QR placeholder of §6.7, as the composer preview does), purpose `type-preview`, not
    tied to a document. Keep only the latest such build per type and user, and clean its store objects
    like `issue_gc_object()` does. Serialise per type with a short lock so double clicks don't run two
-   XeLaTeX jobs. Expect ~12 s; show progress.
+   XeLaTeX jobs. Show progress; time it before and after §6.7.
 5. **Structural diff.** `types_struct_diff(array $a, array $b): array` in a new `web/type_diff.php`:
    match sections/topics/blocks/fields/features by id; report added/removed/moved/changed with paths
    and names (§3 naming rule, in PHP). Pure function, unit-tested in `tests/static/type_diff_test.php`
@@ -265,6 +270,33 @@ New GET page `/types/{kind}/{name}/review?v=N` (doctor):
    used; `datefmt` on a block without a date token; feature op with a missing target; section with
    neither heading nor label. Computed in PHP (`types_lint()`), shown in the issues bar and on the
    review page.
+7. **QR placeholder in previews (decision 6).** Today a preview (`render_document(..., ['preview' => true])`)
+   sets `\DocCode{PREVIEW}`, so the kit still computes a real QR code (of the word PREVIEW) with the
+   pure-TeX `qrcode` package, level H, on every XeLaTeX pass, in the header and again at the end of A4
+   documents.
+   - **Change:** in preview mode only, `render_document()` also emits, before `\input{evrtemplate}`, an
+     `\AtBeginDocument{...}` that replaces `\qrcode` with a framed rectangle of the same size
+     (`\evrQRmm` square) holding a short note in the document's language, e.g. «QR στην τελική έκδοση» /
+     "QR in final copy" (wording to the doctor; it must fit a 14–20 mm square in 5–6 pt). The
+     rectangle replaces both QR positions. The header layout must not move: same box size, same anchor.
+   - **No kit change needed** if the override works; it relies on two kit names, `\qrcode` (package)
+     and `\evrQRmm` (kit). Write that coupling in a comment and in a test. If the override proves
+     fragile, the alternative is a kit switch (`\providecommand\DocQR{real|placeholder}` in
+     `evrtemplate.tex`), which is a change to the kit in `~/devel/docs` (evrdocs) and needs the doctor's
+     approval, like `\DocDraft` before it.
+   - **Final copy unchanged:** the final compile (`issue.php`, `render_document()` without `preview`)
+     uses the real `\DocCode` and the real `qrcode` drawing, so its PDF stays byte-identical to the kit
+     build and `bin/check_m1.php` is unaffected. A rebuild (`compile_from_manifest()`) of a final PDF
+     must give the same bytes as before (G5).
+   - **Guards:** a unit test in `tests/static/render_test.php`: preview tex contains the placeholder and
+     final tex contains neither the placeholder nor `PREVIEW`. In the issue flow, refuse to send a PDF to
+     DocArc whose `.tex` contains the placeholder (belt and braces). Check that the two-up print
+     (`web/print.php`) uses the final PDF of an issued document, never a preview.
+   - **Measure** (on the server, before and after): XeLaTeX time per pass and number of passes for one
+     A4 and one A5 document, with the real QR and with the placeholder. Record the numbers in
+     `CLAUDE.md`. Two further speed-ups are **not decided** and stay out unless the numbers call for
+     them: reusing the previous preview's `.aux` (often 1 pass instead of 2), and making sure the
+     sandbox sees the fontconfig cache (otherwise fonts are re-scanned on every run).
 
 ## 7. Phases
 
@@ -276,6 +308,7 @@ Playwright if available) on `odigies-kyfoplastiki`, `proegkrisi`, `adeia`, `synt
 | Phase | Content | Exit check |
 |---|---|---|
 | 0 | Read the code paths in §2; run the full test suite and note the baseline; record timing of a preview and a PDF build. | Baseline written in the phase commit message. |
+| 0b | QR placeholder in previews (§6.7) with its tests and the before/after timing. Independent of the editor work; can ship first. | Composer preview shows the rectangle; final PDF and `check_m1.php` unchanged; render test guards pass. |
 | 1 | Shell inside the top bar: header, status pill, unsaved marker, Save dialog (§5.1), tab bar, JSON tab = today's editor unchanged. New CSS file `web/css/type-editor.css` (scoped `.te-*`). | Every current action works from the new shell; tree test passes. |
 | 2 | Structure tab (§4.1) incl. naming rule and Document settings. | Reorder/add/duplicate/delete equal to the tree; round-trip test. |
 | 3 | Chip text editor module (§4.3) with its round-trip test, then the Content tab (§4.2) incl. choice groups and latex blocks. | Byte-identical round trip of every block text; G3 regression unchanged (`bin/check_m1.php`). |
@@ -305,6 +338,9 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
 - Review page for a draft with one added block: the change list shows exactly that block; release
   needs the checkbox; after release, new documents use it and old documents keep their version.
 - PDF tab produces the same PDF bytes as the composer would for the same inputs (except draft marks).
+- Composer preview and PDF tab show the QR rectangle with its note at the header and (A4) at the end;
+  the header does not shift compared with the final copy.
+- The final review copy of a test document has a real QR that scans to `\QRBaseURL` + its DocArc code.
 
 ## 9. Findings in the current data (content is the doctor's to change; the editor may point them out)
 
