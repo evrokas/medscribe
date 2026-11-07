@@ -6,46 +6,46 @@
   "paper": "a4",
   "imported": "kit tpl-praktiko.tex",
   "fields": {
-    "f1": {
+    "surgery_date": {
       "type": "date",
       "label": "Ημερομηνία επέμβασης"
     },
-    "f2": {
+    "surgeon": {
       "type": "text",
       "label": "Χειρουργός",
       "default": "Ευάγγελος Μ. Ρόκας"
     },
-    "f3": {
+    "assistant": {
       "type": "text",
       "label": "Βοηθός χειρουργού",
       "placeholder": "ονοματεπώνυμο"
     },
-    "f4": {
+    "anesthetist": {
       "type": "text",
       "label": "Αναισθησιολόγος",
       "placeholder": "ονοματεπώνυμο"
     },
-    "f5": {
+    "anesthesia": {
       "type": "text",
       "label": "Αναισθησία",
       "default": "Γενική αναισθησία"
     },
-    "f6": {
+    "duration": {
       "type": "text",
       "label": "Διάρκεια",
       "placeholder": "Χ ώρες"
     },
-    "f7": {
+    "preop_diagnosis": {
       "type": "text",
       "label": "Προεγχειρητική διάγνωση",
       "placeholder": "διάγνωση"
     },
-    "f8": {
+    "postop_diagnosis": {
       "type": "text",
       "label": "Μετεγχειρητική διάγνωση",
       "default": "Ίδια"
     },
-    "f9": {
+    "procedure": {
       "type": "text",
       "label": "Επέμβαση",
       "placeholder": "επέμβαση, π.χ. υπό νευροπλοήγηση και διεγχειρητικό νευροφυσιολογικό έλεγχο"
@@ -59,63 +59,63 @@
       "blocks": [
         {
           "id": "s1_b1",
-          "text": "@f1",
+          "text": "@surgery_date",
           "default": true,
           "label": "Ημερομηνία",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b2",
-          "text": "@f2",
+          "text": "@surgeon",
           "default": true,
           "label": "Χειρουργός",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b3",
-          "text": "@f3",
+          "text": "@assistant",
           "default": true,
           "label": "Βοηθός χειρουργού",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b4",
-          "text": "@f4",
+          "text": "@anesthetist",
           "default": true,
           "label": "Αναισθησιολόγος",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b5",
-          "text": "@f5",
+          "text": "@anesthesia",
           "default": true,
           "label": "Αναισθησία",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b6",
-          "text": "@f6",
+          "text": "@duration",
           "default": true,
           "label": "Διάρκεια",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b7",
-          "text": "@f7",
+          "text": "@preop_diagnosis",
           "default": true,
           "label": "Προεγχ.\\ διάγνωση",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b8",
-          "text": "@f8",
+          "text": "@postop_diagnosis",
           "default": true,
           "label": "Μετεγχ.\\ διάγνωση",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b9",
-          "text": "@f9",
+          "text": "@procedure",
           "default": true,
           "label": "Επέμβαση",
           "datefmt": "d-m-Y"

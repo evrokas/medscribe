@@ -28,7 +28,7 @@ ok(c === 3, 'rename: count of uses (' + c + ')');
 {
   const text = fs.readFileSync(path.join(dir, 'odigies-auxeniki.json'), 'utf8'), r = tt.parse(text);
   const at = src => { const l = tt.locate(r, src); return l ? l.path.join('/') : null; };
-  ok(at('field:f1') === 'fields/f1', 'locate a field');
+  ok(at('field:diagnosis') === 'fields/diagnosis', 'locate a field');
   ok(at('block:s1_b2') === 'sections/0/blocks/1', 'locate a block');
   ok(/^sections\/2\/topics\/0\/blocks\/\d+$/.test(at('block:s3_b3') || ''), 'locate a block in a topic (' + at('block:s3_b3') + ')');
   ok(at('section:s3') === 'sections/2' && at('topic:s3_t1') === 'sections/2/topics/0', 'locate a section and a topic');

@@ -9,46 +9,46 @@
     "drug-library": "latest"
   },
   "fields": {
-    "f1": {
+    "diagnosis": {
       "type": "text",
       "label": "Διάγνωση",
       "placeholder": "διάγνωση"
     },
-    "f2": {
+    "procedure": {
       "type": "text",
       "label": "Επέμβαση",
       "placeholder": "επέμβαση, π.χ. διαδερμική τρηματεκτομή Ο3/Ο4 δεξιά"
     },
-    "f3": {
+    "surgery_date": {
       "type": "date",
       "label": "Ημ. χειρουργείου"
     },
-    "f4": {
+    "prior_surgery": {
       "type": "text",
       "label": "Προηγηθείσα επέμβαση",
       "placeholder": "προηγούμενη επέμβαση"
     },
-    "f5": {
+    "comorbidities": {
       "type": "text",
       "label": "Συνοδές παθήσεις",
       "placeholder": "συνοδές παθήσεις"
     },
-    "f6": {
+    "anticoagulant": {
       "type": "text",
       "label": "Αντιπηκτικό",
       "placeholder": "Clexane 4000IU"
     },
-    "f7": {
+    "anticoagulant_days": {
       "type": "text",
       "label": "Ημέρες αντιπηκτικού",
       "placeholder": "10"
     },
-    "f8": {
+    "keep_meds": {
       "type": "text",
       "label": "Φάρμακα που δεν διακόπτονται",
       "placeholder": "Tegretol / Lyrica / Keppra"
     },
-    "f9": {
+    "alert_drug": {
       "type": "text",
       "label": "Φάρμακο προς ενημέρωση ιατρών",
       "placeholder": "φάρμακο"
@@ -62,28 +62,28 @@
       "blocks": [
         {
           "id": "s1_b1",
-          "text": "@f1",
+          "text": "@diagnosis",
           "default": true,
           "label": "Διάγνωση",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b2",
-          "text": "(@f3) @f2",
+          "text": "(@surgery_date) @procedure",
           "default": true,
           "label": "Χειρουργείο",
           "datefmt": "d/m/Y"
         },
         {
           "id": "s1_b3",
-          "text": "@f4",
+          "text": "@prior_surgery",
           "default": false,
           "label": "Προηγηθέν",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b4",
-          "text": "@f5",
+          "text": "@comorbidities",
           "default": false,
           "label": "Συνοδά",
           "datefmt": "d-m-Y"
@@ -500,7 +500,7 @@
           "blocks": [
             {
               "id": "s5_t2_b1",
-              "text": "Κάθε ημέρα @f6 υποδορίως, για @f7 ημέρες, την ίδια ώρα.",
+              "text": "Κάθε ημέρα @anticoagulant υποδορίως, για @anticoagulant_days ημέρες, την ίδια ώρα.",
               "default": true
             },
             {
@@ -801,13 +801,13 @@
         },
         {
           "id": "s11_b2",
-          "text": "**Σημείωση:** Μην διακόψετε και μην μειώσετε {μόνος|μόνη} σας τα @f8. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.",
+          "text": "**Σημείωση:** Μην διακόψετε και μην μειώσετε {μόνος|μόνη} σας τα @keep_meds. Οι δόσεις θα μειωθούν σταδιακά κατόπιν ιατρικής οδηγίας.",
           "default": false,
           "inline": true
         },
         {
           "id": "s11_b3",
-          "text": "**Σημείωση:** Ενημερώστε κάθε ιατρό και φαρμακοποιό ότι λαμβάνετε @f9, πριν από τη χορήγηση οποιουδήποτε νέου φαρμάκου.",
+          "text": "**Σημείωση:** Ενημερώστε κάθε ιατρό και φαρμακοποιό ότι λαμβάνετε @alert_drug, πριν από τη χορήγηση οποιουδήποτε νέου φαρμάκου.",
           "default": false,
           "inline": true
         },

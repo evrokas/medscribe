@@ -454,6 +454,10 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   style, shared pins back to `"latest"`; a file holding edits the store does not have is held unless `--force`), then review
   `git diff types/` and commit. `bin/check_types_sync.php` (in the test runner) tests the export and warns when files and
   store differ; the mapping is in `bin/lib/types_sync.php`.
+- **Field renames in bulk:** `php bin/rename_fields.php <renames.json> [--dry-run] [type…]` (the tree editor's rename rules: whole
+  unescaped `@tokens`, feature operations; two old ids with one new id are merged; every type is checked before anything is
+  written). The generic `f1`, `f2`, … ids of the imported types were renamed with `tools/field_renames.json` (2026-11-07; the
+  kranio discharge dates merged), released as one new version per type.
 - **Engine additions from the review:** `has_patient: "optional"` (name not required), a section `placeholder` (grey hint in
   its free-text box; a section with no blocks is a free-text box) and `label` (composer name of a heading-less section),
   `intro` on `medtable`, `datefmt: "long"` (20 Φεβρουαρίου 2026), `item: true` blocks in a paragraph topic (a bullet list under

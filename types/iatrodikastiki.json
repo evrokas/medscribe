@@ -9,37 +9,37 @@
     "purpose": "latest"
   },
   "fields": {
-    "f1": {
+    "incident_date": {
       "type": "date",
       "label": "Ημ. συμβάντος",
       "placeholder": "DD-MM-YYYY"
     },
-    "f2": {
+    "exam_date": {
       "type": "date",
       "label": "Ημ. εξέτασης",
       "placeholder": "DD-MM-YYYY"
     },
-    "f5": {
+    "requested_by": {
       "type": "text",
       "label": "Κατόπιν αιτήματος",
       "placeholder": "της ασφαλιστικής εταιρείας … / του πληρεξούσιου δικηγόρου …"
     },
-    "f6": {
+    "incident": {
       "type": "text",
       "label": "Συμβάν",
       "placeholder": "ατύχημα / κάκωση"
     },
-    "f16": {
+    "reported_incident": {
       "type": "text",
       "label": "Αναφερόμενο συμβάν",
       "placeholder": "ξυλοδαρμό / πτώση / τροχαίο"
     },
-    "f14": {
+    "rest_days": {
       "type": "number",
       "label": "Ημέρες ανάπαυσης",
       "placeholder": "2"
     },
-    "f15": {
+    "no_strain_days": {
       "type": "number",
       "label": "Ημέρες αποφυγής κόπωσης",
       "placeholder": "5"
@@ -53,14 +53,14 @@
       "blocks": [
         {
           "id": "s1_b1",
-          "text": "@f1",
+          "text": "@incident_date",
           "default": true,
           "label": "Ημ. συμβάντος",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b2",
-          "text": "@f2",
+          "text": "@exam_date",
           "default": true,
           "label": "Ημ. εξέτασης",
           "datefmt": "d-m-Y"
@@ -75,14 +75,14 @@
         {
           "id": "s2_b1",
           "group": "opening",
-          "text": "Εξέτασα {τον κύριο|την κυρία} @patient\\ στις @f2, μετά από αίτημα @f5, σχετικά με @f6 στις @f1.",
+          "text": "Εξέτασα {τον κύριο|την κυρία} @patient\\ στις @exam_date, μετά από αίτημα @requested_by, σχετικά με @incident στις @incident_date.",
           "default": true,
           "datefmt": "d/m/Y"
         },
         {
           "id": "s2_b2",
           "group": "opening",
-          "text": "{Ο|Η} ασθενής εξετάσθηκε σήμερα μετά από αναφερόμενο @f16.",
+          "text": "{Ο|Η} ασθενής εξετάσθηκε σήμερα μετά από αναφερόμενο @reported_incident.",
           "default": false
         }
       ]
@@ -134,7 +134,7 @@
       "blocks": [
         {
           "id": "s7_b2",
-          "text": "Συνιστάται ανάπαυση επί @f14 ημερών και αποφυγή σωματικής και πνευματικής κόπωσης για @f15 ημέρες. Επί επιμονής των συμπτωμάτων επιβάλλεται έλεγχος με μαγνητική τομογραφία εγκεφάλου και επανεξέταση.",
+          "text": "Συνιστάται ανάπαυση επί @rest_days ημερών και αποφυγή σωματικής και πνευματικής κόπωσης για @no_strain_days ημέρες. Επί επιμονής των συμπτωμάτων επιβάλλεται έλεγχος με μαγνητική τομογραφία εγκεφάλου και επανεξέταση.",
           "default": false
         }
       ]

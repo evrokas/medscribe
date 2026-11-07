@@ -9,44 +9,44 @@
     "drug-library": "latest"
   },
   "fields": {
-    "f1": {
+    "admission_date": {
       "type": "date",
       "label": "Ημ. εισαγωγής"
     },
-    "f2": {
+    "discharge_date": {
       "type": "date",
       "label": "Ημ. εξιτηρίου"
     },
-    "f3": {
+    "surgery_date": {
       "type": "date",
       "label": "Ημ. χειρουργείου"
     },
-    "f6": {
+    "symptoms": {
       "type": "text",
       "label": "Λόγος (συμπτώματα)",
       "placeholder": "συμπτώματα"
     },
-    "f7": {
+    "medical_history": {
       "type": "text",
       "label": "Ατομικό αναμνηστικό",
       "placeholder": "παθήσεις, αντιπηκτική αγωγή, βηματοδότης, αλλεργίες"
     },
-    "f8": {
+    "admission_picture": {
       "type": "text",
       "label": "Κλινική εικόνα κατά την εισαγωγή",
       "placeholder": "GCS 15, νευρολογική εξέταση"
     },
-    "f9": {
+    "imaging": {
       "type": "text",
       "label": "Απεικόνιση",
       "placeholder": "CT / MRI"
     },
-    "f10": {
+    "findings": {
       "type": "text",
       "label": "Ευρήματα απεικόνισης",
       "placeholder": "ευρήματα"
     },
-    "f14": {
+    "transfer_hospital": {
       "type": "text",
       "label": "Νοσοκομείο μεταφοράς",
       "placeholder": "νοσοκομείο"
@@ -60,21 +60,21 @@
       "blocks": [
         {
           "id": "s1_b1",
-          "text": "@f1",
+          "text": "@admission_date",
           "default": true,
           "label": "Ημ. Εισαγωγής",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b2",
-          "text": "@f2",
+          "text": "@discharge_date",
           "default": true,
           "label": "Ημ. Εξιτηρίου",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b3",
-          "text": "@f3",
+          "text": "@surgery_date",
           "default": false,
           "label": "Ημ. Χειρουργείου",
           "datefmt": "d-m-Y"
@@ -89,18 +89,18 @@
         {
           "id": "s2_b1",
           "group": "opening",
-          "text": "{Ο|Η} ασθενής διακομίσθηκε στα ΤΕΠ της κλινικής στις @f1 λόγω @f6.",
+          "text": "{Ο|Η} ασθενής διακομίσθηκε στα ΤΕΠ της κλινικής στις @admission_date λόγω @symptoms.",
           "default": true
         },
         {
           "id": "s2_b3",
           "group": "opening",
-          "text": "{Ο|Η} ασθενής εξετάσθηκε για πρώτη φορά στις @f1 λόγω @f6.",
+          "text": "{Ο|Η} ασθενής εξετάσθηκε για πρώτη φορά στις @admission_date λόγω @symptoms.",
           "default": false
         },
         {
           "id": "s2_b2",
-          "text": "Από το ατομικό αναμνηστικό: @f7.",
+          "text": "Από το ατομικό αναμνηστικό: @medical_history.",
           "default": true,
           "inline": true
         }
@@ -114,12 +114,12 @@
       "blocks": [
         {
           "id": "s3_b1",
-          "text": "Κατά την εισαγωγή {ο|η} ασθενής παρουσίαζε @f8.",
+          "text": "Κατά την εισαγωγή {ο|η} ασθενής παρουσίαζε @admission_picture.",
           "default": true
         },
         {
           "id": "s3_b2",
-          "text": "Από τον απεικονιστικό έλεγχο με @f9 διαπιστώθηκε @f10.",
+          "text": "Από τον απεικονιστικό έλεγχο με @imaging διαπιστώθηκε @findings.",
           "default": true,
           "inline": true
         }
@@ -157,7 +157,7 @@
       "blocks": [
         {
           "id": "s6_b2",
-          "text": "{Ο|Η} ασθενής, κατόπιν επιθυμίας των συγγενών, θα μεταφερθεί με ασθενοφόρο σε @f14 για περαιτέρω νοσηλεία.",
+          "text": "{Ο|Η} ασθενής, κατόπιν επιθυμίας των συγγενών, θα μεταφερθεί με ασθενοφόρο σε @transfer_hospital για περαιτέρω νοσηλεία.",
           "default": false
         }
       ]

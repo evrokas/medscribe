@@ -9,21 +9,21 @@
     "drug-library": "latest"
   },
   "fields": {
-    "f1": {
+    "branches": {
       "type": "text",
       "label": "Κλάδοι",
       "placeholder": "2ος και 3ος"
     },
-    "f2": {
+    "disease_duration": {
       "type": "text",
       "label": "Διάρκεια νόσου",
       "placeholder": "18 μηνών"
     },
-    "f3": {
+    "surgery_date": {
       "type": "date",
       "label": "Ημ. χειρουργείου"
     },
-    "f4": {
+    "comorbidities": {
       "type": "text",
       "label": "Συνοδές παθήσεις",
       "placeholder": "συνοδές παθήσεις"
@@ -37,21 +37,21 @@
       "blocks": [
         {
           "id": "s1_b1",
-          "text": "Νευραλγία τριδύμου δεξιά (@f1 κλάδος), διάρκειας @f2.",
+          "text": "Νευραλγία τριδύμου δεξιά (@branches κλάδος), διάρκειας @disease_duration.",
           "default": true,
           "label": "Διάγνωση",
           "datefmt": "d-m-Y"
         },
         {
           "id": "s1_b2",
-          "text": "(@f3) Διαδερμική ριζοτομή του γασσερίου γαγγλίου με ραδιοσυχνότητες (RF) δεξιά -- συνδυασμός **παλμικής (pulsed)** και **θερμικής (thermal)** βλάβης, στους κλάδους {v:V2} και {v:V3}.",
+          "text": "(@surgery_date) Διαδερμική ριζοτομή του γασσερίου γαγγλίου με ραδιοσυχνότητες (RF) δεξιά -- συνδυασμός **παλμικής (pulsed)** και **θερμικής (thermal)** βλάβης, στους κλάδους {v:V2} και {v:V3}.",
           "default": true,
           "label": "Χειρουργείο",
           "datefmt": "d/m/Y"
         },
         {
           "id": "s1_b3",
-          "text": "@f4",
+          "text": "@comorbidities",
           "default": false,
           "label": "Συνοδά",
           "datefmt": "d-m-Y"

@@ -1,0 +1,21 @@
+{
+  "_doc": "Field id renames applied by bin/rename_fields.php (2026-11-07). Two old ids with the same new id are merged into one field (the first one's definition is kept).",
+  "enimerotiko": {"f1": "admission_date", "f2": "discharge_date", "f3": "surgery_date", "f6": "symptoms", "f7": "medical_history",
+                  "f8": "admission_picture", "f9": "imaging", "f10": "findings", "f14": "transfer_hospital"},
+  "epistoli": {"f3": "similar_procedures", "f4": "procedure_code", "f5": "code_category"},
+  "iatrodikastiki": {"f1": "incident_date", "f2": "exam_date", "f5": "requested_by", "f6": "incident", "f16": "reported_incident",
+                     "f14": "rest_days", "f15": "no_strain_days"},
+  "odigies-osfyiki": {"f1": "diagnosis", "f2": "procedure", "f3": "surgery_date", "f4": "prior_surgery", "f5": "comorbidities",
+                      "f6": "bedrest_days", "f7": "return_weeks", "f8": "anticoagulant", "f9": "anticoagulant_days", "f10": "keep_meds", "f11": "alert_drug"},
+  "odigies-kyfoplastiki": {"f1": "diagnosis", "f2": "level", "f3": "surgery_date", "f4": "bedrest_days", "f5": "anticoagulant",
+                           "f6": "anticoagulant_days", "f7": "keep_meds", "f8": "alert_drug"},
+  "odigies-auxeniki": {"f1": "diagnosis", "f2": "procedure", "f3": "surgery_date", "f4": "prior_surgery", "f5": "comorbidities",
+                       "f6": "anticoagulant", "f7": "anticoagulant_days", "f8": "keep_meds", "f9": "alert_drug"},
+  "odigies-kranio": {"f1": "diagnosis", "f2": "procedure", "f3": "surgery_date", "f4": "discharge_date", "f5": "icu_days", "f6": "icu_course",
+                     "f7": "ward_date", "f8": "discharge_date", "f9": "blood_test_days", "f10": "oncology_weeks", "f11": "keep_meds"},
+  "odigies-tridymo": {"f1": "branches", "f2": "disease_duration", "f3": "surgery_date", "f4": "comorbidities"},
+  "praktiko": {"f1": "surgery_date", "f2": "surgeon", "f3": "assistant", "f4": "anesthetist", "f5": "anesthesia", "f6": "duration",
+               "f7": "preop_diagnosis", "f8": "postop_diagnosis", "f9": "procedure"},
+  "synainesi": {"f1": "surgery_date", "f2": "condition", "f3": "condition_detail", "f5": "procedure", "f9": "anesthesia",
+                "f11": "duration_hours", "f14": "conservative_course"}
+}

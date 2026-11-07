@@ -6,37 +6,37 @@
   "paper": "a4",
   "imported": "kit tpl-synainesi.tex",
   "fields": {
-    "f1": {
+    "surgery_date": {
       "type": "date",
       "label": "Ημ. χειρουργείου"
     },
-    "f2": {
+    "condition": {
       "type": "text",
       "label": "Πάθηση",
       "placeholder": "πάθηση"
     },
-    "f3": {
+    "condition_detail": {
       "type": "text",
       "label": "Περιγραφή πάθησης",
       "placeholder": "σύντομη περιγραφή: θέση, φύση"
     },
-    "f5": {
+    "procedure": {
       "type": "text",
       "label": "Επέμβαση",
       "placeholder": "επέμβαση"
     },
-    "f9": {
+    "anesthesia": {
       "type": "text",
       "label": "Αναισθησία",
       "placeholder": "γενική / τοπική",
       "default": "γενική"
     },
-    "f11": {
+    "duration_hours": {
       "type": "text",
       "label": "Διάρκεια (ώρες)",
       "placeholder": "Χ έως Υ"
     },
-    "f14": {
+    "conservative_course": {
       "type": "text",
       "label": "Πορεία με συντηρητική αντιμετώπιση",
       "placeholder": "αναμενόμενη πορεία"
@@ -50,7 +50,7 @@
       "blocks": [
         {
           "id": "s1_b1",
-          "text": "@f1",
+          "text": "@surgery_date",
           "default": false,
           "label": "Ημ. Χειρουργείου",
           "datefmt": "d-m-Y"
@@ -71,7 +71,7 @@
       "blocks": [
         {
           "id": "s2_b1",
-          "text": "Έχετε διαγνωσθεί με @f2, @f3.",
+          "text": "Έχετε διαγνωσθεί με @condition, @condition_detail.",
           "default": true
         }
       ],
@@ -87,13 +87,13 @@
         {
           "id": "s3_b1",
           "group": "procedure",
-          "text": "Η προτεινόμενη χειρουργική πράξη είναι η **@f5**.",
+          "text": "Η προτεινόμενη χειρουργική πράξη είναι η **@procedure**.",
           "default": true
         },
         {
           "id": "s3_b3",
           "group": "procedure",
-          "text": "Η προτεινόμενη χειρουργική πράξη είναι η **@f5**, με χρήση νευροπλοήγησης και νευροφυσιολογικής παρακολούθησης.",
+          "text": "Η προτεινόμενη χειρουργική πράξη είναι η **@procedure**, με χρήση νευροπλοήγησης και νευροφυσιολογικής παρακολούθησης.",
           "default": false
         }
       ],
@@ -116,7 +116,7 @@
       "blocks": [
         {
           "id": "s5_b1",
-          "text": "Η επέμβαση πραγματοποιείται υπό **@f9 αναισθησία**.",
+          "text": "Η επέμβαση πραγματοποιείται υπό **@anesthesia αναισθησία**.",
           "default": true
         }
       ],
@@ -132,7 +132,7 @@
       "blocks": [
         {
           "id": "s5b_b1",
-          "text": "Η διάρκεια της επέμβασης κυμαίνεται συνήθως από **@f11 ώρες**.",
+          "text": "Η διάρκεια της επέμβασης κυμαίνεται συνήθως από **@duration_hours ώρες**.",
           "default": true
         }
       ]
@@ -209,7 +209,7 @@
       "blocks": [
         {
           "id": "s10_b1",
-          "text": "**Συντηρητική αντιμετώπιση**: @f14.",
+          "text": "**Συντηρητική αντιμετώπιση**: @conservative_course.",
           "default": true
         }
       ],
