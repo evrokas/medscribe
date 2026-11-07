@@ -47,7 +47,7 @@ if (!isset($o['tex-only'])) {
 }
 
 if (!isset($o['static-only'])) {
-    foreach (['check_m0', 'check_m1', 'check_m2', 'check_m3', 'check_web'] as $chk) {
+    foreach (['check_m0', 'check_m1', 'check_m2', 'check_m3', 'check_web', 'check_types_sync'] as $chk) {
         passthru('php ' . escapeshellarg("$root/bin/$chk.php"), $c);
         ok("bin/$chk.php", $c === 0);
     }

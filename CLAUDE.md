@@ -449,7 +449,11 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   file in `bin/check_m1.php` (it must build with no issues instead): the type is the reference now. The postop types were
   done with structure-only defaults (the doctor's instruction); their emergency boxes are off until the doctor enables them.
   Workflow: edit `types/<name>.json`, then `php bin/import_types.php --release --note="..." <name>` (one new version, the
-  doctor's note); the JSON files stay the source, so the files and the store never diverge.
+  doctor's note). **Edits made in the web type editor** go to the store only: bring them back with
+  `php bin/export_types.php [--check] [--latest] [--force] [name…]` (latest released version → `types/*.json` in the repo
+  style, shared pins back to `"latest"`; a file holding edits the store does not have is held unless `--force`), then review
+  `git diff types/` and commit. `bin/check_types_sync.php` (in the test runner) tests the export and warns when files and
+  store differ; the mapping is in `bin/lib/types_sync.php`.
 - **Engine additions from the review:** `has_patient: "optional"` (name not required), a section `placeholder` (grey hint in
   its free-text box; a section with no blocks is a free-text box) and `label` (composer name of a heading-less section),
   `intro` on `medtable`, `datefmt: "long"` (20 Φεβρουαρίου 2026), `item: true` blocks in a paragraph topic (a bullet list under
