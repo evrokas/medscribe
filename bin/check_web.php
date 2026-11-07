@@ -193,6 +193,15 @@ $dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/
 check('released: a released version never changes', $wtCount() === 2 && json_decode($wtText(2), true)['title'] === 'V2');
 $db->exec("DELETE FROM source_versions WHERE source_id = " . (int)$wtSrc['id']); $db->exec("DELETE FROM sources WHERE id = " . (int)$wtSrc['id']);
 
+// ---- the archive seeder runs when called from the app root with a relative path (it once did nothing: the boot changes folder)
+$seedTmp = sys_get_temp_dir() . '/ms-seed-' . bin2hex(random_bytes(4)); mkdir($seedTmp);
+file_put_contents("$seedTmp/x.tex", "\\providecommand\\PatientName{Δοκιμή Τεστ}\n\\begin{document}\nΗ θεραπεία συνεχίζεται κανονικά για δύο εβδομάδες.\n\\end{document}\n");
+$seedOut = shell_exec('cd ' . escapeshellarg(dirname(__DIR__)) . ' && php bin/seed_archive.php ' . escapeshellarg(substr($seedTmp, 0)) . ' --dry-run 2>&1');
+check('archive seeder: a dry run reads the letters and reports', str_contains((string)$seedOut, 'would seed 1 new text use(s) from 1 letter(s)'), trim((string)$seedOut));
+$seedBad = shell_exec('cd ' . escapeshellarg(dirname(__DIR__)) . ' && php bin/seed_archive.php no/such/folder --dry-run 2>&1; echo rc=$?');
+check('archive seeder: a missing folder is reported', str_contains((string)$seedBad, 'not a folder') && str_contains((string)$seedBad, 'rc=2'));
+unlink("$seedTmp/x.tex"); rmdir($seedTmp);
+
 // ---- clean up
 foreach ($docs as $d) { issue_prune_builds($d, [], ['preview', 'issue', 'test', 'rebuild']); $db->prepare('DELETE FROM documents WHERE id = ?')->execute([$d]); }
 $db->exec("DELETE FROM audit_log WHERE cuser IN ('wt_doctor','wt_secretary')");

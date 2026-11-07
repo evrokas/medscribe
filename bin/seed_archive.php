@@ -14,6 +14,9 @@
  * Run it with --dry-run first: it prints the texts it would store, to read before seeding.
  * These letters contain real patients' details: the script reads them and writes only the tokenised text.
  */
+// decided before cli_boot.php changes the working directory (a relative path would no longer resolve after it)
+$seedMain = PHP_SAPI === 'cli' && realpath($argv[0] ?? '') === realpath(__FILE__);
+$seedDir = isset($argv[1]) ? (realpath($argv[1]) ?: $argv[1]) : '';
 require_once(__DIR__ . '/lib/cli_boot.php');
 require_once(__DIR__ . '/../web/render.php');
 require_once(__DIR__ . '/../web/documents.php');
@@ -49,10 +52,10 @@ function seed_letter_texts(string $tex): array {
     return $out;
 }
 
-if (PHP_SAPI === 'cli' && realpath($argv[0] ?? '') === realpath(__FILE__)) {
-    $dir = $argv[1] ?? '';
+if ($seedMain) {
+    $dir = $seedDir;
     $dry = in_array('--dry-run', $argv, true);
-    if (!is_dir($dir)) { fwrite(STDERR, "usage: php bin/seed_archive.php <folder> [--dry-run]\n"); exit(2); }
+    if (!is_dir($dir)) { fwrite(STDERR, ($dir !== '' ? "not a folder: $dir\n" : '') . "usage: php bin/seed_archive.php <folder> [--dry-run]\n"); exit(2); }
     $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS));
     $letters = 0; $texts = 0;
     foreach ($files as $f) {
