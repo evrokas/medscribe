@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Choice groups</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF2F7;font-family:Inter,system-ui,sans-serif;color:#16233A}
+a{color:#1D5FD1}a:hover{color:#164AA3}
+.side a{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;color:#D5DEEC;text-decoration:none;font-size:15px}
+.side a.on{background:#2F6FE0;color:#fff;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid #CFD8E3;border-radius:10px;background:#fff;color:#16233A;font:600 14px Inter,sans-serif;text-decoration:none}
+.btn-primary{background:#2F6FE0;border-color:#2F6FE0;color:#fff}
+.panel{background:#fff;border:1px solid #DCE3EC;border-radius:14px}
+.tab{display:inline-flex;align-items:center;gap:8px;padding:14px 4px 12px;border:0;border-bottom:2px solid transparent;background:none;font:500 15px Inter,sans-serif;color:#4A5873}
+.tab.on{border-bottom-color:#2F6FE0;color:#1D5FD1;font-weight:600}
+.tr{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:14.5px;color:#22304A;text-decoration:none}
+.tr.on{background:#E8F0FD;color:#1D5FD1;font-weight:600}
+.meta{margin-left:auto;font-size:12px;color:#6B7891}
+.tb{display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:8px 12px;border-bottom:1px solid #E5EAF1}
+.tbb{min-width:34px;height:34px;padding:0 8px;border:0;border-radius:7px;background:transparent;font:600 14px Inter,sans-serif;color:#22304A}
+.grp{border:1px solid #C9DAF8;border-radius:12px;background:#F7FAFF}
+.alt{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-top:1px solid #E1E9F7;font-size:16px;line-height:1.6}
+.tok{padding:1px 7px;border-radius:6px;background:#E8F0FD;color:#1D5FD1;font-weight:600;font-size:14px}
+.gen{padding:1px 6px;border-radius:6px;background:#FFF1D6;color:#7A4B00;font-weight:600;font-size:14px}
+.sw{flex:none;width:34px;height:20px;border-radius:999px;background:#C7D0DC;position:relative;margin-top:4px}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff}
+.pv p{font:12.5px/1.6 'Noto Serif',serif;margin:0 0 8px}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-wrap: wrap">
+  <aside class="side" style="flex: 0 0 220px; background: #12284A; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px"><span style="width: 34px; height: 34px; border-radius: 9px; background: #2F6FE0; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700" aria-hidden="true">M</span><strong style="color: #fff; font-size: 20px">MedScribe</strong></div>
+    <a href="#">＋ New document</a><a href="#">▤ Documents</a><a class="on" href="#">▦ Types</a><a href="#">❏ Library</a>
+  </aside>
+  <div style="flex: 999 1 900px; min-width: 0; padding: 18px 22px 24px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <span style="color: #4A5873; font-size: 15px">Types ›</span>
+      <h1 style="margin: 0; font-size: 22px">Προέγκριση χειρουργείου</h1>
+      <span style="padding: 3px 10px; border-radius: 999px; background: #E1F3EC; color: #0A6B4F; font-size: 12px; font-weight: 700">Released v2</span>
+      <span style="font-size: 13px; color: #4A5873">Saving will create v3</span>
+      <div style="margin-left: auto; display: flex; gap: 8px"><a class="btn" href="#">Save…</a><a class="btn btn-primary" href="#">Review &amp; release</a></div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch">
+      <section class="panel" style="flex: 999 1 640px; min-width: 0; display: flex; flex-wrap: wrap">
+        <div style="flex: 1 1 250px; max-width: 280px; border-right: 1px solid #E5EAF1">
+          <div style="display: flex; gap: 20px; padding: 0 18px; border-bottom: 1px solid #E5EAF1">
+            <button class="tab" type="button">Structure</button><button class="tab on" type="button">Content</button><button class="tab" type="button">Case rules · 1</button>
+          </div>
+          <div style="padding: 12px 10px; display: flex; flex-direction: column; gap: 1px">
+            <a class="tr" href="#">Patient info · Προγρ. επέμβαση<span class="meta">off</span></a>
+            <a class="tr" href="#">Διάγνωση και ιστορικό<span class="meta">⇄ 1 of 2</span></a>
+            <a class="tr" href="#">Απεικόνιση</a>
+            <a class="tr" href="#">Συντηρητική αγωγή</a>
+            <a class="tr on" href="#">Ένδειξη<span class="meta" style="color: #1D5FD1">⇄ 1 of 2 · +1</span></a>
+            <a class="tr" href="#">Συνθήκες επέμβασης<span class="meta">⇄ none of 2</span></a>
+            <a class="tr" href="#">Επανάληψη RF γασσερίου<span class="meta">rule</span></a>
+            <a class="tr" href="#">Αίτημα<span class="meta">0/2</span></a>
+            <a class="tr" href="#">Σκοπός (shared: purpose)<span class="meta">insurer</span></a>
+          </div>
+          <p style="margin: 6px 18px; font-size: 12px; color: #6B7891">These sections have no printed heading; the names are their «Name on the input form».</p>
+        </div>
+        <div style="flex: 999 1 380px; min-width: 0">
+          <div class="tb" role="toolbar" aria-label="Formatting">
+            <button class="tbb" type="button" aria-label="Bold"><b>B</b></button><button class="tbb" type="button" aria-label="Italic"><i>I</i></button>
+            <button class="tbb" type="button">@ Field</button><button class="tbb" type="button">{Ο|Η}</button>
+            <button class="tbb" type="button">＋ Instruction</button><button class="tbb" type="button">＋ Alternative</button>
+          </div>
+          <div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+            <div style="font-size: 13px; color: #6B7891">Section · paragraphs · no printed heading</div>
+            <h2 style="margin: 0; font-size: 24px; color: #1A3E7A">Ένδειξη</h2>
+
+            <div class="grp" role="radiogroup" aria-label="Choice group indication">
+              <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px">
+                <strong style="font-size: 14px">⇄ Alternatives</strong>
+                <span style="font-size: 12px; color: #4A5873">group «indication» · at most one prints · the doctor picks per document</span>
+                <button type="button" style="margin-left: auto; border: 0; background: none; color: #1D5FD1; font: 600 13px Inter, sans-serif">Rename group</button>
+              </div>
+              <label class="alt"><input type="radio" name="g" checked style="margin-top: 6px"><span><span class="gen">{Ο|Η}</span> ασθενής χρήζει <span class="tok">Χρήζει (επέμβαση)</span>.<br><span style="font-size: 12px; color: #0A6B4F; font-weight: 600">Default choice</span></span></label>
+              <label class="alt"><input type="radio" name="g" style="margin-top: 6px"><span><span class="gen">{Ο|Η}</span> ασθενής θα πρέπει να υποβληθεί σε <span class="tok">Να υποβληθεί σε (επέμβαση)</span>.</span></label>
+              <label class="alt"><input type="radio" name="g" style="margin-top: 6px"><span style="color: #6B7891">None of these by default</span></label>
+            </div>
+
+            <div style="display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid #E5EAF1; border-radius: 12px; font-size: 16px; line-height: 1.6">
+              <span class="sw" role="switch" aria-checked="false" aria-label="On by default"></span>
+              <span>Ενδεχομένως, επί σημαντικής αστάθειας που μπορεί να διαπιστωθεί μόνο διεγχειρητικά, να απαιτηθεί επέκταση της σπονδυλοδεσίας στον <span class="tok">Επέκταση έως σπόνδυλο</span> σπόνδυλο.<br><span style="font-size: 12px; color: #6B7891">Independent instruction · off by default</span></span>
+            </div>
+
+            <div style="display: flex; gap: 12px; padding: 12px 14px; border-radius: 12px; background: #EEF4FE; border: 1px solid #CFE0FA; font-size: 14px; color: #1D4F9E">
+              <span aria-hidden="true">ⓘ</span><span>An alternative is a sentence that replaces another. On the input form the group shows as radio buttons; independent instructions show as tick boxes. «Set as default» and «Move out of group» are in each line's ⋯ menu.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="panel" style="flex: 1 1 360px; min-width: 0">
+        <div style="display: flex; gap: 20px; padding: 0 18px; border-bottom: 1px solid #E5EAF1"><button class="tab on" type="button">Preview</button><button class="tab" type="button">Form</button><button class="tab" type="button">PDF</button></div>
+        <div class="pv" style="margin: 16px; padding: 22px 24px; border: 1px solid #E0E6EE; border-radius: 6px">
+          <p style="text-align: center; font-weight: 700; font-size: 15px; color: #1A3E7A">Προέγκριση Χειρουργείου</p>
+          <p>Ο ασθενής πάσχει από εκφυλιστική δισκοπάθεια με ριζιτική συμμετοχή της Αυχενικής / Οσφυϊκής Μοίρας της Σπονδυλικής Στήλης.</p>
+          <p>Από τον απεικονιστικό έλεγχο με Μαγνητική Τομογραφία ΑΜΣΣ την 07/11/2026, διαπιστώθηκε εκφυλιστική δισκοπάθεια στα επίπεδα Α5/6 και Α6/7.</p>
+          <p>Η πάθηση δεν ανταποκρίνεται πλέον στη συντηρητική αγωγή (φαρμακευτική αγωγή, φυσικοθεραπείες), παρά τη μακροχρόνια εφαρμογή της.</p>
+          <p style="background: #FFF3D9">Ο ασθενής χρήζει χειρουργικής αποσυμπίεσης των τρημάτων των Α6 και Α7 ριζών με Πρόσθια Αυχενική Δισκεκτομή και Σπονδυλοδεσία (ACDF) σε δύο επίπεδα, …</p>
+          <p>Το παρόν χορηγείται για χρήση στην ασφαλιστική εταιρεία του ασθενούς.</p>
+        </div>
+        <p style="margin: 0 16px 16px; font-size: 12px; color: #6B7891">Sample values = the fields' placeholders.</p>
+      </section>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

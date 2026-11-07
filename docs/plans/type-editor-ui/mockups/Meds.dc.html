@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Medication table</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF2F7;font-family:Inter,system-ui,sans-serif;color:#16233A}
+a{color:#1D5FD1}a:hover{color:#164AA3}
+.side a{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;color:#D5DEEC;text-decoration:none;font-size:15px}
+.side a.on{background:#2F6FE0;color:#fff;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid #CFD8E3;border-radius:10px;background:#fff;color:#16233A;font:600 14px Inter,sans-serif;text-decoration:none}
+.btn-primary{background:#2F6FE0;border-color:#2F6FE0;color:#fff}
+.panel{background:#fff;border:1px solid #DCE3EC;border-radius:14px}
+.tab{display:inline-flex;align-items:center;gap:8px;padding:14px 4px 12px;border:0;border-bottom:2px solid transparent;background:none;font:500 15px Inter,sans-serif;color:#4A5873}
+.tab.on{border-bottom-color:#2F6FE0;color:#1D5FD1;font-weight:600}
+.tr{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:14.5px;color:#22304A;text-decoration:none}
+.tr.on{background:#E8F0FD;color:#1D5FD1;font-weight:600}
+.meta{margin-left:auto;font-size:12px;color:#6B7891}
+.lbl{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.inp{width:100%;box-sizing:border-box;min-height:42px;padding:8px 12px;border:1px solid #CFD8E3;border-radius:9px;font:14px Inter,sans-serif;color:#16233A;background:#fff}
+.hint{font-size:12px;color:#6B7891;margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:12px;font-weight:700;color:#6B7891;padding:8px 10px;border-bottom:1px solid #E5EAF1;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid #EEF1F5;vertical-align:top}
+.grp{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;font-size:14px}
+.grp.on{background:#E8F0FD;color:#1D5FD1;font-weight:600}
+.add{border:1px solid #CFD8E3;border-radius:7px;background:#fff;padding:3px 9px;font:600 12px Inter,sans-serif;color:#1D5FD1}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-wrap: wrap">
+  <aside class="side" style="flex: 0 0 220px; background: #12284A; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px"><span style="width: 34px; height: 34px; border-radius: 9px; background: #2F6FE0; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700" aria-hidden="true">M</span><strong style="color: #fff; font-size: 20px">MedScribe</strong></div>
+    <a href="#">＋ New document</a><a href="#">▤ Documents</a><a class="on" href="#">▦ Types</a><a href="#">❏ Library</a>
+  </aside>
+  <div style="flex: 999 1 900px; min-width: 0; padding: 18px 22px 24px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <span style="color: #4A5873; font-size: 15px">Types ›</span>
+      <h1 style="margin: 0; font-size: 22px">Συνταγή / Οδηγίες φαρμακευτικής αγωγής (A4)</h1>
+      <span style="padding: 3px 10px; border-radius: 999px; background: #E1F3EC; color: #0A6B4F; font-size: 12px; font-weight: 700">Released v1</span>
+      <div style="margin-left: auto; display: flex; gap: 8px"><a class="btn" href="#">Save…</a><a class="btn btn-primary" href="#">Review &amp; release</a></div>
+    </div>
+    <section class="panel" style="display: flex; flex-wrap: wrap">
+      <div style="flex: 1 1 240px; max-width: 270px; border-right: 1px solid #E5EAF1">
+        <div style="display: flex; gap: 20px; padding: 0 18px; border-bottom: 1px solid #E5EAF1"><button class="tab" type="button">Structure</button><button class="tab on" type="button">Content</button></div>
+        <div style="padding: 12px 10px; display: flex; flex-direction: column; gap: 1px">
+          <a class="tr" href="#">Patient info · Διάγνωση, Αλλεργίες, Ημ. Χειρουργείου<span class="meta">0/3</span></a>
+          <a class="tr on" href="#">℞ Medication table<span class="meta">library</span></a>
+          <a class="tr" href="#">«Σημείωση: Μην λαμβάνετε αντιφλεγμονώδη…»<span class="meta">1/4</span></a>
+        </div>
+      </div>
+
+      <div style="flex: 999 1 480px; min-width: 0; padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid #E5EAF1">
+        <div><div style="font-size: 13px; color: #6B7891">Section · medication table</div><h2 style="margin: 4px 0 0; font-size: 22px; color: #1A3E7A">Medication table</h2></div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+          <div><label class="lbl" for="lib">Drug library</label><select class="inp" id="lib"><option>Βιβλιοθήκη φαρμάκων · 32 drugs</option></select><div class="hint"><a href="#">Open the library</a> (shared: edits make a new library version)</div></div>
+          <div><label class="lbl" for="tp">Page title above the table</label><input class="inp" id="tp" placeholder="none"><div class="hint">Set it to print the table on its own page.</div></div>
+        </div>
+        <div><label class="lbl" for="intro">Text above the table (when it has rows)</label><input class="inp" id="intro" placeholder="none"></div>
+        <div>
+          <div style="display: flex; align-items: baseline; gap: 10px"><span class="lbl">Rows a new document starts with</span><span class="hint" style="margin: 0">none · the doctor adds rows in each document</span></div>
+          <div style="border: 1px dashed #CFD8E3; border-radius: 10px; padding: 16px; text-align: center; font-size: 14px; color: #4A5873">No default rows. Pick from the library on the right, or <a href="#">add an empty row</a>.</div>
+        </div>
+        <div>
+          <span class="lbl">Example: what a picked row looks like</span>
+          <div style="overflow-x: auto; border: 1px solid #E5EAF1; border-radius: 10px">
+            <table>
+              <thead><tr><th>Φάρμακο</th><th>Δόση</th><th>Συχνότητα</th><th>Ημέρες</th><th>Σημειώσεις</th></tr></thead>
+              <tbody><tr><td>tb Medrol</td><td>4mg</td><td>1 x 3<br>1 x 2<br>1 x 1<br>STOP</td><td>για 5 ημέρες<br>για 5 ημέρες<br>για 5 ημέρες</td><td></td></tr></tbody>
+            </table>
+          </div>
+          <div class="hint">Line breaks in a cell are stored as <code>{br}</code>; the cell editor shows real lines.</div>
+        </div>
+      </div>
+
+      <div style="flex: 1 1 360px; min-width: 0; padding: 18px; display: flex; flex-direction: column; gap: 10px">
+        <h3 style="margin: 0; font-size: 16px">Drug library</h3>
+        <input class="inp" placeholder="Search name, e.g. Clexane" aria-label="Search the drug library">
+        <div style="display: flex; flex-direction: column; gap: 1px">
+          <div class="grp">Neuropathic pain, antiepileptics<span class="meta">7</span></div>
+          <div class="grp">Analgesics<span class="meta">5</span></div>
+          <div class="grp on">Steroids (tapers)<span class="meta" style="color: #1D5FD1">4</span></div>
+          <div style="padding: 2px 0 6px 12px; font-size: 13.5px; display: flex; flex-direction: column; gap: 6px">
+            <div style="display: flex; gap: 8px; align-items: center">tb Medrol 4mg · 3-step taper<button class="add" type="button" style="margin-left: auto">＋ Default row</button></div>
+            <div style="display: flex; gap: 8px; align-items: center">tb Medrol 4mg · 4-step taper<button class="add" type="button" style="margin-left: auto">＋ Default row</button></div>
+            <div style="display: flex; gap: 8px; align-items: center">syr Dexaton 2mg/5ml · 10cc x 3<button class="add" type="button" style="margin-left: auto">＋ Default row</button></div>
+            <div style="display: flex; gap: 8px; align-items: center">tb Dexamethasone 4mg · 1 x 3<button class="add" type="button" style="margin-left: auto">＋ Default row</button></div>
+          </div>
+          <div class="grp">NSAIDs<span class="meta">3</span></div>
+          <div class="grp">Antibiotics<span class="meta">3</span></div>
+          <div class="grp">Gastroprotection<span class="meta">3</span></div>
+          <div class="grp">Anticoagulants<span class="meta">3</span></div>
+          <div class="grp">Other<span class="meta">4</span></div>
+        </div>
+        <p class="hint" style="margin-top: 4px">A default row is a copy: changing the library later does not change rows already in this type or in documents.</p>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

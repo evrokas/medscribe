@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Rename field</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:#1C2B33}
+a{color:#0E6672}a:hover{color:#0A4C55}
+.btn{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid #CBD3D8;border-radius:8px;background:#fff;color:#1C2B33;font:500 14px Inter,sans-serif;text-decoration:none}
+.btn-primary{background:#0E6672;border-color:#0E6672;color:#fff}
+.inp{width:100%;box-sizing:border-box;min-height:40px;padding:8px 12px;border:1px solid #CBD3D8;border-radius:8px;font:14px ui-monospace,monospace;color:#1C2B33}
+.tok{padding:1px 6px;border-radius:5px;background:#E3EEF7;color:#1D4E79;font:500 12px ui-monospace,monospace}
+</style>
+</helmet>
+<div style="width: 640px; height: 520px; box-sizing: border-box; background: rgba(28,43,51,.45); display: flex; align-items: center; justify-content: center">
+  <div role="dialog" aria-labelledby="rt" style="width: 560px; background: #fff; border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.25); padding: 24px; display: flex; flex-direction: column; gap: 14px">
+    <h2 id="rt" style="margin: 0; font-size: 18px">Rename field «Ημέρες κλινήρης»</h2>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+      <div><label for="o" style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px">Current key</label><input class="inp" id="o" value="bedrest_days" disabled style="background: #F3F5F6"></div>
+      <div><label for="n" style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px">New key</label><input class="inp" id="n" value="bed_rest_days"></div>
+    </div>
+    <p style="margin: 0; font-size: 12px; color: #5A6B74">Lower-case letters, digits and _ ; must not clash with another field or a built-in (patient, age, amka, clinic, date).</p>
+    <div style="border: 1px solid #DDE3E6; border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.6">
+      <strong>What will change</strong>
+      <div>1 token in text: Γενικές Οδηγίες › 1. Κινητοποίηση › instruction 1</div>
+      <div style="font-size: 13px; color: #3D4F58">«Παραμείνετε κλινήρης για <span class="tok">@bedrest_days</span> → <span class="tok">@bed_rest_days</span> ημέρες…»</div>
+      <div>0 case-feature operations (this type has none)</div>
+      <div style="color: #5A6B74; font-size: 13px">Escaped <code>\@bedrest_days</code> and longer names such as <code>@bedrest_days_extra</code> are left as they are.</div>
+    </div>
+    <div style="font-size: 13px; color: #5A6B74">Documents already made keep their own copy of the type: their saved values under the old key stay with them.</div>
+    <div style="display: flex; justify-content: flex-end; gap: 8px"><a class="btn" href="Main.dc.html">Cancel</a><a class="btn btn-primary" href="Main.dc.html">Rename everywhere</a></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":640,"height":520}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

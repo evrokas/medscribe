@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Type editor · Structure</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF2F7;font-family:Inter,system-ui,sans-serif;color:#16233A}
+a{color:#1D5FD1}a:hover{color:#164AA3}
+.side a{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;color:#D5DEEC;text-decoration:none;font-size:15px}
+.side a.on{background:#2F6FE0;color:#fff;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid #CFD8E3;border-radius:10px;background:#fff;color:#16233A;font:600 14px Inter,sans-serif;text-decoration:none}
+.btn-primary{background:#2F6FE0;border-color:#2F6FE0;color:#fff}
+.panel{background:#fff;border:1px solid #DCE3EC;border-radius:14px;box-shadow:0 1px 3px rgba(16,35,70,.05)}
+.tab{display:inline-flex;align-items:center;gap:8px;padding:14px 4px 12px;border:0;border-bottom:2px solid transparent;background:none;font:500 15px Inter,sans-serif;color:#4A5873}
+.tab.on{border-bottom-color:#2F6FE0;color:#1D5FD1;font-weight:600}
+.row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;font-size:14.5px}
+.row.on{background:#E8F0FD;color:#1D5FD1;font-weight:600}
+.grip{color:#A9B4C4;letter-spacing:-2px;font-size:13px}
+.ic{width:18px;text-align:center;color:#55657F}
+.meta{margin-left:auto;font-size:12px;color:#6B7891;font-weight:500}
+.lbl{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.inp{width:100%;box-sizing:border-box;min-height:42px;padding:8px 12px;border:1px solid #CFD8E3;border-radius:9px;font:14px Inter,sans-serif;color:#16233A;background:#fff}
+.hint{font-size:12px;color:#6B7891;margin-top:6px}
+.sw{flex:none;width:40px;height:22px;border-radius:999px;background:#C7D0DC;position:relative}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff}
+.sw.on{background:#2F6FE0}
+.sw.on::after{left:auto;right:3px}
+.mbtn{width:32px;height:32px;border:0;background:transparent;border-radius:8px;color:#6B7891;font-size:17px}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-wrap: wrap">
+  <aside class="side" style="flex: 0 0 220px; background: #12284A; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px"><span style="width: 34px; height: 34px; border-radius: 9px; background: #2F6FE0; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700" aria-hidden="true">M</span><strong style="color: #fff; font-size: 20px">MedScribe</strong></div>
+    <a href="#"><span aria-hidden="true">＋</span>New document</a>
+    <a href="#"><span aria-hidden="true">▤</span>Documents</a>
+    <a class="on" href="#"><span aria-hidden="true">▦</span>Types</a>
+    <a href="#"><span aria-hidden="true">❏</span>Library</a>
+    <div style="height: 1px; background: #2A4268; margin: 14px 6px"></div>
+    <a href="#"><span aria-hidden="true">⚙</span>Settings</a>
+    <div style="margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 12px 8px; color: #fff; font-size: 14px"><span style="width: 34px; height: 34px; border-radius: 50%; background: #2A4268; display: flex; align-items: center; justify-content: center; font-weight: 700">ER</span>Dr. E. Rokas</div>
+  </aside>
+
+  <div style="flex: 999 1 900px; min-width: 0; padding: 18px 22px 24px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <span style="color: #4A5873; font-size: 15px">Types ›</span>
+      <h1 style="margin: 0; font-size: 22px">Μετεγχειρητικές οδηγίες: κυφοπλαστική</h1>
+      <span style="padding: 3px 10px; border-radius: 999px; background: #FFF1D6; color: #7A4B00; font-size: 12px; font-weight: 700">Draft v4</span>
+      <div style="margin-left: auto; display: flex; gap: 8px">
+        <a class="btn" href="Rename.dc.html">Save…</a>
+        <a class="btn btn-primary" href="Release.dc.html">Review &amp; release</a>
+      </div>
+    </div>
+
+    <section class="panel" style="display: flex; flex-wrap: wrap">
+      <div style="flex: 999 1 520px; min-width: 0; border-right: 1px solid #E5EAF1">
+        <div style="display: flex; gap: 22px; padding: 0 18px; border-bottom: 1px solid #E5EAF1">
+          <button class="tab on" type="button"><span aria-hidden="true">⌥</span>Structure</button>
+          <a class="tab" href="Main.dc.html" style="text-decoration: none"><span aria-hidden="true">✎</span>Content</a>
+          <button class="tab" type="button"><span aria-hidden="true">Aa</span>Fields · 8</button>
+          <button class="tab" type="button"><span aria-hidden="true">{ }</span>JSON</button>
+          <button type="button" class="btn" style="margin-left: auto; align-self: center; min-height: 34px; padding: 0 12px; font-size: 13px">＋ Add section ⌄</button>
+        </div>
+        <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 2px">
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">◍</span>Patient info · Διάγνωση, Χειρουργείο<span class="meta">patient-info · 2 rows</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">¶</span>«Ακολουθούν οδηγίες για την ομαλή σας ανάρρωση:»<span class="meta">paragraphs · 1</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+          <div class="row on"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">⌄</span>Γενικές Οδηγίες<span class="meta">topics · 4 topics</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+          <div style="padding-left: 40px; display: flex; flex-direction: column; gap: 1px">
+            <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">☰</span>Κινητοποίηση<span class="meta">4</span></div>
+            <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">☰</span>Πόνος – Φάρμακα<span class="meta">3</span></div>
+            <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">☰</span>Φροντίδα Τραύματος<span class="meta">5</span></div>
+            <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">☰</span>Διατροφή<span class="meta">2</span></div>
+          </div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">›</span>Εξειδικευμένες Οδηγίες<span class="meta">topics · 4 topics</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">◷</span>Επανέλεγχοι<span class="meta">description · 2</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">!</span>Πλαίσιο επειγόντων<span class="meta">urgentbox · optional</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">¶</span>«Επικοινωνήστε άμεσα με τον ιατρό…»<span class="meta">paragraphs · 1</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">≡</span>«Έντονο ή επιδεινούμενο πόνο.»<span class="meta">itemize · 5</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">℞</span>Οδηγίες Φαρμακευτικής Αγωγής<span class="meta">medtable · drug-library</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+          <div class="row"><span class="grip" aria-hidden="true">⋮⋮</span><span class="ic" aria-hidden="true">¶</span>«Σημείωση: Μην λαμβάνετε αντιφλεγμονώδη…»<span class="meta">paragraphs · 4</span><button class="mbtn" type="button" aria-label="Section actions">⋯</button></div>
+        </div>
+      </div>
+
+      <div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column">
+        <div style="display: flex; gap: 22px; padding: 0 18px; border-bottom: 1px solid #E5EAF1">
+          <button class="tab on" type="button">Section properties</button>
+          <button class="tab" type="button">Advanced</button>
+        </div>
+        <div style="padding: 18px; display: flex; flex-direction: column; gap: 16px">
+          <div><label class="lbl" for="h">Heading (printed)</label><input class="inp" id="h" value="Γενικές Οδηγίες"></div>
+          <div><label class="lbl" for="l">Name on the input form</label><input class="inp" id="l" placeholder="Same as the heading"><div class="hint">Needed only when the section has no heading.</div></div>
+          <div><label class="lbl" for="ly">Layout</label>
+            <select class="inp" id="ly"><option>Topics: numbered topics, bullets inside</option><option>Paragraphs</option><option>Bullet list</option><option>Numbered list</option><option>Description list</option><option>Patient info</option><option>Urgent box</option><option>Medication table</option></select>
+            <div class="hint">Switching between Topics and the other layouts is not automatic: topics hold their own blocks.</div></div>
+          <div style="display: flex; align-items: center; gap: 12px"><span class="sw" role="switch" aria-checked="false" aria-label="Optional section"></span><div><div style="font-size: 14px; font-weight: 600">Optional section</div><div class="hint" style="margin: 0">The doctor can leave the whole section out of a document.</div></div></div>
+          <div style="padding: 12px 14px; border-radius: 10px; background: #F4F7FB; font-size: 13px; color: #4A5873; line-height: 1.6">
+            <b style="color: #16233A">Under Advanced</b><br>id <code>s3</code> · slot <code>import.odigies-kyfoplastiki.s3</code><br>list options <code>[label=\arabic*.]</code> · preamble <code>\setlength{\parskip}{6pt}</code>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px"><a class="btn" href="Main.dc.html">Edit its content</a></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

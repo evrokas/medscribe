@@ -485,3 +485,10 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   values and compared with the filled kit file (equal text), then reviewed like the others. `auxeniki` carries the
   **"Διαρροή ΕΝΥ" chip** (M6's acceptance case): it switches on the kit's three DURAL TEAR parts (critical instructions,
   headache/drain-site topics, CSF-leak signs in the emergency box) and the alternative intro line.
+
+## Type editor UI redesign (planned, 2026-11-07)
+
+Plan only, nothing built: `docs/plans/type-editor-ui.md` (decisions, invariants, tab-by-tab spec, backend additions,
+phases, acceptance checklist), mockup sources in `docs/plans/type-editor-ui/mockups/`. Decided by the doctor: keep the
+app's top bar; fields show as chips with the stored `@token` on hover; the toolbar offers only what the block markup
+supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `web/js/type_*.js`.

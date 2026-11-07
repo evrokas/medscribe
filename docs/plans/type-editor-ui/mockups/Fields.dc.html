@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Fields</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF2F7;font-family:Inter,system-ui,sans-serif;color:#16233A}
+a{color:#1D5FD1}a:hover{color:#164AA3}
+.side a{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;color:#D5DEEC;text-decoration:none;font-size:15px}
+.side a.on{background:#2F6FE0;color:#fff;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid #CFD8E3;border-radius:10px;background:#fff;color:#16233A;font:600 14px Inter,sans-serif;text-decoration:none}
+.btn-primary{background:#2F6FE0;border-color:#2F6FE0;color:#fff}
+.panel{background:#fff;border:1px solid #DCE3EC;border-radius:14px}
+.tab{display:inline-flex;align-items:center;gap:8px;padding:14px 4px 12px;border:0;border-bottom:2px solid transparent;background:none;font:500 15px Inter,sans-serif;color:#4A5873}
+.tab.on{border-bottom-color:#2F6FE0;color:#1D5FD1;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;font-weight:700;color:#6B7891;padding:10px 12px;border-bottom:1px solid #E5EAF1}
+td{padding:10px 12px;border-bottom:1px solid #EEF1F5;vertical-align:top}
+tr.sel td{background:#E8F0FD}
+.key{font:12px ui-monospace,monospace;color:#4A5873}
+.type{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600;background:#EEF2F7;color:#3B4A63}
+.type-d{background:#E8F0FD;color:#1D5FD1}
+.req{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600;background:#FFF1D6;color:#7A4B00}
+.lbl{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.inp{width:100%;box-sizing:border-box;min-height:42px;padding:8px 12px;border:1px solid #CFD8E3;border-radius:9px;font:14px Inter,sans-serif;color:#16233A;background:#fff}
+.hint{font-size:12px;color:#6B7891;margin-top:6px}
+.use{padding:10px 12px;border:1px solid #E5EAF1;border-radius:10px;font-size:13.5px;line-height:1.5}
+.tok{padding:1px 6px;border-radius:6px;background:#E8F0FD;color:#1D5FD1;font-weight:600}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-wrap: wrap">
+  <aside class="side" style="flex: 0 0 220px; background: #12284A; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px"><span style="width: 34px; height: 34px; border-radius: 9px; background: #2F6FE0; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700" aria-hidden="true">M</span><strong style="color: #fff; font-size: 20px">MedScribe</strong></div>
+    <a href="#">＋ New document</a><a href="#">▤ Documents</a><a class="on" href="#">▦ Types</a><a href="#">❏ Library</a>
+  </aside>
+  <div style="flex: 999 1 900px; min-width: 0; padding: 18px 22px 24px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <span style="color: #4A5873; font-size: 15px">Types ›</span>
+      <h1 style="margin: 0; font-size: 22px">Βεβαίωση άδειας / ανάπαυσης</h1>
+      <span style="padding: 3px 10px; border-radius: 999px; background: #E1F3EC; color: #0A6B4F; font-size: 12px; font-weight: 700">Released v2</span>
+      <div style="margin-left: auto; display: flex; gap: 8px"><a class="btn" href="#">Save…</a><a class="btn btn-primary" href="#">Review &amp; release</a></div>
+    </div>
+    <section class="panel" style="display: flex; flex-wrap: wrap">
+      <div style="flex: 999 1 640px; min-width: 0; border-right: 1px solid #E5EAF1">
+        <div style="display: flex; gap: 20px; padding: 0 18px; border-bottom: 1px solid #E5EAF1">
+          <button class="tab" type="button">Structure</button><button class="tab" type="button">Content</button><button class="tab on" type="button">Fields · 12</button><button class="tab" type="button">JSON</button>
+          <button type="button" class="btn" style="margin-left: auto; align-self: center; min-height: 34px; padding: 0 12px; font-size: 13px">＋ Add field</button>
+        </div>
+        <div style="overflow-x: auto; padding: 4px 6px 10px">
+          <table>
+            <thead><tr><th>Label on the form</th><th>Key</th><th>Type</th><th>Sample / hint</th><th>Used</th></tr></thead>
+            <tbody>
+              <tr><td>Διάρκεια άδειας (ψηφία και λέξεις) <span class="req">Required</span></td><td class="key">leave_days</td><td><span class="type">Text</span></td><td>10 (δέκα) ημέρες <span class="hint">default</span></td><td>3</td></tr>
+              <tr><td>Αιτία επίσκεψης</td><td class="key">visit_reason</td><td><span class="type">Text</span></td><td>αυχεναλγίας με ριζιτική συνδρομή…</td><td>1</td></tr>
+              <tr><td>Ευρήματα</td><td class="key">findings</td><td><span class="type">Text</span></td><td>Ευρήματα, π.χ. Από τον έλεγχο με…</td><td>1</td></tr>
+              <tr><td>Ημερομηνία επέμβασης</td><td class="key">op_date</td><td><span class="type type-d">Date</span></td><td>d/m/Y</td><td>1</td></tr>
+              <tr><td>Επέμβαση</td><td class="key">procedure</td><td><span class="type">Text</span></td><td>επέμβαση</td><td>1</td></tr>
+              <tr><td>Κλινική</td><td class="key">clinic_name</td><td><span class="type">Text</span></td><td>Κλινική</td><td>1</td></tr>
+              <tr><td>Λόγος τηλεργασίας</td><td class="key">telework_reason</td><td><span class="type">Text</span></td><td>της υποτροπιάζουσας εμφάνισης…</td><td>1</td></tr>
+              <tr><td>Διάρκεια τηλεργασίας</td><td class="key">telework_period</td><td><span class="type">Text</span></td><td>τον επόμενο μήνα</td><td>1</td></tr>
+              <tr class="sel"><td><strong>Επιστροφή στην εργασία</strong></td><td class="key">return_date</td><td><span class="type type-d">Date</span></td><td>d/m/Y</td><td>1</td></tr>
+              <tr><td>Επανεξέταση σε</td><td class="key">followup</td><td><span class="type">Text</span></td><td>15 ημέρες</td><td>1</td></tr>
+              <tr><td>Νέα εξέταση</td><td class="key">followup_study</td><td><span class="type">Text</span></td><td>ΟΜΣΣ</td><td>1</td></tr>
+              <tr><td>Εκτίμηση και σχέδιο</td><td class="key">assessment</td><td><span class="type">Text</span></td><td>Σύνοψη της πορείας, τρέχουσα…</td><td>1</td></tr>
+            </tbody>
+          </table>
+          <p style="margin: 10px 12px 0; font-size: 12px; color: #6B7891">Built-in values every type has: patient, age, amka, clinic, date. A field used 0 times is flagged so it can be removed.</p>
+        </div>
+      </div>
+
+      <div style="flex: 1 1 380px; min-width: 0; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 18px">Επιστροφή στην εργασία</h2>
+        <div><label class="lbl" for="fl">Label on the form</label><input class="inp" id="fl" value="Επιστροφή στην εργασία"></div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+          <div><label class="lbl" for="fk">Key</label><div style="display: flex; gap: 6px"><input class="inp" id="fk" value="return_date" disabled style="background: #F4F7FB; font-family: ui-monospace, monospace"><button type="button" class="btn" style="min-height: 42px">Rename…</button></div></div>
+          <div><label class="lbl" for="ft">Type</label><select class="inp" id="ft"><option>Date</option><option>Text</option><option>Number</option></select></div>
+        </div>
+        <div><label class="lbl" for="fd">How the date prints</label>
+          <select class="inp" id="fd"><option>Use the instruction's format, else 07/11/2026 (d/m/Y)</option><option>07-11-2026 (d-m-Y)</option><option>7/11/2026 (j/n/Y)</option><option>7 Νοεμβρίου 2026 (long)</option><option>Custom PHP pattern…</option></select>
+          <div class="hint">A format set here wins everywhere the field is used.</div></div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+          <div><label class="lbl" for="fdef">Default</label><input class="inp" id="fdef" placeholder="none"></div>
+          <div><span class="lbl">Required</span><label style="display: flex; gap: 8px; align-items: center; font-size: 14px; min-height: 42px"><input type="checkbox"> Must be filled</label></div>
+        </div>
+        <div>
+          <div class="lbl">Used in 1 place</div>
+          <div class="use"><div style="font-size: 12px; color: #6B7891; margin-bottom: 4px">Section «{Ο|Η} ασθενής χρήζει ανάπαυσης…» · instruction 5 · off by default</div>{Ο|Η} ασθενής μπορεί να επιστρέψει στην εργασία {του|της} από <span class="tok">@return_date</span>.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

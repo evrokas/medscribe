@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Case rules</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Serif:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#EEF2F7;font-family:Inter,system-ui,sans-serif;color:#16233A}
+a{color:#1D5FD1}a:hover{color:#164AA3}
+.side a{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;color:#D5DEEC;text-decoration:none;font-size:15px}
+.side a.on{background:#2F6FE0;color:#fff;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid #CFD8E3;border-radius:10px;background:#fff;color:#16233A;font:600 14px Inter,sans-serif;text-decoration:none}
+.btn-primary{background:#2F6FE0;border-color:#2F6FE0;color:#fff}
+.panel{background:#fff;border:1px solid #DCE3EC;border-radius:14px}
+.tab{display:inline-flex;align-items:center;gap:8px;padding:14px 4px 12px;border:0;border-bottom:2px solid transparent;background:none;font:500 15px Inter,sans-serif;color:#4A5873}
+.tab.on{border-bottom-color:#2F6FE0;color:#1D5FD1;font-weight:600}
+.rule{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;font-size:14.5px}
+.rule.on{background:#E8F0FD;color:#1D5FD1;font-weight:600}
+.op{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;border-top:1px solid #EEF1F5;font-size:14px;line-height:1.5}
+.verb{flex:none;width:78px;padding:3px 0;border-radius:6px;text-align:center;font-size:12px;font-weight:700}
+.v-on{background:#E1F3EC;color:#0A6B4F}
+.v-off{background:#FDECEC;color:#9B2C2C}
+.where{font-size:12px;color:#6B7891}
+.mbtn{margin-left:auto;width:32px;height:32px;border:0;background:transparent;border-radius:8px;color:#6B7891;font-size:17px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1px solid #2F6FE0;background:#E8F0FD;color:#1D5FD1;font:600 13px Inter,sans-serif}
+.pv p{font:12.5px/1.6 'Noto Serif',serif;margin:0 0 8px}
+.gone{text-decoration:line-through;color:#A13A3A;background:#FDF1F1}
+.new{background:#E9F7F0}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-wrap: wrap">
+  <aside class="side" style="flex: 0 0 220px; background: #12284A; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 24px"><span style="width: 34px; height: 34px; border-radius: 9px; background: #2F6FE0; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700" aria-hidden="true">M</span><strong style="color: #fff; font-size: 20px">MedScribe</strong></div>
+    <a href="#">＋ New document</a><a href="#">▤ Documents</a><a class="on" href="#">▦ Types</a><a href="#">❏ Library</a>
+  </aside>
+  <div style="flex: 999 1 900px; min-width: 0; padding: 18px 22px 24px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <span style="color: #4A5873; font-size: 15px">Types ›</span>
+      <h1 style="margin: 0; font-size: 22px">Προέγκριση χειρουργείου</h1>
+      <span style="padding: 3px 10px; border-radius: 999px; background: #E1F3EC; color: #0A6B4F; font-size: 12px; font-weight: 700">Released v2</span>
+      <div style="margin-left: auto; display: flex; gap: 8px"><a class="btn" href="#">Save…</a><a class="btn btn-primary" href="#">Review &amp; release</a></div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch">
+      <section class="panel" style="flex: 999 1 640px; min-width: 0; display: flex; flex-wrap: wrap">
+        <div style="flex: 1 1 250px; max-width: 280px; border-right: 1px solid #E5EAF1">
+          <div style="display: flex; gap: 20px; padding: 0 18px; border-bottom: 1px solid #E5EAF1">
+            <button class="tab" type="button">Structure</button><button class="tab" type="button">Content</button><button class="tab on" type="button">Case rules · 1</button>
+          </div>
+          <div style="padding: 12px 10px; display: flex; flex-direction: column; gap: 4px">
+            <div class="rule on"><span aria-hidden="true">⚡</span>Επανάληψη RF γασσερίου<span style="margin-left: auto; font-size: 12px; font-weight: 500">7 changes</span></div>
+            <button type="button" class="btn" style="margin: 8px 4px; min-height: 36px; font-size: 13px">＋ New case rule</button>
+          </div>
+          <p style="margin: 6px 18px; font-size: 12px; color: #6B7891; line-height: 1.5">A case rule is a chip on the document form. Adding it changes the choices below; removing it puts them back exactly as they were. It never writes wording of its own.</p>
+        </div>
+
+        <div style="flex: 999 1 380px; min-width: 0">
+          <div style="padding: 18px 22px 12px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid #E5EAF1">
+            <div><label for="rl" style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 7px">Chip label</label><input id="rl" value="Επανάληψη RF γασσερίου" style="width: 100%; box-sizing: border-box; min-height: 42px; padding: 8px 12px; border: 1px solid #CFD8E3; border-radius: 9px; font: 14px Inter, sans-serif"></div>
+            <div style="font-size: 13px; color: #4A5873">On the document form: <span class="chip">⚡ Επανάληψη RF γασσερίου</span></div>
+          </div>
+          <div style="padding: 10px 8px 16px">
+            <div style="padding: 6px 14px 8px; font-size: 13px; font-weight: 700; color: #4A5873">WHEN ADDED, THIS RULE…</div>
+            <div class="op"><span class="verb v-off">Turns off</span><div>Η πάθηση δεν ανταποκρίνεται πλέον στη συντηρητική αγωγή…<div class="where">Συντηρητική αγωγή</div></div><button class="mbtn" type="button" aria-label="Change">⋯</button></div>
+            <div class="op"><span class="verb v-off">Turns off</span><div>{Ο|Η} ασθενής χρήζει @procedure.<div class="where">Ένδειξη · alternative «indication»: clears the choice if this one is chosen</div></div><button class="mbtn" type="button" aria-label="Change">⋯</button></div>
+            <div class="op"><span class="verb v-off">Turns off</span><div>{Ο|Η} ασθενής θα πρέπει να υποβληθεί σε @procedure_alt.<div class="where">Ένδειξη · alternative «indication»</div></div><button class="mbtn" type="button" aria-label="Change">⋯</button></div>
+            <div class="op"><span class="verb v-off">Turns off</span><div>Ενδεχομένως, επί σημαντικής αστάθειας… επέκταση της σπονδυλοδεσίας…<div class="where">Ένδειξη</div></div><button class="mbtn" type="button" aria-label="Change">⋯</button></div>
+            <div class="op"><span class="verb v-on">Turns on</span><div>Τον @rf_date {ο|η} ασθενής υπεβλήθη σε θερμοπηξία του γασσερίου γαγγλίου…<div class="where">Επανάληψη RF γασσερίου</div></div><button class="mbtn" type="button" aria-label="Change">⋯</button></div>
+            <div class="op"><span class="verb v-on">Turns on</span><div>Σύμφωνα με τη διεθνή βιβλιογραφία, η διάρκεια του θεραπευτικού αποτελέσματος…<div class="where">Επανάληψη RF γασσερίου</div></div><button class="mbtn" type="button" aria-label="Change">⋯</button></div>
+            <div class="op"><span class="verb v-on">Turns on</span><div>Λόγω της υποτροπής της νόσου… κρίνεται ιατρικά απαραίτητη η επανάληψη…<div class="where">Επανάληψη RF γασσερίου</div></div><button class="mbtn" type="button" aria-label="Change">⋯</button></div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 14px 0">
+              <button type="button" class="btn" style="min-height: 36px; font-size: 13px">＋ Turn on…</button>
+              <button type="button" class="btn" style="min-height: 36px; font-size: 13px">＋ Turn off…</button>
+              <button type="button" class="btn" style="min-height: 36px; font-size: 13px">＋ Set a field…</button>
+              <button type="button" class="btn" style="min-height: 36px; font-size: 13px">＋ Add text to a section…</button>
+            </div>
+            <p style="margin: 10px 14px 0; font-size: 12px; color: #6B7891">«Turn on…» opens a picker of the type's instructions by section, searchable by text. Each line here is one entry of <code>features.rf_repeat.ops</code>.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" style="flex: 1 1 360px; min-width: 0">
+        <div style="display: flex; align-items: center; gap: 20px; padding: 0 18px; border-bottom: 1px solid #E5EAF1">
+          <button class="tab on" type="button">Preview</button><button class="tab" type="button">Form</button>
+          <label style="margin-left: auto; display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 600"><input type="checkbox" checked> With this rule</label>
+        </div>
+        <div class="pv" style="margin: 16px; padding: 22px 24px; border: 1px solid #E0E6EE; border-radius: 6px">
+          <p style="text-align: center; font-weight: 700; font-size: 15px; color: #1A3E7A">Προέγκριση Χειρουργείου</p>
+          <p>Ο ασθενής πάσχει από εκφυλιστική δισκοπάθεια με ριζιτική συμμετοχή…</p>
+          <p class="gone">Η πάθηση δεν ανταποκρίνεται πλέον στη συντηρητική αγωγή (φαρμακευτική αγωγή, φυσικοθεραπείες), παρά τη μακροχρόνια εφαρμογή της.</p>
+          <p class="gone">Ο ασθενής χρήζει χειρουργικής αποσυμπίεσης των τρημάτων…</p>
+          <p class="new">Τον Ιούλιο του 2023 ο ασθενής υπεβλήθη σε θερμοπηξία του γασσερίου γαγγλίου αριστερά με ραδιοσυχνότητες (RF), με ικανοποιητική ανταπόκριση.</p>
+          <p class="new">Σύμφωνα με τη διεθνή βιβλιογραφία, η διάρκεια του θεραπευτικού αποτελέσματος της θερμοπηξίας με ραδιοσυχνότητες ανέρχεται κατά μέσο όρο στους 24 μήνες. …</p>
+          <p class="new">Λόγω της υποτροπής της νόσου και της αποτυχίας της συντηρητικής φαρμακευτικής αντιμετώπισης, κρίνεται ιατρικά απαραίτητη η επανάληψη της θερμοπηξίας…</p>
+        </div>
+        <p style="margin: 0 16px 16px; font-size: 12px; color: #6B7891">Red = removed by the rule, green = added. Untick to see the document without it.</p>
+      </section>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
