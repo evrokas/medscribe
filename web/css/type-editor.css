@@ -164,7 +164,7 @@
 .te .te-badge { display: inline-block; margin-bottom: .2rem; padding: .05rem .5rem; border-radius: 999px; background: #EEF1F5; color: var(--te-ink-2); font-size: .72rem; font-weight: 700; }
 .te .te-latex { margin: 0; padding: .4rem .5rem; border-radius: 7px; background: var(--te-bg); white-space: pre-wrap; font-size: .82rem; overflow-x: auto; }
 .te .te-group { margin: .3rem 0; padding: .3rem .4rem .5rem; border: 1px solid #C9DAF8; border-radius: 10px; background: #FBFCFF; }
-.te .te-group-head { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; padding: .1rem .3rem .3rem; }
+.te .te-group-head { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; padding: .1rem .3rem .3rem; margin-bottom: 1.1rem; }
 .te .te-group-title { font-weight: 700; font-size: .85rem; color: var(--te-accent-dark); }
 .te .te-group .te-btn { min-height: 1.6rem; font-size: .78rem; }
 .te .te-group-head .te-btn { margin-left: auto; }

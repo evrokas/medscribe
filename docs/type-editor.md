@@ -1,244 +1,300 @@
 # The type editor
 
-The type editor is where a document type is defined: its fields, its sections and their prepared texts, its case
-features. It is open to the **doctor** only, at **Types → a type** (`/types/typedef/<name>`; shared components such as
-the "purpose" sentences and the drug library are at `/types/shared/<name>`).
+The type editor is where a document type is defined: its fields, its sections and their prepared sentences, its case
+rules. It is open to the **doctor** only:
 
-What you edit is the type's JSON definition. The editor gives you three ways to work with it, side by side:
+- a type: **Types → a type** (`/types/typedef/<name>`);
+- a shared component, such as the "purpose" sentences or the drug library: `/types/shared/<name>`.
 
-- a **tree**, where every part of the definition is a row you can edit, rename, move, copy or delete;
-- the raw **JSON** text, for anything unusual;
-- a live **preview** of the result, either as the **input form** a document of this type gets or as the **printed
-  document**.
+What you edit is the type's definition. The editor shows it in tabs: **Structure** (the parts of the document),
+**Content** (its sentences), **Fields** (the values the composer asks for), **Case rules** (the composer's chips) and
+**JSON** (the definition as text, for anything unusual). A live **preview** stands beside the tabs.
 
-Nothing you do here touches existing documents: each document keeps the type version it was created with. A new
-version is used by new documents only once it is **released**.
+Nothing you do here touches existing documents: each document keeps the type version it was created with. A new version
+is used by new documents only once it is **released**, from its **Review & release** page.
 
-> **Note (2026-11-07):** this guide describes the first editor, now at `?ui=classic`. The editor is being redesigned
-> (`docs/plans/type-editor-ui.md`): Structure, Content and Fields tabs, and a **Review & release** page that replaced the
-> one-click Release of the versions table (releasing now needs a confirmation there). The guide will be rewritten when
-> the redesign is finished.
-
-The screenshots show `odigies-kyfoplastiki` (postoperative instructions after kyphoplasty) with sample values.
+The screenshots show `odigies-kyfoplastiki` (postoperative instructions after kyphoplasty), `proegkrisi` (surgery
+pre-approval) and the shared components `purpose` and `drug-library`, with sample values. The first editor is still
+reachable at `?ui=classic` (link at the bottom of the page).
 
 ---
 
 ## 1. The page
 
-![The top of the page: versions](images/01-page-top.png)
+![The editor (Structure tab) and the preview](images/01-editor-overview.png)
 
-The page has two panes:
+- **Header:** the type's name, its code name, and the version you are editing: **Draft vN** (amber) or **Released vN**
+  (green). When another version is the one new documents use, it says so. **● Unsaved changes** appears as soon as
+  the text differs from the saved version, and the browser warns before you leave the page.
+- **History (N):** opens the list of versions in the page: who saved each one and when, its note, how many documents
+  use it, a link to the line-by-line difference with the version before, and **Review & release** for drafts. Click a
+  version number to edit with that version as the starting point.
+- **Save…** opens the save dialog (section 9). **Review & release** (drafts only) opens the review page (section 10).
+- **Tabs:** the number beside a tab counts what it holds (sections, fields, case rules). The browser remembers the last
+  tab per type. With the keyboard: ← → move between tabs.
+- **Preview** on the right (section 8). Between the two is the **splitter**: drag it, or use ◀ / ▶ to widen or narrow
+  the preview (editor only → both → preview only); double-click it for the default widths.
 
-- **Left:** the type's name, its **versions** and, below them, the **editor**.
-- **Right:** the **preview panel**. It stays in view while the left pane scrolls.
+All tabs edit the same definition: a change in one is in the others at once, and in the preview about a second later.
 
-### Versions
+---
 
-Each row is one version of the type, newest first:
+## 2. Structure
 
-| Column | Meaning |
+The list on the left is the document from top to bottom.
+
+- **Document settings** (first item): the type's name, the title and other titles the composer offers, the closing and
+  other closings (empty closing = no doctor block), language, paper, stamp, whether there is a patient (required,
+  `false` for practice documents, `optional`), page numbers, a recipient line, and the date the wording was reviewed.
+- **Sections**, each with an icon for its layout and a short description (`topics · 4 topics`, `paragraphs · 1 block`,
+  `optional`, …). A `topics` section lists its topics under it.
+- Each row has, when the mouse is over it: **⌖** (show it in the preview), **↑ ↓** (move), **⧉** (duplicate, with new
+  ids), **✕** (delete). Rows can also be dragged by **⠿**, or moved with **Alt+↑ / Alt+↓** when focused.
+- **+ Add topic** under a topics section; **+ Add section** at the bottom, with its layout chosen beside the button.
+
+### How sections are named
+
+Many sections have no heading. The editor names them everywhere by: the **name on the input form** (`label`), else the
+**heading**, else what they hold: `Patient info · <row labels>`, `Shared: <component>`, the medication table's title, or
+the start of the first sentence in «…». The composer's form uses the same name, so the editor and the form never
+disagree.
+
+![A section's properties](images/02-structure-section.png)
+
+A selected section shows its properties: **Heading** (printed; empty = none), **Name on the input form** (wins over the
+heading on the form; needed only when there is no heading), **Layout**, **Heading level** and **Numbered heading** (when
+there is a heading), **Optional** (the composer can switch the section off) and **On by default**, and the
+**Free-text hint** (grey text in the composer's free-text box, never printed). A medication table has its own fields
+(section 7). A topic has its **Title** and **Style** (bullets, or running text).
+
+Changing between `topics` and another layout, or to or from a medication table, is refused: those sections hold their
+contents differently; make a new section and move the sentences.
+
+**Advanced** (folded) lists every other key of the item, so nothing is out of reach: plain values can be edited there,
+lists and objects are named with a pointer to the JSON tab. It also holds the **id** with **Rename…**; renaming an id
+updates the case rules that point to it. **Edit the content →** opens the section in the Content tab.
+
+---
+
+## 3. Content
+
+![The Content tab: a topic's sentences, fields as chips, markup in colour](images/03-content.png)
+
+On the left, the outline: sections and their topics, each with how many of its sentences are on by default
+(`13/14`). On the right, the selected section or topic as a document: its heading (edit it in place), then one row per
+**sentence** (a "block": one sentence or bullet that is switched on or off as a unit).
+
+Each row has:
+
+- the **switch**: on by default or not;
+- the **text**. Fields are shown as **chips** with their label (`Ημέρες κλινήρης`). Markup is shown in colour: the
+  text between `**` is bold and between `*` italic (the stars stay visible, in grey), `{Ο|Η}` (gender variants) in
+  purple, `{v:L4-5}` (spine level) in teal, `{br}` and `\ ` in grey;
+- a label box before the text in rows that print one (patient-info rows, description terms, emergency-box headings);
+- notes under the text when the sentence has a date format, continues the paragraph before it, or is a bullet under
+  a paragraph.
+
+![Hovering a chip shows what is stored](images/04-chip-token.png)
+
+**Hovering (or focusing) a chip shows what is stored**: `@bedrest_days`. That `@token` is what the definition holds; the
+chip is only how it is shown. A sentence that uses a name the type has no field for keeps it as plain text, with a red
+note under the row.
+
+### The toolbar
+
+| Button | Inserts, at the caret |
 |---|---|
-| **v** | The version number. Click it to load that version into the editor as the starting point. |
-| **Status** | `released` (used by new documents; never changes again) or `draft` (not used by any document yet). |
-| **By / Date** | Who saved it and when (`system` = imported from the repo files). |
-| **Note** | The change note given when it was saved. |
-| **Documents** | How many documents were created from this version. |
-| **diff with previous** | The line-by-line changes against the version before it. |
-| **Review & release** | (drafts only) Opens the review page: what changes, the checks, and the release (with a confirmation). |
+| **B** / **I** (Ctrl+B / Ctrl+I) | `**…**` / `*…*` around the selected text |
+| **@ Field…** | a field of the type, or a built-in value (patient name, age, AMKA, clinic, document date), as a chip |
+| **{Ο\|Η}** | a gender variant; the selected text becomes the male form: `{selected\|}` |
+| **L4-5** | a spine level `{v:…}` (it asks for the level) |
+| **+ Instruction** | a new sentence after the one with the caret |
+| **+ Alternative** | an alternative to the sentence with the caret: the two become a choice group |
+
+Enter makes a line break inside the sentence; pasted text is pasted as plain text. (The browser's own undo, Ctrl+Z,
+does not reach back across the re-colouring that follows each keystroke; **Reset the text** in the save dialog goes back
+to the saved version.)
+
+### A sentence's tools
+
+Over a row: **⌖ ↑ ↓ ⧉ ✕** as in Structure, and **⋯** for more:
+
+![⋯ opens the sentence's settings](images/05-block-more.png)
+
+- **Edit as plain text**: the text box shows the raw text, `@tokens` and all;
+- **id** with **Rename…** (the case rules that point to it follow);
+- **Choice group** (sentences with the same group are alternatives: at most one is printed);
+- **Label**, **Date format** (for the dates in this sentence that have no format of their own), **Continue the
+  paragraph**, **Bullet under the paragraph**, **Format** (`latex` = trusted raw LaTeX, only for what the markup
+  cannot express).
+
+Sentences in raw LaTeX are shown read-only, with a badge; their text is edited under ⋯.
+
+### Alternatives
+
+![A choice group: the default choice, or none](images/13-alternatives.png)
+
+Sentences of one choice group are drawn together in an **Alternatives** box. The radio button chooses the one that is
+printed by default; **None of these by default** leaves the choice to the composer. **Rename group** renames the group
+in all its sentences; **+ Alternative** adds another sentence to it.
+
+### Safe by construction
+
+The chip editor never changes text it does not understand. Before a sentence is shown with chips, the editor builds it
+and reads it straight back; a sentence that does not come back byte for byte opens as plain text, with a grey note. The
+same check runs after every edit, before anything is written. The colours are only shown: what is saved is the text as
+typed.
 
 ---
 
-## 2. The editor and the preview
+## 4. Fields
 
-![The editor (left) and the print preview (right)](images/02-editor-and-preview.png)
+![The Fields tab: a field and where it is used](images/06-fields.png)
 
-Under **Edit (vN as the starting point)** are two tabs:
+The list shows each field's label, its `@key`, its type, whether it is required, and how many times it is used.
+**unused** (amber) means no sentence prints it. **↑ ↓** set the order of the boxes on the composer's form;
+**+ Add field** asks for a key (a-z, 0-9 and `_`, starting with a letter, not a built-in value).
 
-- **Tree:** the definition as rows (described below). This is the default.
-- **JSON:** the same definition as text.
+A selected field shows its **Label**, its **Key** with **Rename…**, **Type** (text, date, number), for dates the
+**Date format** (it wins everywhere the field is printed: `d/m/Y` → 20/02/2026, `j/n/Y` → 20/2/2026, `long` → 20
+Φεβρουαρίου 2026, or any PHP date pattern), **Default**, **Placeholder** and **Required**. **Used in** lists every
+sentence that prints it; click one to open it in the Content tab.
 
-Both edit the same thing: a change in the tree is in the JSON at once, and the other way round. The browser remembers
-which tab you used last.
+![Renaming a field: what changes, before it happens](images/07-rename.png)
 
-Between the panes is the **splitter** (see section 6). The preview on the right refreshes about a second after each
-change, before anything is saved.
-
----
-
-## 3. The tree
-
-![The fields of the type, one date field opened](images/03-tree-fields.png)
-
-Every key of the definition is a row. A row has, from left to right:
-
-| Part | What it does |
-|---|---|
-| **⠿** | The drag handle: drag the row onto another row of the same list to move it there. |
-| **▸ / ▾** | Open or close a group (an object or a list). Click anywhere on the row's name to toggle it. |
-| **Name** | The key (`label`, `fields`, …) or the item's position in a list (`#1`, `#2`, …). |
-| **Value or summary** | A text box, a checkbox (yes/no), a number box, or a drop-down for keys with fixed choices (`lang`, `paper`, `layout`, a field's `type`, …). A group shows a summary instead (see below). |
-| **⌖** | Highlights this item's text in the preview (section 5). |
-| **✎ ↑ ↓ ⧉ ✕** | Rename, move up, move down, duplicate (lists only), delete. They appear clearly when the mouse is over the row. |
-
-Under each open group are **+ key** / **+ item** / **+ field** buttons to add to it. A new list item copies the shape of
-the item before it (same keys, empty texts) and gets the next free id. **⧉ Duplicate** makes a copy with new ids.
-
-### Summaries
-
-The summary of a group tells you what it is without opening it:
-
-- **a field:** its label, type, date format (if set) and how many times it is used: `Ημ. χειρουργείου · date · used 1×`;
-- **a section:** its id, **the name it has on the input form**, and its layout:
-  `s3 · on the form: «Γενικές Οδηγίες» · topics`;
-- **a block:** its id, `(off)` if it starts switched off, its choice group if it has one, and the start of its text;
-- **a feature operation:** what it does: `enable s2_b2`.
-
-The name a section has on the form is its `label`, else its `heading`, else its `slot`. A section with neither label nor
-heading shows its technical slot name (`import.odigies-kyfoplastiki.patient`); give it a `label` for a readable name.
-
-### Renaming: the change follows everywhere
-
-**✎** renames, and the rename is carried to every place that depends on the name:
-
-| You rename | What follows |
-|---|---|
-| a **field** (a key under `fields`) | every `@field` in every text of the type (whole tokens only: renaming `@f1` leaves `@f10` and an escaped `\@f1` alone), and every case-feature operation that sets it. You are told how many uses change before it happens. |
-| a **block, section or topic id** | the case-feature operations that point to it. Ids are read-only boxes: they change only through ✎, so a reference can never break silently. |
-| a **choice group** (`✎ all` next to a block's `group`) | the group name in every block of the group. |
-| a **shared component** (a key under `shared`) | the sections that use it (`use` / `library`). |
-
-A field name must be lower-case Latin letters, digits and `_`, starting with a letter (it is written `@name` in the
-texts), and cannot be one of the built-in values `patient`, `age`, `amka`, `clinic`, `date`.
-
-### Date formats
-
-A date field gets a **+ date format** button (visible in the screenshot under `surgery_date`). The format box offers a
-list (`d/m/Y` → 20/02/2026, `j/n/Y` → 20/2/2026, `d-m-Y`, `d.m.Y`, `d/m/y`, `long` → 20 Φεβρουαρίου 2026, …) and
-accepts any PHP date pattern. The field's own format is used everywhere the date is printed; a block's `datefmt` only
-serves dates that have no format of their own; with neither, dates print as `d/m/Y`.
-
-![A section opened down to a block inside a topic](images/04-tree-section.png)
-
-The second tree screenshot shows a `topics` section opened down to its first block: the section's own keys (`id`,
-`slot`, `layout`, `heading`, list options), then `topics → #1 → blocks → #1` with the block's `id` (read-only, ✎ to
-rename), its `text` (markup: `@field`, `{Ο|Η}`, `**bold**`, …) and `default` (whether it starts switched on). The row
-under the mouse (`#3`) shows its tools at full strength.
+**Rename…** shows, before anything happens, how many `@tokens` and case-rule operations change, the sentences
+themselves, and what is deliberately left alone (an escaped `\@key`, a longer `@key_x`). **Rename everywhere** does it.
 
 ---
 
-## 4. The preview panel
+## 5. Case rules
 
-The bar at the top of the panel:
+![A case rule as sentences, and the preview with the rule applied](images/14-case-rules.png)
 
-| Control | What it does |
-|---|---|
-| **Form** | Shows the input form a document of this type gets. |
-| **Print** | Shows what the printed document would contain. |
-| **Male / Female** | The sample patient's gender, so every `{Ο|Η}` variant can be checked. |
-| **↻** | Refreshes the preview now (it also refreshes on its own after each edit). |
+A case rule is a chip in the composer (for example «Επανάληψη RF γασσερίου») that switches sentences on or off, sets
+fields or adds text in one click, and undoes exactly that when it is removed. A rule only sets what the doctor could set
+by hand; any text it adds is the doctor's own wording.
 
-The preview uses **sample values**: each field shows its default, else its placeholder, else its label; a date field
-gets a real date (its default, or today) so its format shows; a medication table with no default rows shows two drugs
-from the library.
+The tab lists the rules; a selected rule shows its **chip label** and **what it does, in order**, as sentences:
+**Turns off** «…» (section › topic), **Turns on** «…», **Sets the field** … **to** …, **Adds text to** …. For a sentence
+in a choice group it says what happens to the group. An operation whose sentence, section or field no longer exists is
+shown in red. Add operations with **+ Turn on a sentence**, **+ Turn off a sentence** (a searchable list of all
+sentences), **+ Set a field**, **+ Add text**.
 
-### Print
-
-![The print preview, with the target icon over a field](images/05-print-preview-target.png)
-
-The document as it would print: date, title, the patient box, headings, paragraphs, lists, the emergency box, the
-medication table and the closing with the doctor's name. It is produced by the same engine that writes the PDF, turned
-into HTML, so the text, the order and what is on or off are exactly the PDF's. The letterhead graphics, the QR code and
-the page breaks are not drawn: for those, the PDF of a document stays the reference.
-
-### Form
-
-![The form preview: values, then the sections](images/07-form-preview.png)
-
-The same form the composer shows when a document of this type is written, greyed out (nothing can be typed here):
-
-- **Values:** one box per field, with its label.
-- **Sections:** one box per section, named as on the real form, with its layout and a count of what is switched on
-  (`2/2 on`). Click a section's title to fold or unfold it; **Expand all / Collapse all** act on all of them. A section
-  that has items to choose from but none switched on starts folded, as it will in the composer.
-
-### Warnings and errors
-
-![A mistyped token shows at the top of the preview](images/09-preview-warning.png)
-
-Problems are listed above the preview while you edit. Here `@diagnosis` was mistyped as `@diagnosys`: the preview
-names the block and the unknown token, and prints the token as it is so you can find it. Errors that would stop a save
-(an unknown token, invalid JSON, a duplicate id, …) are shown in red; if the JSON cannot be read at all, the last good
-preview stays visible under the error.
+**Preview with this rule** applies the rule to the sample: what it turns off stays visible, struck through in red; what
+it turns on, adds or sets is green. Leaving the tab turns this off.
 
 ---
 
-## 5. From the preview to the source, and back: ⌖
+## 6. Shared components
 
-Every piece of printed text knows where it came from.
+![A shared component's sentences](images/18-shared-content.png)
 
-- **Preview → editor.** Move the mouse over any text in the preview (Print or Form): a small **⌖** appears beside it.
-  Click it, and the editor jumps to the source:
-  - in the **Tree** tab, the tree opens down to the item, scrolls to it and highlights it;
-  - in the **JSON** tab, the text box puts the cursor on it and selects it.
+A shared component is stored once and used by many types; each type **pins** the version it was released with.
 
-  In a sentence with a field in it, the field wins: ⌖ on "οστεοπορωτικό κάταγμα Θ12" goes to the field `diagnosis`,
-  not to the block around it. Fields, blocks, block labels, section and topic headings, free text, the title and the
-  closing can all be located (raw LaTeX blocks that contain lists cannot). Ordinary clicks on the text do nothing, so
-  text can still be selected and copied.
+- **Content**: for sentences (such as "purpose"), the alternatives with, for each, the types that use it as their
+  default choice. Those cannot be renamed or deleted here while types use them.
+- **Used by**: every type that pins the component, the version it pins, its default choice, and **Update pin** when a
+  newer release exists. A type that pins the component without using it is flagged.
 
-- **Editor → preview.** The **⌖** on a tree row highlights that item's text in the preview (switching to Print if the
-  form does not show it). If nothing is printed for it with the sample values (for example a block that starts off),
-  the panel says so.
+![The types that use the component](images/19-shared-used-by.png)
 
-![⌖ on the diagnosis in the preview selected the field diagnosis in the tree](images/06-target-reveals-source.png)
+Releasing a new version of a component changes no type. **Update pin** makes a new **draft** version of that type
+pinned to the latest release ("Update purpose to vN"), to review and release like any change.
 
----
+![The drug library](images/20-drug-library.png)
 
-## 6. The JSON tab and the splitter
-
-![The JSON tab, the field surgery_date selected](images/08-json-tab.png)
-
-The **JSON** tab shows the definition as text. It is the same definition as the tree; switch back to **Tree** at any
-time (if the text has a syntax error, the tree tells you the line and stays closed until it is fixed). ⌖ in the preview
-selects the matching part of the text, as in the screenshot.
-
-The **splitter** between the two panes:
-
-- **drag** it to make the preview wider or narrower;
-- **◀** widens the preview one step (editor only → both → preview only), **▶** narrows it;
-- **double-click** it to go back to the default widths;
-- with the splitter focused, the **← / →** keys move it.
-
-The browser remembers the layout.
-
-![The preview maximized with ◀ (▶ brings the editor back)](images/11-preview-maximized.png)
+The drug library is a grouped, searchable table. In a cell a new line stands for a line break in the printed table.
 
 ---
 
-## 7. Saving
+## 7. Medication tables
 
-![A draft type: save into this version, or as a new one](images/10-draft-save.png)
+![A medication table section: library and default rows](images/15-medication-table.png)
 
-Below the editor:
+A medication-table section (Structure or Content tab) has its **title**, the **text above the table**, its **drug
+library**, and its **default rows**: the rows every new document starts with, edited per document in the composer.
+Copy an entry of the library with **+** (the library is searchable), or add an empty row. A default row is a copy:
+later changes to the library do not change it.
 
-| Control | When | What it does |
-|---|---|---|
-| **Change note** | always | A short description of the change. Required for a new version. |
-| **Validate and save in vN** | the version shown is the **latest**, still a **draft**, and no document uses it | Saves into that same version (no new version). The note is optional here; when filled in, it replaces the old one. |
-| **Validate and save as a new version** | always | Makes a new **draft** version. Nothing changes for new documents until you release it from its **Review & release** page. |
-| **Reset the text** | always | Throws away the unsaved edits and reloads the version shown. |
+---
 
-Every save checks the definition first (valid JSON, known layouts, unique ids, no unknown tokens, date formats only on
-date fields, …). A refused save keeps your edits on the page, says why it was refused, and shows a notice that the text
-is **not saved**.
+## 8. The preview
 
-A **released** version never changes: the page says so and offers only **save as a new version** (as in the
-screenshot of section 6, "v7 is released and cannot change").
+The panel beside the editor shows the definition as you edit it, with a sample patient (choose **Male** or **Female**
+to check every `{Ο|Η}`) and sample values (each field's default, else its placeholder, else its label; dates get a real
+date so their format shows).
+
+- **Preview**: what the printed document contains, in HTML, from the same engine that writes the PDF. No letterhead,
+  QR code or page breaks: the PDF tab is the reference.
+- **Form**: the composer's input form for this type, greyed out.
+- **PDF**: **Build the test PDF** compiles the unsaved definition exactly as a composer preview (draft mark, the QR
+  code drawn as an empty frame) in about 12 seconds. After an edit it says the PDF is out of date; build it again.
+  It is the same PDF the composer makes for the same values (checked by the test suite).
+
+![The test PDF of the unsaved definition](images/12-test-pdf-page.png)
+
+### Problems and Go to source
+
+![A mistyped token: the problem, with Go to source](images/10-preview-issue.png)
+
+Problems are listed above the preview while you edit: errors in red (they would stop a save), warnings in amber, and
+notes folded under "N notes". Where a problem knows its place, **Go to source** opens it in the editor. Warnings that
+never block a save point out: a field no sentence prints, a shared component pinned but not used, a case-rule operation
+whose target is gone, a date format on a sentence with no date.
+
+![The Form tab](images/11-form-preview.png)
+
+### ⌖: from the preview to the editor and back
+
+Move the mouse over printed text in the preview: a **⌖** appears beside it. Clicking it opens the source in the current
+tab's terms: a field in Fields, a sentence or heading in Content, the title or closing in Document settings (in the
+JSON tab: the text is selected). The **⌖** of a row in the editor highlights its text in the preview, or says that
+nothing is printed for it with the sample values.
+
+---
+
+## 9. JSON and saving
+
+![The JSON tab: the tree and the text](images/09-json-tab.png)
+
+The **JSON** tab is the definition itself, as a tree (every key a row, drag to reorder, ✎ to rename with everything
+that depends on the name) or as text. Leaving the tab with a syntax error is refused, with the line of the error.
+
+![Save: into the draft, or as a new version](images/08-save-dialog.png)
+
+**Save…** asks for a **change note** and offers:
+
+- **Validate and save in vN**: only while the version is the latest, still a draft, and no document uses it; the note
+  is optional and replaces the old one when given;
+- **Validate and save as a new version**: always; the note is required; the new version is a **draft**;
+- **Reset the text**: throw away the unsaved edits.
+
+Every save is checked first (valid JSON, layouts, unique ids, known `@tokens`, date formats only on date fields, …). A
+refused save keeps your text on the page, says why, and marks it **not saved**. A released version never changes.
+
+---
+
+## 10. Review & release
+
+![What changes, in the doctor's terms](images/16-review.png)
+
+**Review & release** (a draft's header, or its row in History) compares the version with the one new documents use now
+and lists **what changes**, grouped by section: sentences added, removed, changed (the changed words highlighted:
+removed in red, added in green), moved; fields added, removed, renamed (one item, "its uses follow") or changed; case
+rules; settings; shared components. **Raw JSON diff** shows the line-by-line difference.
+
+![The checks and the release](images/17-release.png)
+
+Beside it: the **checks** (the server's validation and the sample, male and female), the notes, the shared components
+it pins, and the **release**: what it means ("Documents created from now on use vN; the existing documents keep their
+own version; vN cannot be edited after release"), the box **I have read the changes and checked the print preview**,
+then **Release vN**, or **Keep as draft**. A version with errors cannot be released.
 
 ### The repo files
 
-The editor saves into MedScribe's database, not into the repo's `types/*.json` files. After editing in the browser,
-bring the released changes into the files and commit them:
+The editor saves into MedScribe's database, not into the repo's `types/*.json`. After releasing, bring the change into
+the files and commit it:
 
 ```
 php bin/export_types.php --check     # what differs
@@ -246,24 +302,29 @@ php bin/export_types.php             # write types/*.json
 git diff types/                      # review, then commit
 ```
 
-(Until that is done, running `bin/import_types.php` for that type would make a new version from the old file.)
-
 ---
 
-## 8. Common tasks
+## 11. Common tasks
 
 | Task | How |
 |---|---|
-| Rename a field | Tree → `fields` → ✎ on the field. Every `@field` follows. |
-| Change how a date prints | Tree → `fields` → the date field → **+ date format** → pick a format. |
-| Give a section a readable name on the form | Tree → the section → **+ key** → `label`. |
-| Change a sentence | Find it in the preview, ⌖, edit the `text` box that opens. |
-| Make a block start switched on or off | The block's `default` checkbox. |
-| Offer alternative sentences (only one at a time) | Give the blocks the same `group`. |
-| Reorder sections or blocks | Drag ⠿, or ↑ / ↓. |
+| Change a sentence | ⌖ on it in the preview, or find it in Content; type. |
+| Insert a field into a sentence | Click into the sentence → **@ Field…**. |
+| See which field a chip is | Hover it: it shows the `@token`. |
+| Make a sentence start switched on or off | Its switch in Content. |
+| Offer alternative sentences (one printed at a time) | Click into one → **+ Alternative**; choose the default with the radio buttons. |
+| Give a section a readable name on the form | Structure → the section → **Name on the input form**. |
+| Reorder sections or topics | Structure: drag ⠿, or ↑ / ↓. |
+| Rename a field | Fields → the field → **Rename…** (every `@field` follows). |
+| Change how a date prints | Fields → the date field → **Date format**. |
+| Make or change a composer chip | Case rules; check it with **Preview with this rule**. |
 | Check the female wording | Preview → **Female**. |
-| See what the secretary will fill in | Preview → **Form**. |
-| Put a change into use | Save as a new version, then **Review & release** it. |
+| See the real PDF | Preview → **PDF** → **Build the test PDF**. |
+| See what the secretary fills in | Preview → **Form**. |
+| Change the default rows of a prescription | Content → the medication table → default rows, or **+** from the library. |
+| Use a newer version of a shared component | The component → **Used by** → **Update pin**, then review and release the type. |
+| Put a change into use | **Save…** → save as a new version → **Review & release**. |
 | Keep the change in git | `php bin/export_types.php`, review, commit. |
 
-The full format of a type (every key a section, block or field can have) is in the header comment of `web/render.php`.
+The full format of a type (every key a section, sentence or field can have) is in the header comment of `web/render.php`;
+the design of this editor is in `docs/plans/type-editor-ui.md`.

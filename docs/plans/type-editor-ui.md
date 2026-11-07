@@ -430,6 +430,8 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
   rings on buttons, tabs, rows and inputs; widths checked at 1600, 1280, 1024 and 700 px (no sideways page scroll; the
   list/editor split stacks under 1100 px); empty states in every tab (a definition with no sections, fields or rules).
   **Not done:** a contrast audit with a tool; removing `?ui=classic` (after the doctor accepts).
+- **Guide rewritten (2026-11-08):** `docs/type-editor.md` describes the new editor, with 20 screenshots in
+  `docs/images/` (taken in headless Chromium on the server; the old editor's images were removed).
 - **Markup colours (2026-11-08):** the chip editor colours `**`/`*` (and shows the text between them bold/italic),
   `{Ο|Η}`, `{v:…}`, `{br}`, `\ ` and escapes, by the engine's own tokenizer rule (`markup()` in `type_chips.js`). The
   spans carry `data-mk` and are read back as their text, so the bytes cannot change; after each input the row is
