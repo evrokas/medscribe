@@ -1,6 +1,6 @@
 # Type editor UI redesign: plan
 
-**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 9. See the "Progress" notes at the end of §7.
+**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 5, 9. See the "Progress" notes at the end of §7.
 **Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step,
 plus the preview QR placeholder (§6.7), which also changes the composer's preview.
 **Mockups:** canvas https://claude.ai/artifact/DvTosfM1j78w77o9FtvS6i (private to the owner). The same
@@ -379,7 +379,26 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
   `confirm=1` (else back to the review page); the one-click Release of the history table is a "Review & release" link.
   `check_web.php` covers: refused without the confirmation, released with it, the secretary is refused the page.
   Addition: a removed and an added field with the same definition are reported as one **renamed** field.
-  Not yet: lints on the review page (phase 5's `types_lint()`), Go to source for the checks (phase 5).
+  Lints and Go to source came with phase 5.
+- **Phase 5 done (2026-11-07):**
+  - §6.1: `render_markup()` records where an issue was found (`$ctx['src']`, set by every loop that renders a block, a
+    topic's or section's free text, or a table; `render_issue_at()`), and `render_checks()` gives each check a `src`
+    (a missing value: its field). Test in `render_test.php`. The panel also reads the place from the server's
+    validation messages (`block <id>: …`).
+  - §6.6: `types_lint()` (in `web/type_diff.php`): unused field, pinned-but-unused shared component, a block `datefmt`
+    with no date in it (level `note`, folded in the panel: the kit imports put `d-m-Y` on many blocks), case-rule
+    operations whose block/section/field is missing. Shown in the preview panel and on the review page. Section without
+    heading or label is **not** linted: the naming rule already gives every section a readable name, and 7 of 10
+    sections of a postop type would be flagged.
+  - §4.8: tabs **Preview · Form · PDF**, Go to source on every check that knows its place, "updated hh:mm:ss", the
+    "HTML approximation" note under the paper. The classic page keeps Form/Print.
+  - §6.4: `POST /types/typedef/{name}/pdf` (`page_type_pdf_post`): the unsaved text with the sample values through
+    `render_document(['preview' => true])` and `compile_job()` in the sandbox, purpose `type-preview`, no document;
+    `GET …/pdf?b=ID` serves it to its own user only. **One build per user** is kept (not per type and user: the builds
+    table has no type column, and one is enough), its store objects collected like `issue_prune_builds()`; a per-user
+    `flock` refuses a second build while one runs (409). Built on request (not after every edit), marked stale when the
+    text or gender changes. Measured: ~11–12.6 s, 2 passes. `check_web.php` covers 409, serving, another user refused,
+    one kept, invalid text refused before building.
 
 ## 8. Acceptance checklist (manual, on the server)
 
@@ -408,6 +427,8 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
 - `types/syntagi.json` `note_no_reduce`: «μόνος/μόνη» where kyfoplastiki uses `{μόνος|μόνη}`.
 - `types/preop-odigies.json` (draft) pins `purpose` but no section uses it.
 - `types/adeia.json` `amka_row` carries `datefmt: d-m-Y` but contains no date.
+- `types/syntagi.json` and `syntagi-a5.json`: the field `amka_value` («ΑΜΚΑ») is printed by no text (found by the lint,
+  2026-11-07).
 - Stored type versions hold the shared component's **hash**, not `latest`; "write latest in the shared
   map" (the current hint on the page) only works when editing JSON. §6.3 replaces it.
 

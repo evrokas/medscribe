@@ -217,6 +217,14 @@ function render_tokenize(string $text): array {
  * Markup -> LaTeX. $ctx: values (token => string), gender (M|F|''), datefmt, fields (type fields),
  * and is filled with 'issues' (unknown tokens, missing values, unresolved gender).
  */
+/**
+ * Where an issue was found (plan §6.1): $ctx['src'] is the block (or free text, or table) being rendered; the issues get
+ * ['src'][issue key][src] = true, and render_checks() passes the first one on as the check's `src` (the editor's Go to source).
+ */
+function render_issue_at(array &$ctx, string $key): void {
+    if (!empty($ctx['src'])) $ctx['issues']['src'][$key][$ctx['src']] = true;
+}
+
 function render_markup(string $text, array &$ctx): string {
     $out = ''; $bold = false; $ital = false;
     foreach (render_tokenize($text) as $tk) {
@@ -233,18 +241,18 @@ function render_markup(string $text, array &$ctx): string {
                 $g = $ctx['gender'] ?? '';
                 if ($g === 'M') $out .= tex_escape($tk['m']);
                 elseif ($g === 'F') $out .= tex_escape($tk['f']);
-                else { $ctx['issues']['gender'] = true; $out .= tex_escape($tk['m'] . '/' . $tk['f']); }
+                else { $ctx['issues']['gender'] = true; render_issue_at($ctx, 'gender'); $out .= tex_escape($tk['m'] . '/' . $tk['f']); }
                 break;
             case 'token':
                 $name = $tk['v'];
-                if (!array_key_exists($name, $ctx['values'])) { $ctx['issues']['unknown'][$name] = true; $out .= tex_escape('@' . $name); break; }
+                if (!array_key_exists($name, $ctx['values'])) { $ctx['issues']['unknown'][$name] = true; render_issue_at($ctx, "unknown:$name"); $out .= tex_escape('@' . $name); break; }
                 $val = $ctx['values'][$name];
                 $ftype = $ctx['fields'][$name]['type'] ?? ($name === 'date' ? 'date' : 'text');
                 if ($ftype === 'date' && $val !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $val)) {
                     $val = render_format_date($val, $ctx['fields'][$name]['datefmt'] ?? ($ctx['datefmt'] ?? 'd/m/Y'));   // field > block > d/m/Y
                 }
                 $piece = $val === '' ? tex_escape('[' . ($ctx['fields'][$name]['label'] ?? $name) . ']') : tex_escape($val);
-                if ($val === '') $ctx['issues']['missing'][$name] = true;
+                if ($val === '') { $ctx['issues']['missing'][$name] = true; render_issue_at($ctx, "missing:$name"); }
                 $out .= render_trace($ctx, 'field:' . $name, $piece, isset($ctx['fields'][$name]));
                 break;
         }
@@ -284,7 +292,7 @@ function render_medtable(array $section, array $inputs, array &$ctx): string {
         if (trim((string)($r['name'] ?? '')) === '') continue;
         $cells = [];
         foreach (['name', 'dose', 'freq', 'days', 'notes'] as $k) {
-            $c = $ctx; $c['datefmt'] = null;
+            $c = $ctx; $c['datefmt'] = null; $c['src'] = 'section:' . $section['id'];
             $cells[] = '{' . render_markup(trim((string)($r[$k] ?? '')), $c) . '}';
             $ctx['issues'] = $c['issues'] ?? [];
         }
@@ -319,14 +327,14 @@ function render_topics(array $section, array $inputs, array &$ctx): string {
         foreach (($tp['blocks'] ?? []) as $b) {
             if (!render_block_on($section, $b, $inputs)) continue;
             $raw = render_block_text($b, $inputs);
-            $c = $ctx; $c['datefmt'] = $b['datefmt'] ?? null;
+            $c = $ctx; $c['datefmt'] = $b['datefmt'] ?? null; $c['src'] = 'block:' . $b['id'];
             $tex = (($b['format'] ?? 'markup') === 'latex' && !isset($inputs['blocks'][$b['id']]['text'])) ? $raw : render_markup($raw, $c);
             $ctx['issues'] = $c['issues'] ?? [];
             if (trim($tex) !== '') $parts[] = [render_trace($ctx, 'block:' . $b['id'], $tex), !empty($b['item'])];
         }
         foreach (($inputs['extra'][$tp['id']] ?? []) as $x) {
             foreach (preg_split('/\n+/', trim((string)($x['text'] ?? ''))) as $line) {
-                $c = $ctx; $t = render_markup($line, $c); $ctx['issues'] = $c['issues'] ?? [];
+                $c = $ctx; $c['src'] = 'extra:' . $tp['id']; $t = render_markup($line, $c); $ctx['issues'] = $c['issues'] ?? [];
                 if (trim($t) !== '') $parts[] = [render_trace($ctx, 'extra:' . $tp['id'], $t), false];
             }
         }
@@ -377,12 +385,14 @@ function render_section(array $section, array $inputs, array &$ctx): string {
     $blocks = $section['blocks'] ?? [];
     foreach ($blocks as $b) {
         if (!render_block_on($section, $b, $inputs)) continue;
-        $c = $ctx; $c['datefmt'] = $b['datefmt'] ?? null;
+        $c = $ctx; $c['datefmt'] = $b['datefmt'] ?? null; $c['src'] = 'block:' . $b['id'];
         $raw = render_block_text($b, $inputs);
         $tex = (($b['format'] ?? 'markup') === 'latex' && !isset($inputs['blocks'][$b['id']]['text']))
              ? $raw : render_markup($raw, $c);
         $ctx['issues'] = $c['issues'] ?? [];
-        $label = isset($b['label']) ? render_markup($b['label'], $ctx) : null;
+        $cl = $ctx; $cl['src'] = 'block:' . $b['id'];
+        $label = isset($b['label']) ? render_markup($b['label'], $cl) : null;
+        $ctx['issues'] = $cl['issues'] ?? [];
         if (trim($tex) === '') continue;
         $tex = render_trace($ctx, 'block:' . $b['id'], $tex);
         if ($label !== null && $label !== '') $label = render_trace($ctx, 'block:' . $b['id'], $label);
@@ -395,7 +405,7 @@ function render_section(array $section, array $inputs, array &$ctx): string {
         // paragraphs: one block of text; lists: one item per line
         $texts = $isList ? preg_split('/\n+/', trim((string)($x['text'] ?? ''))) : [(string)($x['text'] ?? '')];
         foreach ($texts as $one) {
-            $c = $ctx; $c['datefmt'] = null;
+            $c = $ctx; $c['datefmt'] = null; $c['src'] = 'extra:' . $section['id'];
             $tex = render_markup($one, $c);
             $ctx['issues'] = $c['issues'] ?? [];
             if (trim($tex) !== '') $items[] = [null, render_trace($ctx, 'extra:' . $section['id'], $tex), null];
@@ -487,11 +497,12 @@ function render_checks(array $type, array $inputs, array $issues): array {
     $c = [];
     $p = $inputs['patient'] ?? [];
     if (render_patient_required($type) && trim((string)($p['name'] ?? '')) === '') $c[] = ['level' => 'error', 'msg' => 'Patient name is empty'];
+    $at = fn(string $k, ?string $else = null) => array_key_first($issues['src'][$k] ?? []) ?? $else;   // where it was found (§6.1)
     foreach (array_keys($issues['missing'] ?? []) as $n) {
-        $c[] = ['level' => 'error', 'msg' => 'Missing value: ' . ($type['fields'][$n]['label'] ?? $n)];
+        $c[] = ['level' => 'error', 'msg' => 'Missing value: ' . ($type['fields'][$n]['label'] ?? $n), 'src' => isset($type['fields'][$n]) ? "field:$n" : $at("missing:$n")];
     }
-    foreach (array_keys($issues['unknown'] ?? []) as $n) $c[] = ['level' => 'error', 'msg' => "Unknown token @$n"];
-    if (!empty($issues['gender'])) $c[] = ['level' => 'error', 'msg' => 'The patient\'s gender is needed for the Greek text'];
+    foreach (array_keys($issues['unknown'] ?? []) as $n) $c[] = ['level' => 'error', 'msg' => "Unknown token @$n", 'src' => $at("unknown:$n")];
+    if (!empty($issues['gender'])) $c[] = ['level' => 'error', 'msg' => 'The patient\'s gender is needed for the Greek text', 'src' => $at('gender')];
     if (empty($inputs['settings']['date'])) $c[] = ['level' => 'error', 'msg' => 'Document date is empty'];
     if (!in_array($inputs['settings']['clinic'] ?? '', RENDER_CLINICS, true)) $c[] = ['level' => 'error', 'msg' => 'Clinic is not set'];
     return $c;

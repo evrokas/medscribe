@@ -106,7 +106,66 @@ function page_type_preview_post($params) {
     } catch (Throwable $e) {
         $send(['ok' => false, 'errors' => array_merge($errors, ['Cannot be shown: ' . $e->getMessage()])]);
     }
-    $send(['ok' => true, 'errors' => $errors, 'checks' => array_values(array_filter($checks, fn($c) => $c['level'] !== 'ok')), 'html' => $html]);
+    $send(['ok' => true, 'errors' => $errors, 'checks' => array_values(array_filter($checks, fn($c) => $c['level'] !== 'ok')), 'html' => $html,
+           'lints' => types_lint($type)]);
+}
+
+/**
+ * Test PDF of the unsaved text (plan §6.4): the sample inputs compiled exactly as a composer preview is (draft mark, QR
+ * frame), in the sandbox, purpose "type-preview", tied to no document. One such build per user is kept (the previous one
+ * and its store objects go); a per-user lock refuses a second build while one runs (409).
+ */
+function page_type_pdf_post($params) {
+    global $kernel;
+    header('Content-Type: application/json'); header('Cache-Control: no-store');
+    $send = function (array $r, int $code = 200) { http_response_code($code); echo json_encode($r, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); exit(); };
+    if (!csrfClass::verifyRequest()) $send(['ok' => false, 'error' => 'Invalid security token: reload the page.'], 400);
+    if (($params['kind'] ?? '') !== 'typedef') $send(['ok' => false, 'error' => 'Only a type has a PDF.'], 400);
+    $user = $kernel->getUserName() ?: 'user';
+    $GLOBALS['types_check_resolved'] = null;
+    [$errors] = types_check('typedef', str_replace("\r\n", "\n", (string)($_POST['text'] ?? '')));
+    $type = $GLOBALS['types_check_resolved'];
+    if (!is_array($type) || $errors) $send(['ok' => false, 'error' => 'Fix the errors first: ' . implode('; ', $errors ?: ['the text cannot be read'])]);
+    $rel = base_release_current();
+    if (!$rel) $send(['ok' => false, 'error' => 'No letterhead release.']);
+    store_mkdir(__APPDIR__ . '/web/files/jobs');
+    $lock = fopen(__APPDIR__ . '/web/files/jobs/type-pdf-' . md5($user) . '.lock', 'c');
+    if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) $send(['ok' => false, 'error' => 'A test PDF is being built already; wait for it.'], 409);
+    try {
+        $inputs = types_sample_inputs($type, ($_POST['gender'] ?? 'M') === 'F' ? 'F' : 'M');
+        [$tex] = render_document($type, $inputs, ['preview' => true]);
+        $t0 = microtime(true);
+        $r = compile_job(base_release_files((int)$rel['id']), ['document.tex' => $tex], 'document.tex', time(), 'type-preview', $user, null);
+        if ($r['ok']) store_put($r['pdf']);
+        types_pdf_prune($user, (int)$r['build_id']);
+    } finally { flock($lock, LOCK_UN); fclose($lock); }
+    if (!$r['ok']) $send(['ok' => false, 'error' => 'The PDF failed to build: ' . ($r['error'] ?? '') . ' ' . substr((string)($r['log_tail'] ?? ''), -400)]);
+    $send(['ok' => true, 'url' => rel_url('/types/typedef/' . $params['name'] . '/pdf?b=' . $r['build_id']), 'seconds' => round(microtime(true) - $t0, 1), 'passes' => $r['passes']]);
+}
+
+/** Remove this user's other type-preview builds and the store objects only they used. */
+function types_pdf_prune(string $user, int $keep): void {
+    $st = store_db()->prepare("SELECT id, tex_sha256, pdf_sha256, manifest FROM builds WHERE purpose = 'type-preview' AND cuser = ? AND id <> ?");
+    $st->execute([$user, $keep]);
+    foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $b) {
+        $gen = [];
+        foreach ((json_decode((string)$b['manifest'], true)['files'] ?? []) as $f) if (!empty($f['generated'])) $gen[] = $f['sha256'];
+        store_db()->prepare('DELETE FROM builds WHERE id = ?')->execute([$b['id']]);
+        foreach (array_filter(array_merge([$b['pdf_sha256'], $b['tex_sha256']], $gen)) as $sha) issue_gc_object($sha);
+    }
+}
+
+/** The user's own test PDF. */
+function page_type_pdf($params) {
+    global $kernel;
+    $st = store_db()->prepare("SELECT pdf_sha256 FROM builds WHERE id = ? AND purpose = 'type-preview' AND cuser = ? AND status = 'ok'");
+    $st->execute([(int)($_GET['b'] ?? 0), $kernel->getUserName() ?: 'user']);
+    $sha = $st->fetchColumn();
+    if (!$sha) return error_404('No test PDF (it is replaced by the next one).');
+    header('Content-Type: application/pdf'); header('Content-Disposition: inline; filename="test-' . preg_replace('/[^a-z0-9-]/', '', (string)$params['name']) . '.pdf"');
+    header('Cache-Control: private, no-store');
+    echo store_get($sha);
+    exit();
 }
 
 /** The label of every shared component (its latest version), for naming the sections that use one: [name => label]. */
@@ -191,6 +250,7 @@ function page_type_review($params) {
     $checks = [];
     foreach ($errors as $e) $checks[] = ['level' => 'error', 'msg' => $e];
     foreach ($warnings as $m => $gs) $checks[] = ['level' => 'warn', 'msg' => $m . ' (sample, ' . implode(' and ', $gs) . ')'];
+    if ($kind === 'typedef' && is_array($GLOBALS['types_check_resolved'] ?? null)) foreach (types_lint($GLOBALS['types_check_resolved']) as $l) $checks[] = $l;
     // the shared components it pins, as versions
     $pins = [];
     foreach (($def['shared'] ?? []) as $sn => $sha) {
@@ -207,6 +267,7 @@ function page_type_review($params) {
         'type_label' => is_string($def['label'] ?? null) && $def['label'] !== '' ? $def['label'] : $name,
         'diff' => $diff, 'checks' => $checks, 'pins' => $pins, 'docs' => $docs,
         'has_errors' => (bool)$errors,
+        'clean' => !array_filter($checks, fn($c) => $c['level'] !== 'note'),
     ]);
 }
 

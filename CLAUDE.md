@@ -509,3 +509,7 @@ supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `w
 - **Review & release (phase 9):** `/types/{kind}/{name}/review?v=N` shows what changes (`web/type_diff.php`, matched by id,
   grouped by section, word diff, a field renamed = one item), the checks and the impact; releasing needs its checkbox
   (`confirm=1`, enforced by `page_type_edit_post`). There is no one-click release any more.
+- **Preview panel (phase 5):** checks carry their source (`render_issue_at()`, `src` in `render_checks()`) for "Go to
+  source"; lints in `types_lint()` (`web/type_diff.php`); a **PDF** tab: `POST /types/typedef/{name}/pdf` compiles the
+  unsaved text with the sample values (purpose `type-preview`, one build kept per user, a per-user lock, 409 while one
+  runs), `GET …/pdf?b=ID` serves it to its user.

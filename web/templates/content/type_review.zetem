@@ -49,7 +49,7 @@
     <div class="te-col-side">
       <section class="te-card">
         <h3>{{{t('Checks')}}}</h3>
-        {% if(!$checks): %}<p class="te-ok">&#10003; {{{t('Valid; the sample renders without problems (male and female).')}}}</p>{% endif %}
+        {% if($clean): %}<p class="te-ok">&#10003; {{{t('Valid; the sample renders without problems (male and female).')}}}</p>{% endif %}
         <ul class="te-checks">
           {% foreach($checks as $c): %}<li class="te-check-{{{$c['level']}}}">{{{$c['msg']}}}</li>{% endforeach %}
         </ul>

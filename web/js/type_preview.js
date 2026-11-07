@@ -12,17 +12,38 @@
   var mode = 'print', timer = null, seq = 0, pending = null;
   try { mode = localStorage.getItem(KEY) || 'print'; } catch (e) {}
   function el(tag, cls, text) { var x = document.createElement(tag); if (cls) x.className = cls; if (text !== undefined) x.textContent = text; return x; }
+  // one message; "Go to source" when the issue knows where it was found (plan §6.1)
+  function msg(level, text, src) {
+    var d = el('div', 'check check-' + level, text);
+    if (src) {
+      var go = el('button', 'tt-btn pv-goto', 'Go to source'); go.type = 'button'; go.title = src;
+      go.addEventListener('click', function () { window.dispatchEvent(new CustomEvent('ms-reveal', {detail: src})); });
+      d.appendChild(go);
+    }
+    return d;
+  }
   function show(r) {
     msgs.textContent = '';
-    (r.errors || []).forEach(function (m) { msgs.appendChild(el('div', 'check check-error', m)); });
-    (r.checks || []).forEach(function (c) { msgs.appendChild(el('div', 'check check-' + c.level, c.msg)); });
+    // the server's validation names its place as "block <id>: …" / "section <id>: …" / "field <id>: …"
+    (r.errors || []).forEach(function (m) { var w = /^(block|section|topic|field) ([^\s:]+):/.exec(m); msgs.appendChild(msg('error', m, w ? w[1] + ':' + w[2] : '')); });
+    (r.checks || []).forEach(function (c) { msgs.appendChild(msg(c.level, c.msg, c.src)); });
+    var lints = r.lints || [], notes = lints.filter(function (l) { return l.level === 'note'; });
+    lints.filter(function (l) { return l.level !== 'note'; }).forEach(function (l) { msgs.appendChild(msg('warn', l.msg, l.src)); });
+    if (notes.length) {
+      var det = el('details', 'pv-notes'); det.appendChild(el('summary', '', notes.length + ' note' + (notes.length === 1 ? '' : 's')));
+      notes.forEach(function (l) { det.appendChild(msg('note', l.msg, l.src)); });
+      msgs.appendChild(det);
+    }
     if (!r.ok) return;   // keep the last good preview under the errors
-    body.innerHTML = mode === 'form' ? '<fieldset disabled class="form-preview">' + r.html + '</fieldset>' : '<div class="pv-paper">' + r.html + '</div>';
+    status.textContent = 'updated ' + new Date().toLocaleTimeString();
+    body.innerHTML = mode === 'form' ? '<fieldset disabled class="form-preview">' + r.html + '</fieldset>'
+      : '<div class="pv-paper">' + r.html + '</div><p class="pv-approx muted">HTML approximation: no letterhead, QR code or page breaks.' + (pdfBtn ? ' The PDF tab is the reference.' : '') + '</p>';
     body.appendChild(target); place(null);
     if (pending) { var p = pending; pending = null; highlight(p); }
   }
   function refresh() {
     clearTimeout(timer);
+    if (mode === 'pdf') { pdfView(); return; }
     var my = ++seq, fd = new FormData(form);
     fd.set('text', ta.value); fd.set('mode', mode); fd.set('gender', gender.value);
     status.textContent = '…';
@@ -31,7 +52,38 @@
       .then(function (r) { if (my !== seq) return; status.textContent = ''; show(r); })
       .catch(function () { if (my === seq) status.textContent = 'not reachable'; });
   }
-  function later() { clearTimeout(timer); timer = setTimeout(refresh, 700); }
+  function later() { if (mode === 'pdf') { pdfStale(); return; } clearTimeout(timer); timer = setTimeout(refresh, 700); }
+  // ---------- the PDF tab (plan §6.4): built on request (a XeLaTeX run takes ~12 s), marked stale after an edit ----------
+  var pdfBtn = panel.querySelector('[data-mode=pdf]'), pdf = {url: '', text: '', gender: '', busy: false};
+  function pdfStale() { var n = body.querySelector('.pv-pdf-note'); if (n && pdf.url && (pdf.text !== ta.value || pdf.gender !== gender.value)) n.textContent = 'The text changed since this PDF was built: build it again to see the change.'; }
+  function pdfView() {
+    msgs.textContent = ''; body.textContent = '';
+    var bar = el('div', 'pv-pdf-bar'), b = el('button', 'tt-btn pv-pdf-build', pdf.busy ? 'Building…' : (pdf.url ? 'Build again' : 'Build the test PDF'));
+    b.type = 'button'; b.disabled = pdf.busy;
+    b.addEventListener('click', buildPdf);
+    bar.appendChild(b);
+    bar.appendChild(el('span', 'pv-pdf-note muted', pdf.url ? '' : 'The unsaved text with the sample values, compiled as a composer preview (draft mark, QR as an empty frame). Takes about 12 s.'));
+    body.appendChild(bar);
+    if (pdf.url) { var f = el('iframe', 'pv-pdf-frame'); f.src = pdf.url; f.title = 'Test PDF'; body.appendChild(f); }
+    pdfStale();
+  }
+  function buildPdf() {
+    if (pdf.busy) return;
+    pdf.busy = true; pdfView();
+    var fd = new FormData(form), t0 = Date.now(), sent = ta.value, g = gender.value;
+    fd.set('text', sent); fd.set('gender', g);
+    status.textContent = 'building the PDF…';
+    fetch(panel.dataset.pdfUrl, {method: 'POST', body: fd, credentials: 'same-origin'})
+      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        pdf.busy = false;
+        if (!r.ok) { status.textContent = ''; if (mode === 'pdf') { pdfView(); msgs.appendChild(msg('error', r.error || 'failed')); } return; }
+        pdf.url = r.url; pdf.text = sent; pdf.gender = g;
+        status.textContent = 'PDF built in ' + Math.round((Date.now() - t0) / 100) / 10 + ' s (' + r.passes + ' passes)';
+        if (mode === 'pdf') pdfView();
+      })
+      .catch(function () { pdf.busy = false; status.textContent = 'not reachable'; if (mode === 'pdf') pdfView(); });
+  }
   function setMode(m) {
     mode = m;
     panel.querySelectorAll('[data-mode]').forEach(function (b) { b.classList.toggle('active', b.dataset.mode === m); });
@@ -91,7 +143,7 @@
   }
   // the other way: the target icon of a tree row highlights its text in the preview
   window.addEventListener('ms-show', function (e) {
-    if (mode === 'form' && !body.querySelector('[data-src="' + cssq(e.detail) + '"]')) { pending = e.detail; setMode('print'); return; }
+    if ((mode === 'form' && !body.querySelector('[data-src="' + cssq(e.detail) + '"]')) || mode === 'pdf') { pending = e.detail; setMode('print'); return; }
     highlight(e.detail);
   });
   function highlight(src) {
@@ -104,5 +156,5 @@
   }
   gender.addEventListener('change', refresh);
   ta.addEventListener('input', later); ta.addEventListener('tt-change', later);
-  setMode(mode === 'form' ? 'form' : 'print');
+  setMode(mode === 'form' ? 'form' : mode === 'pdf' && pdfBtn ? 'pdf' : 'print');
 })();

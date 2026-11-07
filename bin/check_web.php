@@ -171,6 +171,26 @@ $r = $dc->post('/types/typedef/adeia/preview', ['text' => $adeia, 'mode' => 'pri
 check('type preview: CSRF is enforced', !(json_decode($r['body'], true)['ok'] ?? false));
 check('type preview: nothing was saved', (int)$db->query("SELECT COUNT(*) FROM source_versions v JOIN sources s ON s.id=v.source_id WHERE s.name='typedef/adeia'")->fetchColumn() === 1);
 
+// ---- the type editor's test PDF (plan §6.4): one build at a time per user, served to that user only, one kept
+$typePdfs = fn() => (int)$db->query("SELECT COUNT(*) FROM builds WHERE purpose = 'type-preview' AND cuser = 'wt_doctor'")->fetchColumn();
+store_mkdir(dirname(__DIR__) . '/web/files/jobs');
+$lockF = fopen(dirname(__DIR__) . '/web/files/jobs/type-pdf-' . md5('wt_doctor') . '.lock', 'c'); flock($lockF, LOCK_EX);
+$r = $dc->post('/types/typedef/adeia/pdf', ['csrf_token' => $dc->token('/types/typedef/adeia'), 'text' => $adeia]);
+check('test PDF: refused while another build of the same user runs', $r['status'] === 409, (string)$r['status']);
+flock($lockF, LOCK_UN); fclose($lockF);
+$tok = $dc->token('/types/typedef/adeia');
+$j1 = json_decode($dc->post('/types/typedef/adeia/pdf', ['csrf_token' => $tok, 'text' => $adeia])['body'], true);
+$pdfPath = parse_url((string)($j1['url'] ?? ''), PHP_URL_PATH) . '?' . parse_url((string)($j1['url'] ?? ''), PHP_URL_QUERY);
+check('test PDF: built from the unsaved text and served to its user', !empty($j1['ok']) && str_starts_with($dc->get($pdfPath)['body'], '%PDF'), json_encode($j1));
+check('test PDF: not served to another user', !str_starts_with($sc->get($pdfPath)['body'], '%PDF'));
+$j2 = json_decode($dc->post('/types/typedef/adeia/pdf', ['csrf_token' => $tok, 'text' => $adeia])['body'], true);
+check('test PDF: only the latest is kept', !empty($j2['ok']) && $typePdfs() === 1 && !str_starts_with($dc->get($pdfPath)['body'], '%PDF'));
+$bad = json_decode($dc->post('/types/typedef/adeia/pdf', ['csrf_token' => $tok, 'text' => '{'])['body'], true);
+check('test PDF: invalid text is refused before any build', empty($bad['ok']) && $typePdfs() === 1);
+foreach ($db->query("SELECT id, tex_sha256, pdf_sha256 FROM builds WHERE purpose = 'type-preview' AND cuser = 'wt_doctor'")->fetchAll(PDO::FETCH_ASSOC) as $b) {
+    $db->exec('DELETE FROM builds WHERE id = ' . (int)$b['id']); issue_gc_object($b['pdf_sha256']); issue_gc_object($b['tex_sha256']);
+}
+
 // ---- saving into a draft version: in place while it is the latest draft; never once released or superseded (a throw-away type)
 $wtName = 'wt-draft-test';
 $wtDef = json_decode($adeia, true); $wtDef['name'] = $wtName;

@@ -168,3 +168,9 @@ fieldset.section.collapsed { padding-bottom: .2rem; }
 .pv-body .pv-picked { background: #fff2b3 !important; border-radius: 3px; outline: 2px solid #e0b400; }
 .form-preview input, .form-preview textarea, .form-preview select { pointer-events: none; }
 .tt-datefmt { flex: 0 1 12rem; }
+/* type editor preview: Go to source on an issue, folded notes, the PDF tab (docs/plans/type-editor-ui.md §4.8, §6.4) */
+.pv-msgs .check { display: flex; align-items: center; gap: .5rem; } .pv-msgs .pv-goto { margin-left: auto; flex: none; font-size: .75rem; }
+.check-note { border-color: #9aa6b8; background: #f4f6f9; } .pv-notes { margin: .2rem 0; font-size: .85rem; } .pv-notes summary { cursor: pointer; color: var(--dark-gray); }
+.pv-approx { margin: .4rem .2rem; font-size: .75rem; }
+.pv-pdf-bar { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; padding: .4rem 0 .6rem; } .pv-pdf-note { font-size: .82rem; }
+.pv-pdf-frame { width: 100%; height: calc(100vh - 12rem); min-height: 480px; border: 1px solid var(--border-color); background: #fff; }

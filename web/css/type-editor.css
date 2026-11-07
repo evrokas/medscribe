@@ -221,3 +221,4 @@
 .te .te-vers li { padding: .35rem .4rem; border-radius: 6px; }
 .te .te-vers li.on { background: var(--te-accent-soft); }
 .te a.te-btn { text-decoration: none; }
+.te .te-check-note { color: #6B7891; }

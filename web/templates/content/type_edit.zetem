@@ -93,10 +93,11 @@
     <button type="button" data-dir="left" title="{{{t('Widen the preview')}}}">&#9664;</button>
     <button type="button" data-dir="right" title="{{{t('Narrow the preview')}}}">&#9654;</button>
   </div>
-  <div class="split-right type-preview" data-url="{{rel_url('/types/' . $kind . '/' . $name . '/preview')}}">
+  <div class="split-right type-preview" data-url="{{rel_url('/types/' . $kind . '/' . $name . '/preview')}}" data-pdf-url="{{rel_url('/types/' . $kind . '/' . $name . '/pdf')}}">
     <div class="pv-bar">
+      <button type="button" class="tt-btn" data-mode="print" title="{{{t('What the PDF would contain (HTML approximation, no letterhead)')}}}">{{{t('Preview')}}}</button>
       <button type="button" class="tt-btn" data-mode="form" title="{{{t('The input form a document of this type gets')}}}">{{{t('Form')}}}</button>
-      <button type="button" class="tt-btn" data-mode="print" title="{{{t('What the PDF would contain (HTML approximation, no letterhead)')}}}">{{{t('Print')}}}</button>
+      <button type="button" class="tt-btn" data-mode="pdf" title="{{{t('The real PDF with the sample values (built on request)')}}}">{{{t('PDF')}}}</button>
       <select class="pv-gender" title="{{{t('Sample patient')}}}"><option value="M">{{{t('Male')}}}</option><option value="F">{{{t('Female')}}}</option></select>
       <button type="button" class="tt-btn pv-refresh" title="{{{t('Refresh')}}}">&#8635;</button>
       <span class="pv-status muted"></span>

@@ -198,5 +198,15 @@ eq(render_validate_type(['name' => 'x', 'lang' => 'gr', 'sections' => [], 'field
 $tctx = $dctx + ['trace' => true];
 eq(trim(render_section($dsec, ['blocks' => ['d2' => ['on' => false]]], $tctx)), '\\MSsrc{block:d1}{\\MSsrc{field:op}{20 Φεβρουαρίου 2026} \\MSsrc{field:ad}{20/02/2026}}', 'trace: blocks and fields are tagged');
 
+// issues know where they were found (type editor plan §6.1)
+$st = ['name' => 'x', 'lang' => 'gr', 'fields' => ['f' => ['type' => 'text', 'label' => 'F']], 'sections' => [
+  ['id' => 'a', 'layout' => 'paragraphs', 'blocks' => [['id' => 'a1', 'text' => 'ok', 'default' => true], ['id' => 'a2', 'text' => 'x @nope {Ο|Η}', 'default' => true]]],
+  ['id' => 't', 'layout' => 'topics', 'topics' => [['id' => 't1', 'title' => 'T', 'style' => 'itemize', 'blocks' => [['id' => 't1b', 'text' => '@other', 'default' => true]]]]]]];
+$sin = ['patient' => ['name' => 'Α', 'gender' => ''], 'settings' => ['date' => '2026-01-01', 'clinic' => 'Mandra'], 'fields' => [], 'extra' => ['a' => [['text' => '@third']]]];
+[, $siss] = render_document($st, $sin);
+$byMsg = []; foreach (render_checks($st, $sin, $siss) as $c) $byMsg[$c['msg']] = $c['src'] ?? null;
+eq([$byMsg['Unknown token @nope'] ?? '-', $byMsg['Unknown token @other'] ?? '-', $byMsg['Unknown token @third'] ?? '-', $byMsg['The patient\'s gender is needed for the Greek text'] ?? '-'],
+   ['block:a2', 'block:t1b', 'extra:a', 'block:a2'], 'checks carry the source of an issue: block, block in a topic, free text');
+
 echo $fail ? "$fail of $n render tests FAILED\n" : '';
 exit($fail ? 1 : 0);

@@ -232,3 +232,53 @@ function types_diff_out(array $groups, array $order): array {
     }
     return ['groups' => $out, 'count' => $count];
 }
+
+/**
+ * Lints (plan §6.6): things worth a look that never block a save. $type is the resolved definition (shared blocks in
+ * place). Returns [['level' => 'warn'|'note', 'msg' => ..., 'src' => preview source or null], ...].
+ */
+function types_lint(array $type): array {
+    $out = [];
+    $tokenRe = '/(?<![\\\\\p{L}\p{N}_@])@([a-z][a-z0-9_]*)/u';
+    $fields = $type['fields'] ?? [];
+    $uses = array_fill_keys(array_keys($fields), 0);
+    $ids = ['block' => [], 'section' => []];
+    $count = function ($s) use (&$uses, $tokenRe) {
+        if (!is_string($s) || !preg_match_all($tokenRe, $s, $m)) return;
+        foreach ($m[1] as $n) if (isset($uses[$n])) $uses[$n]++;
+    };
+    $blocks = [];   // [block, section]
+    foreach (($type['sections'] ?? []) as $sec) {
+        $ids['section'][(string)($sec['id'] ?? '')] = true;
+        foreach (['intro', 'heading', 'placeholder'] as $k) $count($sec[$k] ?? null);
+        foreach (($sec['blocks'] ?? []) as $b) $blocks[] = [$b, $sec];
+        foreach (($sec['topics'] ?? []) as $tp) { $ids['section'][(string)($tp['id'] ?? '')] = true; foreach (($tp['blocks'] ?? []) as $b) $blocks[] = [$b, $sec]; }
+        foreach (($sec['default_rows'] ?? []) as $r) foreach ((array)$r as $v) $count($v);
+    }
+    foreach ($blocks as [$b, $sec]) {
+        $ids['block'][(string)($b['id'] ?? '')] = true;
+        $count($b['text'] ?? null); $count($b['label'] ?? null);
+        if (isset($b['datefmt']) && empty($b['from'])) {
+            preg_match_all($tokenRe, (string)($b['text'] ?? '') . ' ' . (string)($b['label'] ?? ''), $m);
+            $dated = array_filter($m[1], fn($n) => $n === 'date' || (($fields[$n]['type'] ?? '') === 'date'));
+            if (!$dated) $out[] = ['level' => 'note', 'msg' => 'Block ' . $b['id'] . ' has a date format (' . $b['datefmt'] . ') but no date in it', 'src' => 'block:' . $b['id']];
+        }
+    }
+    foreach (($type['features'] ?? []) as $fid => $f) {
+        foreach (($f['ops'] ?? []) as $op) {
+            if (isset($op['field'])) $uses[$op['field']] = ($uses[$op['field']] ?? 0) + 1;
+            $count($op['text'] ?? null);
+            $label = (string)($f['label'] ?? $fid);
+            if (isset($op['block']) && !isset($ids['block'][$op['block']])) $out[] = ['level' => 'warn', 'msg' => "Case rule «{$label}»: block {$op['block']} does not exist", 'src' => null];
+            if (isset($op['section']) && !isset($ids['section'][$op['section']])) $out[] = ['level' => 'warn', 'msg' => "Case rule «{$label}»: section {$op['section']} does not exist", 'src' => null];
+            if (isset($op['field']) && !isset($fields[$op['field']])) $out[] = ['level' => 'warn', 'msg' => "Case rule «{$label}»: field @{$op['field']} does not exist", 'src' => null];
+        }
+    }
+    foreach ($uses as $n => $c) if ($c === 0 && isset($fields[$n])) $out[] = ['level' => 'warn', 'msg' => 'Field «' . ($fields[$n]['label'] ?? $n) . "» (@$n) is not used in any text", 'src' => "field:$n"];
+    foreach (array_keys($type['shared'] ?? []) as $sn) {
+        $used = false;
+        foreach (($type['sections'] ?? []) as $sec) if (($sec['use'] ?? null) === $sn || ($sec['library'] ?? null) === $sn) $used = true;
+        if (!$used) $out[] = ['level' => 'warn', 'msg' => "Shared component «{$sn}» is pinned but no section uses it", 'src' => null];
+    }
+    return $out;
+}

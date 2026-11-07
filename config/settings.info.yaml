@@ -227,6 +227,18 @@ routes:
     handler: page_type_review
     method: get
     access: doctor
+  type_pdf_post:
+    title: "Type test PDF"
+    url: "/types/{kind}/{name}/pdf"
+    handler: page_type_pdf_post
+    method: post
+    access: doctor
+  type_pdf:
+    title: "Type test PDF"
+    url: "/types/{kind}/{name}/pdf"
+    handler: page_type_pdf
+    method: get
+    access: doctor
   type_preview_post:
     title: "Type preview"
     url: "/types/{kind}/{name}/preview"
