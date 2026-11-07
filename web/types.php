@@ -266,6 +266,15 @@ function page_type_edit($params) {
         'type_label' => is_array($def) && is_string($def['label'] ?? null) && $def['label'] !== '' ? $def['label'] : (string)$params['name'],
         'shared_labels' => json_encode(types_shared_labels(), JSON_UNESCAPED_UNICODE),
         'used_by' => (string)$params['kind'] === 'shared' ? types_used_by((string)$params['name']) : [],
+        // the drug libraries the type pins, for the medication-table editor (plan §4.7)
+        'libraries' => json_encode((function () use ($def) {
+            $out = [];
+            foreach ((is_array($def) ? ($def['shared'] ?? []) : []) as $n => $sha) {
+                try { $c = is_string($sha) && preg_match('/^[0-9a-f]{64}$/', $sha) ? json_decode(store_get($sha), true) : null; } catch (Throwable $e) { $c = null; }
+                if (is_array($c) && isset($c['drugs'])) $out[$n] = ['label' => $c['label'] ?? $n, 'drugs' => $c['drugs']];
+            }
+            return $out;
+        })(), JSON_UNESCAPED_UNICODE),
         'unsaved' => isset($_SESSION['type_edit_text'][$src['name']]),
         // the shown version can be saved over while it is the latest version, still a draft, and no document uses it
         'can_save_here' => $cur['status'] === 'draft' && (int)$cur['version'] === (int)$versions[0]['version'] && (int)$cur['docs'] === 0,

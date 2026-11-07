@@ -1,6 +1,6 @@
 {% attach_library('type-editor') %}
 {% if($kind == 'typedef'): %}<div class="splitpane type-split" data-split-key="medscribe.typeedit.layout" data-split-default="55">{% endif %}
-<div class="page-placeholder type-edit te split-left" data-kind="{{{$kind}}}" data-name="{{{$name}}}" data-shared-labels="{{{$shared_labels}}}" data-used-by="{{{json_encode($used_by, JSON_UNESCAPED_UNICODE)}}}">
+<div class="page-placeholder type-edit te split-left" data-kind="{{{$kind}}}" data-name="{{{$name}}}" data-shared-labels="{{{$shared_labels}}}" data-used-by="{{{json_encode($used_by, JSON_UNESCAPED_UNICODE)}}}" data-libraries="{{{$libraries}}}">
   <div class="te-head">
     <div class="te-title">
       <a class="te-crumb" href="{{rel_url('/types')}}">{{{t('Types')}}} &rsaquo;</a>
@@ -141,6 +141,7 @@
 <script src="{{rel_url('/js/type_content.js')}}"></script>
 <script src="{{rel_url('/js/type_fields.js')}}"></script>
 <script src="{{rel_url('/js/type_rules.js')}}"></script>
+<script src="{{rel_url('/js/type_meds.js')}}"></script>
 {% else: %}
 <script src="{{rel_url('/js/type_shared.js')}}"></script>
 {% endif %}

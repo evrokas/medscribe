@@ -97,9 +97,9 @@
       p.textContent = ''; this.editors = []; this.active = null;
       if (!u) { p.appendChild(el('p', 'muted', 'Choose a section on the left.')); return; }
       this.kn = known(root);
-      p.appendChild(this.toolbar());
+      var sec = u.sec, layout = T.sval(sec, 'layout'), textual = layout !== 'medtable' && !T.sval(sec, 'use');
+      if (textual) p.appendChild(this.toolbar());
       var body = el('div', 'te-doc-body'); p.appendChild(body);
-      var sec = u.sec, layout = T.sval(sec, 'layout');
       if (u.topic) {
         this.heading(body, u.topic, 'title', 'Topic title', 'topic:' + T.sval(u.topic, 'id'));
         this.blockList(body, u.topic, layout, sec);
@@ -114,7 +114,8 @@
           sh.appendChild(el('span', '', '. Default choice: ' + (T.sval(sec, 'default_block') || 'none') + ' (Structure tab).'));
           body.appendChild(sh);
         } else if (layout === 'medtable') {
-          body.appendChild(el('div', 'te-callout', 'A medication table: its rows come from the drug library «' + T.sval(sec, 'library') + '». Title, intro text and library are in the Structure tab; default rows in the JSON tab.'));
+          if (window.MSMeds) window.MSMeds.form(body, sec, function () { self.drawOutline(); });
+          else body.appendChild(el('div', 'te-callout', 'A medication table: its rows come from the drug library «' + T.sval(sec, 'library') + '». Edit it in the JSON tab.'));
         } else if (layout === 'topics') {
           arr(T.get(sec, 'topics')).forEach(function (tp) {
             var box = el('div', 'te-topic');
@@ -124,6 +125,7 @@
           });
         } else this.blockList(body, sec, layout, sec);
       }
+      if (!textual) return;
       var all = u.topic ? arr(T.get(u.topic, 'blocks')) : sectionBlocks(sec);
       var ids = all.map(function (b) { return T.sval(b, 'id'); });
       p.appendChild(el('p', 'te-foot', all.length + ' block' + (all.length === 1 ? '' : 's') + ', ' + all.filter(isOn).length + ' on by default' +

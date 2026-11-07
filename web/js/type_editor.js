@@ -391,14 +391,15 @@
     if (layout === 'medtable') {
       prop(p, sec, 'title_page', {label: 'Title above the table'}, afterList);
       prop(p, sec, 'intro', {label: 'Text above the table', type: 'long'});
-      prop(p, sec, 'library', {label: 'Drug library', hint: 'A shared drugs component (key under "shared").'}, afterList);
+      if (window.MSMeds) window.MSMeds.form(p, sec, afterList);   // library and default rows (type_meds.js)
+      else prop(p, sec, 'library', {label: 'Drug library', hint: 'A shared drugs component (key under "shared").'}, afterList);
     }
     if (T.sval(sec, 'use')) {
       prop(p, sec, 'use', {label: 'Shared component', keep: true}, afterList);
       prop(p, sec, 'default_block', {label: 'Default choice', hint: 'The id of the component\'s sentence that is on by default.'});
     }
     var adv = advanced(p, sec, ['heading', 'label', 'layout', 'heading_level', 'numbered', 'optional', 'default', 'placeholder', 'title_page', 'intro',
-                                'library', 'use', 'default_block', 'id', 'blocks', 'topics']);
+                                'library', 'use', 'default_block', 'id', 'blocks', 'topics'].concat(layout === 'medtable' && window.MSMeds ? ['default_rows'] : []));
     idRow(adv, sec, 'section', function (nv) { structure.sel = {kind: 'section', id: nv}; remember('structure', structure.sel); afterList(); redraw(); });
     var go = el('p', 'te-goto');
     go.appendChild(button('Edit the content →', 'Open this section in the Content tab', function () { show('content', {id: T.sval(sec, 'id')}); }));

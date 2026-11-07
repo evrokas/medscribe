@@ -1,6 +1,6 @@
 # Type editor UI redesign: plan
 
-**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 5, 6, 7, 9. See the "Progress" notes at the end of §7.
+**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 5, 6, 7, 8, 9. See the "Progress" notes at the end of §7.
 **Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step,
 plus the preview QR placeholder (§6.7), which also changes the composer's preview.
 **Mockups:** canvas https://claude.ai/artifact/DvTosfM1j78w77o9FtvS6i (private to the owner). The same
@@ -419,6 +419,12 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
   note "Update <name> to vN" (to review and release like any change). Checked: `purpose` lists 14 types, `preop-odigies`
   flagged (the plan's "13 types" are the 13 that use it); a no-op edit through the drug cells leaves the library
   unchanged; `check_web.php` covers listing, the offer and the new draft (only the hash differs).
+- **Phase 8 done (2026-11-07):** `web/js/type_meds.js`, used by the Structure and Content tabs for a `medtable` section:
+  the drug library (a select of the drugs components the type pins; the page passes their entries as `data-libraries`),
+  the default rows as an editable table (cells show `{br}` as a new line; ↑ ↓ ✕; "+ Empty row"), and the library,
+  grouped with counts and searchable, whose entries are copied as default rows ("a copy: later library changes do not
+  change it"). Checked on `odigies-kyfoplastiki` (4 default rows) and `syntagi` (none): touching every cell leaves the
+  definition unchanged; a copied entry lands as name/dose/freq/days/notes.
 
 ## 8. Acceptance checklist (manual, on the server)
 

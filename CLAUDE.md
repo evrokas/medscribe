@@ -517,3 +517,5 @@ supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `w
   sources) so the panel strikes or greens what a rule changes.
 - **Shared components (phase 7):** tabs Content · Used by · JSON (`web/js/type_shared.js`, `types_used_by()`); "Update pin"
   (`action=update_pin` on the type) makes a new draft type version pinned to the component's latest release.
+- **Medication tables (phase 8):** `web/js/type_meds.js` edits a `medtable` section's library and `default_rows` (copied
+  from the pinned library, passed to the page as `data-libraries`).
