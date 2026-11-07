@@ -85,7 +85,7 @@ foreach ($types as $t) {
 // ---- the secretary: can prepare, cannot issue, cannot see the library, types editor or DocArc links
 $id = $docs[0] ?? 0;
 check('secretary: documents list and the composer', $sc->get('/documents')['status'] === 200 && $sc->get("/documents/$id")['status'] === 200);
-foreach (["/documents/$id/issue", '/library', '/types/links', '/types/typedef/adeia', "/documents/$id/final.pdf"] as $p) {
+foreach (["/documents/$id/issue", '/library', '/types/links', '/types/typedef/adeia', '/types/typedef/adeia/review', "/documents/$id/final.pdf"] as $p) {
     $r = $sc->get($p);
     check("secretary: $p is refused", $r['status'] === 302 && str_contains((string)$r['location'], '/login') || $r['status'] === 401 || $r['status'] === 403);
 }
@@ -187,7 +187,14 @@ check('draft: saved in the same version, its note kept', $wtCount() === 1 && jso
 $dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/$wtName"), 'action' => 'save', 'text' => $edit('V2'), 'note' => 'second']);
 $dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/$wtName"), 'action' => 'save_here', 'version' => 1, 'text' => $edit('NOT ALLOWED'), 'note' => '']);
 check('draft: an older draft cannot be saved over once a newer version exists', $wtCount() === 2 && json_decode($wtText(1), true)['title'] === 'IN PLACE');
-source_release((int)$db->query("SELECT id FROM source_versions WHERE source_id = " . (int)$wtSrc['id'] . " AND version = 2")->fetchColumn());
+// releasing: only from the review page, with the confirmation (plan §5.2)
+$rv = $dc->get("/types/typedef/$wtName/review?v=2");
+check('review page: lists the change and asks for the confirmation', $rv['status'] === 200 && str_contains($rv['body'], 'V2') && str_contains($rv['body'], 'name="confirm"'));
+$wtStatus = fn(int $v) => $db->query("SELECT status FROM source_versions WHERE source_id = " . (int)$wtSrc['id'] . " AND version = $v")->fetchColumn();
+$dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/$wtName/review?v=2"), 'action' => 'release', 'version' => 2]);
+check('release without the confirmation is refused', $wtStatus(2) === 'draft');
+$dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/$wtName/review?v=2"), 'action' => 'release', 'version' => 2, 'confirm' => '1']);
+check('release with the confirmation', $wtStatus(2) === 'released');
 check('released: the page no longer offers "save in"', !str_contains($dc->get("/types/typedef/$wtName")['body'], 'value="save_here"'));
 $dc->post("/types/typedef/$wtName", ['csrf_token' => $dc->token("/types/typedef/$wtName"), 'action' => 'save_here', 'version' => 2, 'text' => $edit('NOT ALLOWED'), 'note' => '']);
 check('released: a released version never changes', $wtCount() === 2 && json_decode($wtText(2), true)['title'] === 'V2');

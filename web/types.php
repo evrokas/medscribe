@@ -154,6 +154,62 @@ function page_type_edit($params) {
     ]);
 }
 
+/**
+ * Review & release (plan §5.2): what changes from the version new documents use now to vN, the checks, the impact, and the
+ * release with a required confirmation.
+ */
+function page_type_review($params) {
+    $kind = (string)($params['kind'] ?? ''); $name = (string)($params['name'] ?? '');
+    $src = types_source($kind, $name);
+    if (!$src) return error_404('Unknown source.');
+    $versions = types_versions((int)$src['id']);
+    if (!$versions) return error_404('This source has no versions yet.');
+    $byVer = []; foreach ($versions as $v) $byVer[(int)$v['version']] = $v;
+    $n = (int)($_GET['v'] ?? 0) ?: (int)$versions[0]['version'];
+    if (!isset($byVer[$n])) return error_404('Unknown version.');
+    $cur = $byVer[$n];
+    // compared with: the released version new documents use now; for a released version (or none released): the one before it
+    $base = null;
+    foreach ($versions as $v) if ($v['status'] === 'released' && (int)$v['version'] !== $n) { $base = $v; break; }
+    if ($cur['status'] === 'released' || !$base) { $base = null; foreach ($versions as $v) if ((int)$v['version'] < $n) { $base = $v; break; } }
+    if (isset($_GET['against']) && isset($byVer[(int)$_GET['against']])) $base = $byVer[(int)$_GET['against']];
+    $text = store_get($cur['sha256']);
+    $def = json_decode($text, true) ?: [];
+    $labels = types_shared_labels();
+    $diff = types_struct_diff($base ? (json_decode(store_get($base['sha256']), true) ?: []) : [], $def, $kind, $labels);
+    // the checks: the server's own, then a render of the sample with each gender
+    [$errors] = types_check($kind, $text);
+    $warnings = [];
+    if ($kind === 'typedef' && is_array($GLOBALS['types_check_resolved'] ?? null)) {
+        $type = $GLOBALS['types_check_resolved'];
+        foreach (['M' => 'male', 'F' => 'female'] as $g => $gl) {
+            $inputs = types_sample_inputs($type, $g);
+            [, $issues] = render_document($type, $inputs);
+            foreach (render_checks($type, $inputs, $issues) as $c) if ($c['level'] === 'error') $warnings[$c['msg']][] = $gl;
+        }
+    }
+    $checks = [];
+    foreach ($errors as $e) $checks[] = ['level' => 'error', 'msg' => $e];
+    foreach ($warnings as $m => $gs) $checks[] = ['level' => 'warn', 'msg' => $m . ' (sample, ' . implode(' and ', $gs) . ')'];
+    // the shared components it pins, as versions
+    $pins = [];
+    foreach (($def['shared'] ?? []) as $sn => $sha) {
+        $st = store_db()->prepare("SELECT v.version, v.status FROM sources s JOIN source_versions v ON v.source_id = s.id WHERE s.name = ? AND v.sha256 = ?");
+        $st->execute(['shared/' . $sn, $sha]);
+        $pv = $st->fetch(PDO::FETCH_ASSOC);
+        $latest = source_released_by_name('shared/' . $sn);
+        $pins[] = ['name' => $sn, 'label' => $labels[$sn] ?? $sn, 'version' => $pv ? (int)$pv['version'] : null,
+                   'latest' => $latest ? (int)$latest['version'] : null];
+    }
+    $docs = 0; foreach ($versions as $v) $docs += (int)$v['docs'];
+    return Renderer::render('type_review.zetem', [
+        'src' => $src, 'kind' => $kind, 'name' => $name, 'versions' => $versions, 'cur' => $cur, 'base' => $base,
+        'type_label' => is_string($def['label'] ?? null) && $def['label'] !== '' ? $def['label'] : $name,
+        'diff' => $diff, 'checks' => $checks, 'pins' => $pins, 'docs' => $docs,
+        'has_errors' => (bool)$errors,
+    ]);
+}
+
 function page_type_edit_post($params) {
     global $kernel;
     $kind = (string)($params['kind'] ?? ''); $name = (string)($params['name'] ?? '');
@@ -201,9 +257,16 @@ function page_type_edit_post($params) {
             header('location: ' . rel_url($url . '?v=' . $v['version'])); exit();
         }
     } elseif ($action === 'release') {
-        $st = store_db()->prepare('SELECT id, version FROM source_versions WHERE source_id = ? AND version = ?');
+        // only from the review page, after the doctor confirmed reading the changes (plan §5.2)
+        $st = store_db()->prepare('SELECT id, version, status FROM source_versions WHERE source_id = ? AND version = ?');
         $st->execute([$src['id'], (int)($_POST['version'] ?? 0)]);
-        if ($row = $st->fetch(PDO::FETCH_ASSOC)) { source_release((int)$row['id']); $kernel->addStatus('status', 'Version ' . $row['version'] . ' released.'); }
+        $row = $st->fetch(PDO::FETCH_ASSOC);
+        if (!$row) $kernel->addStatus('error', 'Unknown version.');
+        elseif (($_POST['confirm'] ?? '') !== '1') {
+            $kernel->addStatus('error', 'Not released: confirm on the review page that you have read the changes.');
+            header('location: ' . rel_url("$url/review?v=" . $row['version'])); exit();
+        } elseif ($row['status'] !== 'draft') $kernel->addStatus('error', 'Version ' . $row['version'] . ' is already released.');
+        else { source_release((int)$row['id']); $kernel->addStatus('status', 'Version ' . $row['version'] . ' released: new documents use it from now on.'); }
     } elseif ($action === 'discard') {
         unset($_SESSION['type_edit_text'][$src['name']]);
     }

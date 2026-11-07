@@ -506,3 +506,6 @@ supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `w
   when shown and writes it back (`commit()`): the textarea stays the one source of truth. Tests:
   `tests/js/type_chips_test.js`, `bin/check_chips_dom.js` (needs a Chromium; the Playwright headless shell in
   `~/.cache/ms-playwright` is found by itself, or `CHROME=`).
+- **Review & release (phase 9):** `/types/{kind}/{name}/review?v=N` shows what changes (`web/type_diff.php`, matched by id,
+  grouped by section, word diff, a field renamed = one item), the checks and the impact; releasing needs its checkbox
+  (`confirm=1`, enforced by `page_type_edit_post`). There is no one-click release any more.

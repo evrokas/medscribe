@@ -1,6 +1,6 @@
 # Type editor UI redesign: plan
 
-**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4. See the "Progress" notes at the end of §7.
+**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 9. See the "Progress" notes at the end of §7.
 **Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step,
 plus the preview QR placeholder (§6.7), which also changes the composer's preview.
 **Mockups:** canvas https://claude.ai/artifact/DvTosfM1j78w77o9FtvS6i (private to the owner). The same
@@ -370,6 +370,16 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
     in whitespace after the first edit, as with the tree. The server re-encodes on save, so versions differ only by
     the edit.
   - Medication-table default rows and shared-component content are still edited in the JSON tab (phases 7, 8).
+- **Phase 9 done (2026-11-07):** `web/type_diff.php` (`types_struct_diff()`, `types_word_diff()`, `types_section_name()` —
+  the editor's naming rule in PHP; tests `tests/static/type_diff_test.php` on `odigies-kyfoplastiki` and `shared/purpose`),
+  the page `GET /types/{kind}/{name}/review?v=N` (`page_type_review`, `type_review.zetem`): changes from the released
+  version new documents use (for a released version or none released: the version before it; `&against=M` to choose)
+  grouped by section, word-level highlight of changed texts, the raw JSON diff link, the checks (`types_check()` and the
+  M/F sample's errors), the pinned shared versions, the impact text, the required checkbox. `action=release` now needs
+  `confirm=1` (else back to the review page); the one-click Release of the history table is a "Review & release" link.
+  `check_web.php` covers: refused without the confirmation, released with it, the secretary is refused the page.
+  Addition: a removed and an added field with the same definition are reported as one **renamed** field.
+  Not yet: lints on the review page (phase 5's `types_lint()`), Go to source for the checks (phase 5).
 
 ## 8. Acceptance checklist (manual, on the server)
 

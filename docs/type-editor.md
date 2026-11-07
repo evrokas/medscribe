@@ -14,6 +14,11 @@ What you edit is the type's JSON definition. The editor gives you three ways to 
 Nothing you do here touches existing documents: each document keeps the type version it was created with. A new
 version is used by new documents only once it is **released**.
 
+> **Note (2026-11-07):** this guide describes the first editor, now at `?ui=classic`. The editor is being redesigned
+> (`docs/plans/type-editor-ui.md`): Structure, Content and Fields tabs, and a **Review & release** page that replaced the
+> one-click Release of the versions table (releasing now needs a confirmation there). The guide will be rewritten when
+> the redesign is finished.
+
 The screenshots show `odigies-kyfoplastiki` (postoperative instructions after kyphoplasty) with sample values.
 
 ---
@@ -39,7 +44,7 @@ Each row is one version of the type, newest first:
 | **Note** | The change note given when it was saved. |
 | **Documents** | How many documents were created from this version. |
 | **diff with previous** | The line-by-line changes against the version before it. |
-| **Release** | (drafts only) Makes the draft the version new documents use. |
+| **Review & release** | (drafts only) Opens the review page: what changes, the checks, and the release (with a confirmation). |
 
 ---
 
@@ -220,7 +225,7 @@ Below the editor:
 |---|---|---|
 | **Change note** | always | A short description of the change. Required for a new version. |
 | **Validate and save in vN** | the version shown is the **latest**, still a **draft**, and no document uses it | Saves into that same version (no new version). The note is optional here; when filled in, it replaces the old one. |
-| **Validate and save as a new version** | always | Makes a new **draft** version. Nothing changes for new documents until you **Release** it in the versions table. |
+| **Validate and save as a new version** | always | Makes a new **draft** version. Nothing changes for new documents until you release it from its **Review & release** page. |
 | **Reset the text** | always | Throws away the unsaved edits and reloads the version shown. |
 
 Every save checks the definition first (valid JSON, known layouts, unique ids, no unknown tokens, date formats only on
@@ -258,7 +263,7 @@ git diff types/                      # review, then commit
 | Reorder sections or blocks | Drag ⠿, or ↑ / ↓. |
 | Check the female wording | Preview → **Female**. |
 | See what the secretary will fill in | Preview → **Form**. |
-| Put a change into use | Save as a new version, then **Release** it in the versions table. |
+| Put a change into use | Save as a new version, then **Review & release** it. |
 | Keep the change in git | `php bin/export_types.php`, review, commit. |
 
 The full format of a type (every key a section, block or field can have) is in the header comment of `web/render.php`.

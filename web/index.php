@@ -16,6 +16,7 @@ require_once(__DIR__ . '/issue.php');
 require_once(__DIR__ . '/issue_pages.php');
 require_once(__DIR__ . '/print.php');
 require_once(__DIR__ . '/diff.php');
+require_once(__DIR__ . '/type_diff.php');
 require_once(__DIR__ . '/types.php');
 require_once(__DIR__ . '/pages.php');
 

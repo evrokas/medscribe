@@ -219,6 +219,14 @@ routes:
     handler: page_type_edit_post
     method: post
     access: doctor
+  type_review:
+    title:
+      gr: "Έλεγχος και έκδοση τύπου"
+      en: "Review and release"
+    url: "/types/{kind}/{name}/review"
+    handler: page_type_review
+    method: get
+    access: doctor
   type_preview_post:
     title: "Type preview"
     url: "/types/{kind}/{name}/preview"

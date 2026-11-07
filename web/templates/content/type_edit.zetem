@@ -13,6 +13,7 @@
     <div class="te-actions">
       <button type="button" class="te-btn te-open-history{% if($diff): %} on{% endif %}" title="{{{t('Versions, differences and release')}}}">{{{t('History')}}} ({{{count($versions)}}})</button>
       <button type="button" class="te-btn te-primary te-open-save">{{{t('Save…')}}}</button>
+      {% if($shown['status'] == 'draft'): %}<a class="te-btn" href="{{rel_url('/types/' . $kind . '/' . $name . '/review?v=' . $shown['version'])}}" title="{{{t('What changes, the checks, and the release (the saved version; save your edits first)')}}}">{{{t('Review & release')}}}</a>{% endif %}
     </div>
   </div>
 
@@ -26,9 +27,7 @@
         <td>{{{$v['cuser']}}}</td><td>{{{$v['cdate']}}}</td><td>{{{$v['note']}}}</td><td>{{{$v['docs']}}}</td>
         <td>
           {% if($v['prev_version']): %}<a href="{{rel_url('/types/' . $kind . '/' . $name . '?a=' . $v['prev_version'] . '&b=' . $v['version'] . '&v=' . $shown['version'])}}">{{{t('diff with previous')}}}</a>{% endif %}
-          {% if($v['status'] == 'draft'): %}
-          <form method="post" action="{{rel_url('/types/' . $kind . '/' . $name)}}" class="inline-form">{{ csrf_field() }}<input type="hidden" name="version" value="{{{$v['version']}}}"><button type="submit" name="action" value="release">{{{t('Release')}}}</button></form>
-          {% endif %}
+          {% if($v['status'] == 'draft'): %}<a href="{{rel_url('/types/' . $kind . '/' . $name . '/review?v=' . $v['version'])}}">{{{t('Review & release')}}}</a>{% endif %}
         </td>
       </tr>
       {% endforeach %}
