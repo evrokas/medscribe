@@ -3,6 +3,8 @@
 // the app's class extensions and the store/compile functions. CLI only.
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 
+// the app's timezone (config/settings.info.yaml `tz`, which the web requests use), so "today" is the same day here
+if (preg_match('/^tz:\s*"?([A-Za-z_\/+-]+)"?\s*$/m', (string)@file_get_contents(__DIR__ . '/../../config/settings.info.yaml'), $tzm)) @date_default_timezone_set($tzm[1]);
 chdir(__DIR__ . '/../../web');
 include_once(__DIR__ . '/../../config/db.php');
 require_once(__FWDIR__ . '/bootstrap.php');

@@ -519,3 +519,5 @@ supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `w
   (`action=update_pin` on the type) makes a new draft type version pinned to the component's latest release.
 - **Medication tables (phase 8):** `web/js/type_meds.js` edits a `medtable` section's library and `default_rows` (copied
   from the pinned library, passed to the page as `data-libraries`).
+- **CLI timezone:** `bin/lib/cli_boot.php` sets the app's `tz` (Europe/Athens) so CLI scripts and web requests agree on
+  "today". `check_web.php` cleans up what the test accounts made at its start and on a crash (`wt_cleanup()`).

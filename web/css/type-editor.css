@@ -269,3 +269,11 @@
 .te .te-meds-list .te-btn.te-pick { display: block; height: auto; font: .85rem/1.35 var(--font-body, sans-serif); }
 .te .te-btn.te-pick { display: block; height: auto; }
 .te .te-meds .te-add { margin-top: .4rem; }
+
+/* markup colours in the chip editor (type_chips.js build(): spans marked data-mk) */
+.te .te-mk-b { font-weight: 700; }
+.te .te-mk-i { font-style: italic; }
+.te .te-mk-mark { color: #8A97AD; font-weight: 400; font-style: normal; }
+.te .te-mk-gender { color: #7B3FA8; background: #F4ECFB; border-radius: 4px; }
+.te .te-mk-level { color: #0B6E6E; background: #E3F5F4; border-radius: 4px; }
+.te .te-mk-br, .te .te-mk-cspace, .te .te-mk-esc { color: #8A97AD; background: #EEF1F5; border-radius: 3px; font-family: monospace; font-size: .85em; }

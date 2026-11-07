@@ -70,6 +70,21 @@ try {
   ok(ed.isPlain() && got === before, 'a foreign element: shown as plain text, nothing written');
   ed.el.querySelector('textarea').value = 'fixed @x'; ed.el.querySelector('textarea').dispatchEvent(new Event('input'));
   ok(got === 'fixed @x', 'editing the plain text writes it');
+  // markup colours: spans, read back as text; the caret stays where it was after the re-colouring
+  var got3 = null, ed3 = C.editor(document, {text: '**Μην** οδηγείτε {μόνος|μόνη} @x {v:L4-5}.', known: k, id: 't3', onChange: function (t) { got3 = t; }});
+  host.appendChild(ed3.el);
+  var ce3 = ed3.el.querySelector('.te-ce');
+  ok(ce3.querySelector('.te-mk-gender') && ce3.querySelector('.te-mk-gender').textContent === '{μόνος|μόνη}' && ce3.querySelector('.te-mk-level')
+     && ce3.querySelectorAll('.te-mk-mark').length === 2 && ce3.querySelector('.te-mk-b').textContent === 'Μην', 'markup is coloured; the text between ** is bold');
+  ce3.focus(); C.placeAt(ce3, 8);   // after "**Μην** "
+  document.execCommand('insertText', false, 'Χ'); document.execCommand('insertText', false, 'Ψ');
+  ok(got3 === '**Μην** ΧΨοδηγείτε {μόνος|μόνη} @x {v:L4-5}.', 'typing in the middle keeps the caret through the re-colouring: ' + JSON.stringify(got3));
+  var sl = getSelection(); ok(C.offsetOf(ce3, sl.focusNode, sl.focusOffset) === 10, 'caret offset after typing: ' + C.offsetOf(ce3, sl.focusNode, sl.focusOffset));
+  C.placeAt(ce3, got3.length); document.execCommand('insertText', false, ' *τέλος*');
+  ok(got3 === '**Μην** ΧΨοδηγείτε {μόνος|μόνη} @x {v:L4-5}. *τέλος*' && ce3.querySelector('.te-mk-i') && ce3.querySelector('.te-mk-i').textContent === 'τέλος', 'typed markup is coloured at once: ' + JSON.stringify(got3));
+  ok(C.roundTrips(document, got3, k), 'the coloured text still round-trips');
+  var wrapped = document.createElement('div'); wrapped.innerHTML = 'a<span style="font-weight:700">b<b>c</b></span>d';
+  ok(C.read(wrapped).text === 'abcd' && !C.read(wrapped).strange, 'an inline wrapper from the browser is read as its text');
   var ed2 = C.editor(document, {text: 'odd\\u00a0space', known: k, id: 't2', onChange: function () {}});
   ok(ed2.isPlain() && /plain text/.test(ed2.el.querySelector('.te-plain-note').textContent), 'an unsafe text opens as plain text with the note');
 } catch (e) { fail++; res.push('ERROR ' + e.message + ' ' + (e.stack || '')); }

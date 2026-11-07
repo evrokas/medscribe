@@ -429,8 +429,21 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
   are focusable (Enter selects, Alt+↑/↓ moves in Structure); chips are focusable and show their token on focus; focus
   rings on buttons, tabs, rows and inputs; widths checked at 1600, 1280, 1024 and 700 px (no sideways page scroll; the
   list/editor split stacks under 1100 px); empty states in every tab (a definition with no sections, fields or rules).
-  **Not done:** colour highlighting of markup inside the chip editor (see the phase 1–4 deviations); a contrast audit with
-  a tool; rewriting `docs/type-editor.md` for the new editor; removing `?ui=classic` (after the doctor accepts).
+  **Not done:** a contrast audit with a tool; removing `?ui=classic` (after the doctor accepts).
+- **Markup colours (2026-11-08):** the chip editor colours `**`/`*` (and shows the text between them bold/italic),
+  `{Ο|Η}`, `{v:…}`, `{br}`, `\ ` and escapes, by the engine's own tokenizer rule (`markup()` in `type_chips.js`). The
+  spans carry `data-mk` and are read back as their text, so the bytes cannot change; after each input the row is
+  re-coloured and the caret put back at its offset in the text (not during IME composition, which Greek accents use).
+  Chrome wraps typed characters in its own `<span style>` next to coloured text: `read()` accepts such inline wrappers
+  (text only) and the re-colouring removes them; block elements (`div`, `p`) still turn the row plain. The editable
+  element sets `white-space: pre-wrap` itself (without it a browser types spaces as U+00A0). Tested in
+  `check_chips_dom.js`: colours, caret kept while typing in the middle, typed markup coloured at once, round trip.
+  Known cost: the browser's own undo (Ctrl+Z) does not reach across a re-colouring.
+- **PDF tab = composer, checked (2026-11-08):** `check_web.php` builds the PDF tab's PDF over HTTP, gives a document the
+  same (sample) inputs and runs the composer's own `doc_preview()`: same `.tex`, same letterhead files, and the PDF
+  tab's manifest rebuilt with the composer build's time stamp gives byte-identical PDFs. The two builds differ only by
+  `SOURCE_DATE_EPOCH` (each preview stamps the time it ran). Found on the way: CLI scripts ran in UTC while the app
+  uses `tz: Europe/Athens`, so "today" differed after midnight; `bin/lib/cli_boot.php` now sets the app's timezone.
 - **Acceptance checklist (§8), run in headless Chromium on the server, 2026-11-07:**
   readable names and counts (kyfoplastiki 10 sections, 8 fields, Γενικές Οδηγίες 13/14) ✓; a non-round-tripping text
   (U+00A0) opens plain with the note, nothing written unless edited (`check_chips_dom.js`) ✓ (a literal `<` round-trips,
@@ -440,9 +453,7 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
   3 added (4 struck is not reachable: 2 of the blocks it turns off are off by default) ✓; `purpose` Used by 14 types,
   `preop-odigies` flagged ✓; review page and release with the checkbox ✓ (`check_web.php`, `type_diff_test.php`);
   previews draw the QR frame, final copies unchanged (`render_test.php`, `check_m1.php`) ✓.
-  **Not checked:** "PDF tab gives the same bytes as the composer for the same inputs" (both go through
-  `render_document(['preview' => true])` and `compile_job()`, but no test compares them; the build time stamps differ),
-  the blocked tab switch with invalid JSON (an `alert`, which the headless run cannot answer), and the QR of a real
+  PDF tab = composer: see the entry below. **Not checked:** the blocked tab switch with invalid JSON (an `alert`, which the headless run cannot answer), and the QR of a real
   final copy scanned with a phone.
 
 ## 8. Acceptance checklist (manual, on the server)

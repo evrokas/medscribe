@@ -19,12 +19,32 @@ function check(string $l, bool $ok, string $d = ''): void { global $fail; echo (
 $db = store_db();
 $pw = 'T3st-' . bin2hex(random_bytes(4));
 $users = ['wt_doctor' => 'doctor', 'wt_secretary' => 'secretary'];
+/** Remove everything the test accounts made: at the start (what a crashed run left) and at the end, also after a crash. */
+function wt_cleanup(): void {
+    $db = store_db(); $q = "('wt_doctor','wt_secretary')";
+    foreach ($db->query("SELECT id FROM documents WHERE cuser IN $q")->fetchAll(PDO::FETCH_COLUMN) as $d) {
+        issue_prune_builds((int)$d, [], ['preview', 'issue', 'test', 'rebuild']); $db->prepare('DELETE FROM documents WHERE id = ?')->execute([$d]);
+    }
+    foreach ($db->query("SELECT id, tex_sha256, pdf_sha256 FROM builds WHERE purpose IN ('type-preview', 'test') AND cuser IN $q")->fetchAll(PDO::FETCH_ASSOC) as $b) {
+        $db->exec('DELETE FROM builds WHERE id = ' . (int)$b['id']); issue_gc_object((string)$b['pdf_sha256']); issue_gc_object((string)$b['tex_sha256']);
+    }
+    foreach (['typedef/wt-draft-test', 'typedef/wt-pin-test', 'shared/wt-comp'] as $n) {
+        $id = $db->query('SELECT id FROM sources WHERE name = ' . $db->quote($n))->fetchColumn();
+        if ($id) { $db->exec("DELETE FROM source_versions WHERE source_id = " . (int)$id); $db->exec("DELETE FROM sources WHERE id = " . (int)$id); }
+    }
+    $db->exec("DELETE FROM audit_log WHERE cuser IN $q");
+    $db->exec("DELETE ur FROM user_roles ur JOIN users us ON us.id = ur.user_id WHERE us.uname IN $q");
+    $db->exec("DELETE FROM users WHERE uname IN $q"); $db->exec("DELETE FROM user_tokens WHERE uname IN $q");
+}
+wt_cleanup();
 foreach ($users as $u => $role) {
     $db->prepare('INSERT INTO users (name, email, uname, upass, cdate, active, expired, wrongpasscount, roles) VALUES (?,?,?,?,NOW(),1,0,0,?)')->execute([$u, "$u@localhost", $u, password_hash($pw, PASSWORD_DEFAULT), $role]);
     $uid = (int)$db->lastInsertId();
     $rid = (int)$db->query("SELECT id FROM roles WHERE name = " . $db->quote($role))->fetchColumn();
     $db->prepare('INSERT INTO user_roles (guid, cuser, user_id, role_id) VALUES (?,?,?,?)')->execute([store_uuid(), 'webtest', $uid, $rid]);
 }
+$cleaned = false;
+register_shutdown_function(function () use (&$cleaned) { if (!$cleaned) { echo "\n(cleaning up after a failure)\n"; wt_cleanup(); } });
 $port = random_int(20000, 40000);
 $root = dirname(__DIR__);
 $srv = proc_open(['php', '-S', "127.0.0.1:$port", '-t', "$root/web", "$root/router.php"], [0 => ['file', '/dev/null', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']], $pp, $root);
@@ -194,6 +214,35 @@ $j2 = json_decode($dc->post('/types/typedef/adeia/pdf', ['csrf_token' => $tok, '
 check('test PDF: only the latest is kept', !empty($j2['ok']) && $typePdfs() === 1 && !str_starts_with($dc->get($pdfPath)['body'], '%PDF'));
 $bad = json_decode($dc->post('/types/typedef/adeia/pdf', ['csrf_token' => $tok, 'text' => '{'])['body'], true);
 check('test PDF: invalid text is refused before any build', empty($bad['ok']) && $typePdfs() === 1);
+// the PDF tab gives the composer's bytes: the same inputs through the composer's own doc_preview() give the same .tex and
+// letterhead files, and the PDF tab's build, rebuilt with the composer build's time stamp, the same PDF bytes
+// (each build stamps the time it ran: SOURCE_DATE_EPOCH = time())
+require_once(__DIR__ . '/../web/types.php');
+$jt = json_decode($dc->post('/types/typedef/adeia/pdf', ['csrf_token' => $tok, 'text' => $adeia, 'gender' => 'M'])['body'], true);
+$tb = $db->query('SELECT * FROM builds WHERE id = ' . (int)preg_replace('/.*[?&]b=(\d+).*/', '$1', (string)($jt['url'] ?? '')))->fetch(PDO::FETCH_ASSOC);
+$r = $dc->post('/documents/new', ['csrf_token' => $dc->token('/documents/new'), 'type' => 'adeia', 'patient' => ['name' => 'WT compare', 'gender' => 'M', 'age' => '45'], 'clinic' => 'Mandra', 'date' => date('Y-m-d')]);
+preg_match('#/documents/(\d+)$#', (string)$r['location'], $m); $cmpDoc = (int)($m[1] ?? 0); $docs[] = $cmpDoc;
+$adeiaVid = (int)$db->query("SELECT v.id FROM sources s JOIN source_versions v ON v.source_id=s.id WHERE s.name='typedef/adeia' AND v.status='released' ORDER BY v.version DESC LIMIT 1")->fetchColumn();
+$adeiaType = doc_typedef($adeiaVid);
+$db->prepare('UPDATE documents SET typedef_version_id = ?, type_name = ?, base_release_id = ?, inputs = ? WHERE id = ?')
+   ->execute([$adeiaVid, 'adeia', (int)base_release_current()['id'], json_encode(types_sample_inputs($adeiaType, 'M'), JSON_UNESCAPED_UNICODE), $cmpDoc]);
+$keepKernel = $GLOBALS['kernel'] ?? null;
+$GLOBALS['kernel'] = new class { function getUserName() { return 'wt_doctor'; } };
+$cb = doc_preview(doc_load($cmpDoc), $adeiaType);
+$GLOBALS['kernel'] = $keepKernel;
+$mt = json_decode((string)($tb['manifest'] ?? '{}'), true); $mc = $cb['manifest'] ?? [];
+$kit = fn(array $m) => array_map(fn($f) => $f['kitpath'] . ' ' . $f['sha256'], array_values(array_filter($m['files'] ?? [], fn($f) => empty($f['generated']))));
+$texDiff = (function () use ($mt, $mc) {
+    try { $a = explode("\n", store_get($mt['tex_sha256'])); $b = explode("\n", store_get($mc['tex_sha256'])); } catch (Throwable $e) { return $e->getMessage(); }
+    return implode(' | ', array_slice(array_merge(array_map(fn($l) => "tab: $l", array_diff($a, $b)), array_map(fn($l) => "composer: $l", array_diff($b, $a))), 0, 6));
+})();
+check('PDF tab = composer: the same .tex for the same inputs', !empty($jt['ok']) && $cb['ok'] && ($mt['tex_sha256'] ?? 'a') === ($mc['tex_sha256'] ?? 'b'), $texDiff);
+check('PDF tab = composer: the same letterhead files', $kit($mt) && $kit($mt) === $kit($mc));
+$mt['source_date_epoch'] = $mc['source_date_epoch'];
+$rb = compile_from_manifest($mt, 'test', 'wt_doctor');
+check('PDF tab = composer: with the same time stamp, byte-identical PDFs', $rb['ok'] && $rb['pdf_sha256'] === $cb['pdf_sha256'],
+      substr((string)$rb['pdf_sha256'], 0, 12) . ' vs ' . substr((string)$cb['pdf_sha256'], 0, 12) . ', time stamps ' . ($tb['source_date_epoch'] ?? '?') . '/' . $mc['source_date_epoch']);
+$db->exec('DELETE FROM builds WHERE id = ' . (int)($rb['build_id'] ?? 0)); issue_gc_object((string)$rb['pdf_sha256']);
 foreach ($db->query("SELECT id, tex_sha256, pdf_sha256 FROM builds WHERE purpose = 'type-preview' AND cuser = 'wt_doctor'")->fetchAll(PDO::FETCH_ASSOC) as $b) {
     $db->exec('DELETE FROM builds WHERE id = ' . (int)$b['id']); issue_gc_object($b['pdf_sha256']); issue_gc_object($b['tex_sha256']);
 }
@@ -257,10 +306,9 @@ $seedBad = shell_exec('cd ' . escapeshellarg(dirname(__DIR__)) . ' && php bin/se
 check('archive seeder: a missing folder is reported', str_contains((string)$seedBad, 'not a folder') && str_contains((string)$seedBad, 'rc=2'));
 unlink("$seedTmp/x.tex"); rmdir($seedTmp);
 
-// ---- clean up
+// ---- clean up (also run by the shutdown handler when the script dies on the way)
 foreach ($docs as $d) { issue_prune_builds($d, [], ['preview', 'issue', 'test', 'rebuild']); $db->prepare('DELETE FROM documents WHERE id = ?')->execute([$d]); }
-$db->exec("DELETE FROM audit_log WHERE cuser IN ('wt_doctor','wt_secretary')");
-foreach (array_keys($users) as $u) { $db->exec("DELETE ur FROM user_roles ur JOIN users us ON us.id = ur.user_id WHERE us.uname = " . $db->quote($u)); $db->exec("DELETE FROM users WHERE uname = " . $db->quote($u)); $db->exec("DELETE FROM user_tokens WHERE uname = " . $db->quote($u)); }
+wt_cleanup(); $cleaned = true;
 proc_terminate($srv); proc_close($srv);
 echo $fail ? "\n$fail check(s) failed\n" : "\nWeb checks passed\n";
 exit($fail ? 1 : 0);
