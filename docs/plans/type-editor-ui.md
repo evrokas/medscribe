@@ -141,6 +141,15 @@ its own tests before using it anywhere.
 - Newlines: a block text may contain a blank line (new paragraph) or single newlines; keep them
   exactly (render `\n` as `<br>` inside the editable, serialise back to `\n`).
 - **Escape hatch:** ⋯ → "Edit as plain text" swaps the row to a `<textarea>` with the raw text.
+- **Self-check on open (decided 2026-11-07).** Before a block is shown as chips, the editor builds the
+  chip DOM from the stored text and serialises it straight back. If the result is not byte-identical
+  to the stored text, that block opens as a plain `<textarea>` instead, with a small grey note
+  "Shown as plain text: this text cannot be shown with chips safely" and a `console.warn` naming the
+  block id. The check runs again after every edit, before the text is written back to the JSON: if the
+  editor would write something that does not re-read to itself, it switches that row to plain text,
+  keeps what the doctor typed in the textarea, and writes nothing until the doctor edits it there.
+  No text is ever saved through the chip path without passing this check. The fallback is per block,
+  so one odd text does not disable chips for the whole type.
 - **Test (required before Phase 3 ships):** for every block text in every `types/*.json` and
   `types/shared/*.json`: text → editor DOM → text is byte-identical (the existing Node tests have no DOM:
   keep the serialise/parse logic DOM-free and testable in Node, and check the DOM part in Chromium on the server). Plus cases: `\@x`,
@@ -311,7 +320,7 @@ Playwright if available) on `odigies-kyfoplastiki`, `proegkrisi`, `adeia`, `synt
 | 0b | QR placeholder in previews (§6.7) with its tests and the before/after timing. Independent of the editor work; can ship first. | Composer preview shows the rectangle; final PDF and `check_m1.php` unchanged; render test guards pass. |
 | 1 | Shell inside the top bar: header, status pill, unsaved marker, Save dialog (§5.1), tab bar, JSON tab = today's editor unchanged. New CSS file `web/css/type-editor.css` (scoped `.te-*`). | Every current action works from the new shell; tree test passes. |
 | 2 | Structure tab (§4.1) incl. naming rule and Document settings. | Reorder/add/duplicate/delete equal to the tree; round-trip test. |
-| 3 | Chip text editor module (§4.3) with its round-trip test, then the Content tab (§4.2) incl. choice groups and latex blocks. | Byte-identical round trip of every block text; G3 regression unchanged (`bin/check_m1.php`). |
+| 3 | Chip text editor module (§4.3) with its round-trip test, then the Content tab (§4.2) incl. choice groups and latex blocks. | Byte-identical round trip of every block text; self-check fallback shown for a non-round-tripping block; G3 regression unchanged (`bin/check_m1.php`). |
 | 4 | Fields tab and rename dialog (§4.4). | Rename tests incl. dry-run counts; `bin/rename_fields.php` behaviour unchanged. |
 | 5 | Preview panel (§4.8), issues with sources (§6.1), lints (§6.6), PDF tab (§6.4). | Go-to-source for missing/unknown tokens; PDF tab builds in the sandbox; no leftover builds. |
 | 6 | Case rules tab (§4.5) + preview with rules (§6.2). | `proegkrisi` RF rule and `odigies-auxeniki` Διαρροή ΕΝΥ shown as sentences; with/without preview correct. |
@@ -326,6 +335,8 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
 
 - Load each of the six test sources; every section has a readable name; counts are right
   (kyfoplastiki: 10 sections, 8 fields, Γενικές Οδηγίες 13/14 on).
+- A block whose text does not round-trip (test it with a block containing a deliberately odd sequence,
+  e.g. a U+00A0 or a literal `<`) opens as plain text with the note, and saving leaves it unchanged.
 - Edit a sentence with a field: chip shows the label, hover shows `@bedrest_days`; save; the JSON
   diff shows only the intended change.
 - Insert a field via the picker; add bold; add `{Ο|Η}`; preview both genders.
