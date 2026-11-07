@@ -118,7 +118,11 @@
     }
     if (ed.tab && ed.tab !== name && ed.views[ed.tab] && ed.views[ed.tab].hide) ed.views[ed.tab].hide();
     ed.tab = name;
-    Object.keys(ed.panels).forEach(function (k) { ed.panels[k].hidden = k !== name; ed.buttons[k].classList.toggle('on', k === name); ed.buttons[k].setAttribute('aria-selected', k === name ? 'true' : 'false'); });
+    Object.keys(ed.panels).forEach(function (k) {
+      ed.panels[k].hidden = k !== name; ed.buttons[k].classList.toggle('on', k === name);
+      ed.buttons[k].setAttribute('aria-selected', k === name ? 'true' : 'false'); ed.buttons[k].tabIndex = k === name ? 0 : -1;
+      ed.panels[k].setAttribute('role', 'tabpanel');
+    });
     if (name === 'json') T.refresh();
     else ed.views[name].render(ed.panels[name], sel);
     counts();
@@ -437,6 +441,14 @@
         if (ed.tab === 'json' && k !== 'json') { try { T.parse(ed.ta.value); } catch (e) { alert('The JSON has an error, fix it first: ' + e.message); return; } }
         show(k);
       });
+    });
+    // the tab bar by keyboard: ← → move between tabs, Home/End to the ends (the tablist pattern)
+    tabs.addEventListener('keydown', function (e) {
+      var keys = ed.order, i = keys.indexOf(ed.tab), j = -1;
+      if (e.key === 'ArrowRight') j = (i + 1) % keys.length; else if (e.key === 'ArrowLeft') j = (i - 1 + keys.length) % keys.length;
+      else if (e.key === 'Home') j = 0; else if (e.key === 'End') j = keys.length - 1;
+      if (j < 0 || !e.target.closest('[data-tab]')) return;
+      e.preventDefault(); ed.buttons[keys[j]].click(); ed.buttons[ed.tab].focus();
     });
     ed.ta.addEventListener('input', markUnsaved);
     ed.ta.addEventListener('tt-change', function () { markUnsaved(); if (ed.tab === 'json') counts(); });

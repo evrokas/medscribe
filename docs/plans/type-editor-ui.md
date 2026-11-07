@@ -1,6 +1,6 @@
 # Type editor UI redesign: plan
 
-**Status:** in progress (2026-11-07). Built: phases 0b, 1, 2, 3, 4, 5, 6, 7, 8, 9. See the "Progress" notes at the end of §7.
+**Status:** in progress (2026-11-07). Built: phases 0b, 1–9; phase 10 in part (see Progress). The classic editor stays at `?ui=classic` until the doctor accepts the new one. See the "Progress" notes at the end of §7.
 **Scope:** the type editor (`/types/typedef/{name}` and `/types/shared/{name}`) and its release step,
 plus the preview QR placeholder (§6.7), which also changes the composer's preview.
 **Mockups:** canvas https://claude.ai/artifact/DvTosfM1j78w77o9FtvS6i (private to the owner). The same
@@ -425,6 +425,25 @@ Keep the old editor reachable at `?ui=classic` until Phase 10 is accepted, then 
   grouped with counts and searchable, whose entries are copied as default rows ("a copy: later library changes do not
   change it"). Checked on `odigies-kyfoplastiki` (4 default rows) and `syntagi` (none): touching every cell leaves the
   definition unchanged; a copied entry lands as name/dose/freq/days/notes.
+- **Phase 10, in part (2026-11-07):** tab bar by keyboard (← → Home End, roving tabindex, `tabpanel` roles); list rows
+  are focusable (Enter selects, Alt+↑/↓ moves in Structure); chips are focusable and show their token on focus; focus
+  rings on buttons, tabs, rows and inputs; widths checked at 1600, 1280, 1024 and 700 px (no sideways page scroll; the
+  list/editor split stacks under 1100 px); empty states in every tab (a definition with no sections, fields or rules).
+  **Not done:** colour highlighting of markup inside the chip editor (see the phase 1–4 deviations); a contrast audit with
+  a tool; rewriting `docs/type-editor.md` for the new editor; removing `?ui=classic` (after the doctor accepts).
+- **Acceptance checklist (§8), run in headless Chromium on the server, 2026-11-07:**
+  readable names and counts (kyfoplastiki 10 sections, 8 fields, Γενικές Οδηγίες 13/14) ✓; a non-round-tripping text
+  (U+00A0) opens plain with the note, nothing written unless edited (`check_chips_dom.js`) ✓ (a literal `<` round-trips,
+  so it opens as chips); an edit with a field changes exactly that one value ✓; chip label, token on hover ✓;
+  field picker / bold (`check_chips_dom.js`) ✓; two blocks made alternatives, "none" set, the Form preview shows the
+  choice ✓; rename `bedrest_days` → 1 token, 0 operations ✓; `proegkrisi` rule 7 sentences, with the rule 2 struck and
+  3 added (4 struck is not reachable: 2 of the blocks it turns off are off by default) ✓; `purpose` Used by 14 types,
+  `preop-odigies` flagged ✓; review page and release with the checkbox ✓ (`check_web.php`, `type_diff_test.php`);
+  previews draw the QR frame, final copies unchanged (`render_test.php`, `check_m1.php`) ✓.
+  **Not checked:** "PDF tab gives the same bytes as the composer for the same inputs" (both go through
+  `render_document(['preview' => true])` and `compile_job()`, but no test compares them; the build time stamps differ),
+  the blocked tab switch with invalid JSON (an `alert`, which the headless run cannot answer), and the QR of a real
+  final copy scanned with a phone.
 
 ## 8. Acceptance checklist (manual, on the server)
 
