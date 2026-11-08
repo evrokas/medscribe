@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Composer · Write view</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Serif:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F2F6F7;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1D2B30}
+a{color:#036379}a:hover{color:#024A5C}
+.top a{color:#fff;text-decoration:none;font-size:15px;opacity:.9}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid #C9D7DA;border-radius:9px;background:#fff;color:#1D2B30;font:600 14px 'IBM Plex Sans',sans-serif;text-decoration:none}
+.btn-p{background:#036379;border-color:#036379;color:#fff}
+.card{background:#fff;border:1px solid #D6E1E3;border-radius:12px}
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.sub{font-size:13px;color:#5B6E74}
+.doc{font-family:'IBM Plex Serif',Georgia,serif;font-size:16px;line-height:1.6}
+.h2{font-family:'IBM Plex Serif',serif;font-weight:700;font-size:19px;margin:22px 0 6px;color:#1D2B30}
+.h3{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:16px;margin:14px 0 4px}
+.s{display:flex;gap:12px;align-items:flex-start;padding:6px 8px;border-radius:8px}
+.s:hover{background:#F2F8F9}
+.s input{margin-top:6px;width:18px;height:18px;accent-color:#036379;flex:none}
+.v{display:inline-block;padding:0 7px;border-radius:6px;background:#E2F0F2;color:#024A5C;font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:14px;line-height:1.7}
+.e{display:inline-block;padding:0 7px;border-radius:6px;background:#EEF1F2;color:#6A7C81;border:1px dashed #A9BABE;font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.6}
+.more{display:inline-block;margin:2px 0 4px 38px;font:500 13px 'IBM Plex Sans',sans-serif;color:#036379;background:none;border:0;padding:4px 0}
+.add{display:inline-block;margin:4px 0 0 38px;font:500 13px 'IBM Plex Sans',sans-serif;color:#036379;background:none;border:0;padding:4px 0}
+.fold{display:flex;align-items:center;gap:10px;padding:12px 14px;margin-top:10px;border:1px solid #D6E1E3;border-radius:10px;background:#FAFCFC;font-family:'IBM Plex Sans',sans-serif;font-size:14px}
+.pg p{margin:0 0 6px;font:11px/1.5 'IBM Plex Serif',serif}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-direction: column">
+  <header class="top" style="background: #036379; color: #fff; display: flex; align-items: center; gap: 28px; padding: 0 24px; height: 56px; flex-wrap: wrap">
+    <strong style="font-size: 20px; font-family: 'IBM Plex Serif', serif">MedScribe</strong>
+    <nav style="display: flex; gap: 22px"><a href="#">Home</a><a href="#" style="opacity: 1; font-weight: 600">Documents</a><a href="#">Types</a><a href="#">Library</a></nav>
+    <span style="margin-left: auto; font-size: 14px">Dr Demo · Logout</span>
+  </header>
+
+  <main style="display: flex; flex-wrap: wrap; gap: 18px; padding: 16px 20px 24px; align-items: flex-start">
+    <section style="flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <a href="List.dc.html" style="font-size: 14px; text-decoration: none">‹ Documents</a>
+        <h1 style="margin: 0; font: 600 22px 'IBM Plex Serif', serif">#1 Μετεγχειρητικές οδηγίες: κυφοπλαστική</h1>
+        <span class="pill" style="background: #EEF1F2; color: #3C4F55">Draft</span>
+        <span class="sub">● Unsaved changes</span>
+        <div style="margin-left: auto; display: flex; gap: 8px; align-items: center">
+          <div role="tablist" aria-label="View" style="display: flex; padding: 3px; background: #E3ECEE; border-radius: 9px">
+            <button type="button" role="tab" aria-selected="true" style="border: 0; padding: 6px 14px; border-radius: 7px; background: #fff; font: 600 13px 'IBM Plex Sans', sans-serif; color: #036379">Write</button>
+            <button type="button" role="tab" aria-selected="false" style="border: 0; padding: 6px 14px; border-radius: 7px; background: transparent; font: 600 13px 'IBM Plex Sans', sans-serif; color: #3C4F55">Form</button>
+          </div>
+          <a class="btn" href="Issue.dc.html">Issue…</a>
+        </div>
+      </div>
+
+      <div class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 12px 16px; background: #F4FAFB; border-color: #C3DCE1">
+        <span aria-hidden="true" style="width: 38px; height: 38px; border-radius: 50%; background: #D6EAEE; color: #036379; display: flex; align-items: center; justify-content: center; font-weight: 700">ΠΓ</span>
+        <div style="flex: 1; min-width: 220px"><div style="font: 600 17px 'IBM Plex Serif', serif">Παπαδόπουλος Γιώργος</div><div class="sub">Male · 72 years · AMKA not given · Typed by hand</div></div>
+        <span class="sub">Changes here apply to this document only</span>
+        <button type="button" class="btn" style="min-height: 36px">Edit patient</button>
+      </div>
+
+      <div class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 16px; font-size: 14px">
+        <span style="color: #5B6E74">Document</span>
+        <span>Mandra · 08/11/2026 · «Μετεγχειρητικές Οδηγίες» · closing «Ο ιατρός» · doctor details only</span>
+        <button type="button" class="btn" style="margin-left: auto; min-height: 34px; font-size: 13px">Edit</button>
+      </div>
+
+      <div class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 16px; font-size: 14px">
+        <strong>Values</strong><span class="sub">2 of 8 filled · empty ones show their name in the text</span>
+        <button type="button" class="btn" style="margin-left: auto; min-height: 34px; font-size: 13px">Show all values ⌄</button>
+      </div>
+
+      <article class="card doc" style="padding: 22px 26px 18px">
+        <div style="display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 4px 12px; padding: 12px 14px; background: #F7FAFA; border-radius: 8px; font-size: 15px">
+          <span style="font-weight: 600">Διάγνωση:</span><span><span class="v" title="@diagnosis">οστεοπορωτικό κάταγμα Θ12</span></span>
+          <span style="font-weight: 600">Χειρουργείο:</span><span>(<span class="e" title="@surgery_date · empty">Ημ. χειρουργείου</span>) κυφοπλαστική <span class="v" title="@level">Θ12</span></span>
+        </div>
+        <div class="s" style="margin-top: 12px"><input type="checkbox" checked aria-label="Include"><span>Ακολουθούν οδηγίες για την ομαλή σας ανάρρωση:</span></div>
+
+        <div class="h2">Γενικές Οδηγίες</div>
+        <div class="h3">1. Κινητοποίηση</div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Παραμείνετε κλινήρης για <span class="e" title="@bedrest_days · empty">Ημέρες κλινήρης</span> ημέρες, όπως σας υποδείχθηκε από τον θεράποντα ιατρό.</span></div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Χρησιμοποιείτε <b>πάντα</b> τη ζώνη οσφύος κατά την όρθια στάση ή βάδιση.</span></div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Αποφύγετε για τουλάχιστον 6 εβδομάδες: κάμψεις, στροφές κορμού και άρση βάρους.</span></div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Μετά την επανεξέταση προτείνεται ήπιο περπάτημα με σταδιακή αύξηση.</span></div>
+        <button type="button" class="add">+ Add your own text</button>
+
+        <div class="h3">2. Πόνος – Φάρμακα</div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Λαμβάνετε τα παυσίπονα όπως έχουν συνταγογραφηθεί.</span></div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Επιδείνωση ή αλλαγή του χαρακτήρα του πόνου πρέπει να αναφέρεται άμεσα.</span></div>
+        <button type="button" class="more">▸ Show 1 more optional sentence</button>
+
+        <div class="h3">3. Φροντίδα Τραύματος <span style="font: 400 13px 'IBM Plex Sans', sans-serif; color: #5B6E74">· 5 of 5 on · folded</span> <button type="button" class="more" style="margin: 0 0 0 6px">Expand</button></div>
+        <div class="h3">4. Διατροφή <span style="font: 400 13px 'IBM Plex Sans', sans-serif; color: #5B6E74">· 2 of 2 on · folded</span> <button type="button" class="more" style="margin: 0 0 0 6px">Expand</button></div>
+
+        <div class="fold"><strong style="font-family: 'IBM Plex Serif', serif">Εξειδικευμένες Οδηγίες</strong><span class="sub">4 topics · 9 of 11 sentences on</span><button type="button" class="btn" style="margin-left: auto; min-height: 34px; font-size: 13px">Expand</button></div>
+        <div class="fold"><strong style="font-family: 'IBM Plex Serif', serif">Επανέλεγχοι</strong><span class="sub">2 of 2 on</span><button type="button" class="btn" style="margin-left: auto; min-height: 34px; font-size: 13px">Expand</button></div>
+        <div class="fold" style="background: #fff"><strong style="font-family: 'IBM Plex Serif', serif">Πλαίσιο επειγόντων</strong><span class="sub">optional section</span><label style="margin-left: auto; display: flex; gap: 8px; align-items: center; font-size: 13px"><input type="checkbox" style="accent-color: #036379"> Include this section</label></div>
+        <div class="fold"><strong style="font-family: 'IBM Plex Serif', serif">Οδηγίες Φαρμακευτικής Αγωγής</strong><span class="sub">medication table · 4 rows</span><button type="button" class="btn" style="margin-left: auto; min-height: 34px; font-size: 13px">Expand</button></div>
+      </article>
+
+      <div class="card" style="position: sticky; bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; box-shadow: 0 6px 20px rgba(3,99,121,.12)">
+        <span style="font-size: 13px; color: #8A5300; font-weight: 600">● Unsaved changes</span>
+        <span class="sub">·</span>
+        <span style="font-size: 13px; color: #0B6B4F">✓ All checks pass</span>
+        <div style="margin-left: auto; display: flex; flex-wrap: wrap; gap: 8px">
+          <button type="button" class="btn">Save</button>
+          <button type="button" class="btn btn-p">Save &amp; preview</button>
+          <button type="button" class="btn">Ready for review</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card" style="flex: 1 1 440px; min-width: 0; position: sticky; top: 12px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #E3ECEE">
+        <strong>Preview PDF</strong><span class="sub">built 10:42</span>
+        <span class="pill" style="background: #FFF1D6; color: #7A4B00; margin-left: auto">Out of date</span>
+        <button type="button" class="btn" style="min-height: 34px; font-size: 13px">Save &amp; preview</button>
+      </div>
+      <div style="padding: 18px; background: #E7EEF0; border-radius: 0 0 12px 12px">
+        <div class="pg" style="background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.12); padding: 26px 28px; aspect-ratio: 210 / 297; box-sizing: border-box; position: relative">
+          <div style="display: flex; align-items: flex-start; gap: 10px">
+            <div style="flex: 1; text-align: right; font: 600 12px 'IBM Plex Serif', serif; color: #1F4E79">Ευάγγελος Μ. Ρόκας<div style="font: 400 10px 'IBM Plex Sans', sans-serif; color: #5B6E74">Νευροχειρουργός</div></div>
+            <div style="width: 58px; height: 58px; border: 1.5px dashed #7C9AA0; display: flex; align-items: center; justify-content: center; text-align: center; font: 600 8px/1.2 'IBM Plex Sans', sans-serif; color: #5B6E74">QR στην τελική έκδοση</div>
+          </div>
+          <div style="height: 1.5px; background: #1F4E79; margin: 10px 0 14px"></div>
+          <p style="text-align: center; font-weight: 700; font-size: 13px">Μετεγχειρητικές Οδηγίες</p>
+          <p><b>Διάγνωση:</b> οστεοπορωτικό κάταγμα Θ12</p>
+          <p><b>Χειρουργείο:</b> () κυφοπλαστική Θ12</p>
+          <p>Ακολουθούν οδηγίες για την ομαλή σας ανάρρωση:</p>
+          <p style="font-weight: 700">Γενικές Οδηγίες</p>
+          <p><b>1. Κινητοποίηση</b></p>
+          <p>• Παραμείνετε κλινήρης για ημέρες, όπως σας υποδείχθηκε από τον θεράποντα ιατρό.</p>
+          <p>• Χρησιμοποιείτε <b>πάντα</b> τη ζώνη οσφύος κατά την όρθια στάση ή βάδιση.</p>
+          <p style="color: #9AAAAE">…</p>
+          <span style="position: absolute; right: 18px; bottom: 14px; font: 600 10px 'IBM Plex Sans', sans-serif; color: #B07A1A">draft mark</span>
+        </div>
+      </div>
+      <p class="sub" style="margin: 0; padding: 10px 16px 14px">The real PDF from the last «Save &amp; preview». It shows a rectangle where the QR goes; the real QR is added in the final copy.</p>
+    </aside>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

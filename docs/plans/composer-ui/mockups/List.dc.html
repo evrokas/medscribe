@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Documents list</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Serif:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F2F6F7;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1D2B30}
+a{color:#036379}a:hover{color:#024A5C}
+.top a{color:#fff;text-decoration:none;font-size:15px;opacity:.9}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid #C9D7DA;border-radius:9px;background:#fff;color:#1D2B30;font:600 14px 'IBM Plex Sans',sans-serif;text-decoration:none}
+.btn-p{background:#036379;border-color:#036379;color:#fff}
+.card{background:#fff;border:1px solid #D6E1E3;border-radius:12px}
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.sub{font-size:13px;color:#5B6E74}
+.f{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border:1px solid #C9D7DA;border-radius:999px;background:#fff;font:600 13px 'IBM Plex Sans',sans-serif;color:#3C4F55}
+.f-on{background:#036379;border-color:#036379;color:#fff}
+.n{display:inline-block;min-width:20px;padding:0 6px;border-radius:999px;background:#FFE3AE;color:#6B3F00;font-size:12px;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;font-weight:700;color:#5B6E74;padding:10px 14px;border-bottom:1px solid #D6E1E3}
+td{padding:12px 14px;border-bottom:1px solid #EAF0F1;vertical-align:middle}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-direction: column">
+  <header class="top" style="background: #036379; color: #fff; display: flex; align-items: center; gap: 28px; padding: 0 24px; height: 56px; flex-wrap: wrap">
+    <strong style="font-size: 20px; font-family: 'IBM Plex Serif', serif">MedScribe</strong>
+    <nav style="display: flex; gap: 22px"><a href="#">Home</a><a href="#" style="opacity: 1; font-weight: 600">Documents</a><a href="#">Types</a><a href="#">Library</a></nav>
+    <span style="margin-left: auto; font-size: 14px">Dr Demo · Logout</span>
+  </header>
+  <main style="max-width: 1180px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 22px 20px 30px; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+      <h1 style="margin: 0; font: 600 26px 'IBM Plex Serif', serif">Documents</h1>
+      <a class="btn btn-p" href="#" style="margin-left: auto">+ New document</a>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+      <button type="button" class="f">All</button>
+      <button type="button" class="f f-on">Ready for review <span class="n">1</span></button>
+      <button type="button" class="f">Drafts</button>
+      <button type="button" class="f">Issued</button>
+      <button type="button" class="f">Withdrawn</button>
+      <input aria-label="Search patient or code" placeholder="Search patient or code" style="margin-left: auto; min-width: 260px; min-height: 38px; padding: 6px 12px; border: 1px solid #C9D7DA; border-radius: 9px; font: 14px 'IBM Plex Sans', sans-serif">
+    </div>
+    <div class="card" style="overflow-x: auto">
+      <table>
+        <thead><tr><th>Document</th><th>Patient</th><th>Status</th><th>Updated</th><th>By</th></tr></thead>
+        <tbody>
+          <tr style="background: #FFFBF2"><td><a href="Groups.dc.html" style="font-weight: 600; text-decoration: none">#2 · Προέγκριση χειρουργείου</a><div class="sub">Mandra</div></td><td>Γεωργίου Μαρία</td><td><span class="pill" style="background: #FFF1D6; color: #7A4B00">Ready for review</span></td><td>Today 11:20</td><td>secretary</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sub" style="margin: 0">Showing «Ready for review»: documents the secretary handed over and that wait for you. All other documents are under All, Drafts, Issued.</p>
+
+    <h2 style="margin: 18px 0 0; font: 600 18px 'IBM Plex Serif', serif">The same list with «All»</h2>
+    <div class="card" style="overflow-x: auto">
+      <table>
+        <thead><tr><th>Document</th><th>Patient</th><th>Status</th><th>Code</th><th>Updated</th><th>By</th></tr></thead>
+        <tbody>
+          <tr><td><a href="Meds.dc.html" style="font-weight: 600; text-decoration: none">#3 · Συνταγή / Οδηγίες φαρμακευτικής αγωγής (A4)</a><div class="sub">Metropolitan</div></td><td>Νικολάου Ελένη</td><td><span class="pill" style="background: #EEF1F2; color: #3C4F55">Draft</span></td><td class="sub">–</td><td>Today 11:32</td><td>secretary</td></tr>
+          <tr><td><a href="Groups.dc.html" style="font-weight: 600; text-decoration: none">#2 · Προέγκριση χειρουργείου</a><div class="sub">Mandra</div></td><td>Γεωργίου Μαρία</td><td><span class="pill" style="background: #FFF1D6; color: #7A4B00">Ready for review</span></td><td class="sub">–</td><td>Today 11:20</td><td>secretary</td></tr>
+          <tr><td><a href="Main.dc.html" style="font-weight: 600; text-decoration: none">#1 · Μετεγχειρητικές οδηγίες: κυφοπλαστική</a><div class="sub">Mandra</div></td><td>Παπαδόπουλος Γιώργος</td><td><span class="pill" style="background: #EEF1F2; color: #3C4F55">Draft</span></td><td class="sub">–</td><td>Today 10:42</td><td>demo</td></tr>
+          <tr><td><a href="Issue.dc.html" style="font-weight: 600; text-decoration: none">#4 · Βεβαίωση συμβατότητας MRI</a><div class="sub">Peristeri</div></td><td>Δημητρίου Νίκος</td><td><span class="pill" style="background: #E1F3EC; color: #0A6B4F">Issued</span></td><td><code>MRI-2026-K7Q2PX</code></td><td>Yesterday 16:05</td><td>demo</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

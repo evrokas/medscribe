@@ -526,3 +526,11 @@ supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `w
   from the pinned library, passed to the page as `data-libraries`).
 - **CLI timezone:** `bin/lib/cli_boot.php` sets the app's `tz` (Europe/Athens) so CLI scripts and web requests agree on
   "today". `check_web.php` cleans up what the test accounts made at its start and on a crash (`wt_cleanup()`).
+
+## Composer UI redesign (planned, 2026-11-08)
+
+Plan only, nothing built: `docs/plans/composer-ui.md`; screenshots of the current pages in `docs/plans/composer-ui/before/`,
+the supplied design brief and concept images in `docs/plans/composer-ui/proposal/`. Aim: writing a document should read like
+writing the letter (sentences as text, values filled in where they are used), not like filling fields. Decided 2026-11-08:
+Write view is the default, preview stays the real PDF only (no HTML preview), no summary cards; mockup sources in
+`docs/plans/composer-ui/mockups/`. Shares building blocks with `docs/plans/type-editor-ui.md` (§9 there and here).

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Composer · editing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Serif:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F2F6F7;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1D2B30}
+a{color:#036379}a:hover{color:#024A5C}
+.top a{color:#fff;text-decoration:none;font-size:15px;opacity:.9}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid #C9D7DA;border-radius:9px;background:#fff;color:#1D2B30;font:600 14px 'IBM Plex Sans',sans-serif;text-decoration:none}
+.btn-p{background:#036379;border-color:#036379;color:#fff}
+.card{background:#fff;border:1px solid #D6E1E3;border-radius:12px}
+.sub{font-size:13px;color:#5B6E74}
+.doc{font-family:'IBM Plex Serif',Georgia,serif;font-size:16px;line-height:1.6}
+.h3{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:16px;margin:4px 0 6px}
+.s{display:flex;gap:12px;align-items:flex-start;padding:6px 8px;border-radius:8px}
+.s input[type=checkbox]{margin-top:6px;width:18px;height:18px;accent-color:#036379;flex:none}
+.v{display:inline-block;padding:0 7px;border-radius:6px;background:#E2F0F2;color:#024A5C;font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:14px;line-height:1.7}
+.tb{min-width:32px;height:30px;padding:0 8px;border:1px solid #D6E1E3;border-radius:7px;background:#fff;font:600 12px 'IBM Plex Sans',sans-serif;color:#3C4F55}
+.tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:#FFF1D6;color:#7A4B00;font:600 12px 'IBM Plex Sans',sans-serif}
+.tip{position:absolute;background:#1D2B30;color:#fff;font:500 12px ui-monospace,monospace;padding:4px 8px;border-radius:6px;white-space:nowrap}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-direction: column">
+  <header class="top" style="background: #036379; color: #fff; display: flex; align-items: center; gap: 28px; padding: 0 24px; height: 56px; flex-wrap: wrap">
+    <strong style="font-size: 20px; font-family: 'IBM Plex Serif', serif">MedScribe</strong>
+    <nav style="display: flex; gap: 22px"><a href="#">Home</a><a href="#" style="opacity: 1; font-weight: 600">Documents</a><a href="#">Types</a><a href="#">Library</a></nav>
+    <span style="margin-left: auto; font-size: 14px">Dr Demo · Logout</span>
+  </header>
+
+  <main style="display: flex; flex-wrap: wrap; gap: 18px; padding: 16px 20px 24px; align-items: flex-start">
+    <section style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; align-items: center; gap: 10px"><a href="Main.dc.html" style="font-size: 14px; text-decoration: none">‹ Back to the whole document</a><span class="sub">#1 Μετεγχειρητικές οδηγίες: κυφοπλαστική · Γενικές Οδηγίες</span></div>
+
+      <article class="card doc" style="padding: 22px 26px">
+        <div class="h3">1. Κινητοποίηση</div>
+
+        <div class="s" style="position: relative">
+          <input type="checkbox" checked aria-label="Include">
+          <span>Παραμείνετε κλινήρης για <span class="v" style="outline: 2px solid #036379; outline-offset: 1px">3</span> ημέρες, όπως σας υποδείχθηκε από τον θεράποντα ιατρό.</span>
+        </div>
+        <div role="dialog" aria-label="Value: Ημέρες κλινήρης" class="card" style="margin: 2px 0 10px 40px; width: 340px; padding: 14px; box-shadow: 0 10px 28px rgba(3,99,121,.18); font-family: 'IBM Plex Sans', sans-serif">
+          <label for="bd" style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px">Ημέρες κλινήρης</label>
+          <input id="bd" value="3" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 8px 10px; border: 1px solid #036379; border-radius: 8px; font: 15px 'IBM Plex Sans', sans-serif">
+          <div class="sub" style="margin-top: 8px">Used in 1 sentence. Stored as <code>@bedrest_days</code>.</div>
+          <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px"><button type="button" class="btn" style="min-height: 34px">Cancel</button><button type="button" class="btn btn-p" style="min-height: 34px">Done</button></div>
+        </div>
+
+        <div class="s" style="flex-direction: column; gap: 8px; background: #F4FAFB; border: 1px solid #9FCAD2; padding: 12px 14px">
+          <div style="display: flex; align-items: center; gap: 8px; width: 100%; font-family: 'IBM Plex Sans', sans-serif">
+            <input type="checkbox" checked aria-label="Include" style="margin: 0; width: 18px; height: 18px; accent-color: #036379">
+            <strong style="font-size: 13px">Editing for this document</strong>
+            <span class="sub">the type's wording stays as it is</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; font-family: 'IBM Plex Sans', sans-serif">
+            <button type="button" class="tb" aria-label="Bold"><b>B</b></button><button type="button" class="tb" aria-label="Italic"><i>I</i></button>
+            <button type="button" class="tb">@ Value</button><button type="button" class="tb">{Ο|Η}</button><button type="button" class="tb">Spine level</button>
+          </div>
+          <div contenteditable="false" style="width: 100%; box-sizing: border-box; min-height: 64px; padding: 10px 12px; border: 1px solid #C9D7DA; border-radius: 8px; background: #fff; position: relative">Χρησιμοποιείτε <b>πάντα</b> τη ζώνη οσφύος κατά την όρθια στάση ή βάδιση και κατά την έξοδο από το σπίτι.<span style="border-left: 2px solid #036379; margin-left: 1px"></span></div>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; font-family: 'IBM Plex Sans', sans-serif">
+            <button type="button" class="btn" style="min-height: 34px; font-size: 13px">Restore original</button>
+            <span class="sub">Original: «Χρησιμοποιείτε πάντα τη ζώνη οσφύος κατά την όρθια στάση ή βάδιση.»</span>
+            <button type="button" class="btn btn-p" style="min-height: 34px; font-size: 13px; margin-left: auto">Done</button>
+          </div>
+        </div>
+
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Αποφύγετε για τουλάχιστον <b>8</b> εβδομάδες: κάμψεις, στροφές κορμού και άρση βάρους. <span class="tag">Edited for this document</span> <button type="button" style="border: 0; background: none; color: #036379; font: 500 13px 'IBM Plex Sans', sans-serif; padding: 0">Restore original</button></span></div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Μετά την επανεξέταση προτείνεται ήπιο περπάτημα με σταδιακή αύξηση.</span></div>
+
+        <div style="margin: 12px 0 0 40px; font-family: 'IBM Plex Sans', sans-serif">
+          <label for="own" style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px">Your own text <span class="sub" style="font-weight: 400">· one item per line in this list</span></label>
+          <textarea id="own" rows="2" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #C9D7DA; border-radius: 8px; font: 15px/1.5 'IBM Plex Serif', serif" placeholder="Written for this document only"></textarea>
+          <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px"><button type="button" class="btn" style="min-height: 32px; font-size: 13px">Suggestions from earlier documents (2)</button><span class="sub">copied in for you to edit; nothing prints unless you keep it</span></div>
+        </div>
+      </article>
+    </section>
+
+    <aside style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div class="card" style="padding: 16px">
+        <h2 style="margin: 0 0 10px; font-size: 16px">How editing works here</h2>
+        <ul style="margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.6; color: #3C4F55">
+          <li><b>Click a value</b> to fill it in. The same value changes everywhere it is used, and in the Values list.</li>
+          <li><b>Click a sentence</b> to change its wording for this patient. «Restore original» undoes it.</li>
+          <li>Hover a value to see how it is stored (<code>@bedrest_days</code>).</li>
+          <li>If a sentence cannot be shown safely this way, it opens as plain text instead.</li>
+          <li>Nothing is saved until you press <b>Save</b> or <b>Save &amp; preview</b>.</li>
+        </ul>
+      </div>
+      <div class="card" style="padding: 16px">
+        <h2 style="margin: 0 0 8px; font-size: 16px">Suggestions · Κινητοποίηση</h2>
+        <div style="display: flex; flex-direction: column; gap: 8px; font: 14px/1.5 'IBM Plex Serif', serif">
+          <div style="padding: 10px 12px; border: 1px solid #D6E1E3; border-radius: 8px">[text from an earlier document] <div class="sub" style="font-family: 'IBM Plex Sans', sans-serif">used in 3 documents · <a href="#">Insert</a></div></div>
+          <div style="padding: 10px 12px; border: 1px solid #D6E1E3; border-radius: 8px">[text from an earlier document] <div class="sub" style="font-family: 'IBM Plex Sans', sans-serif">used in 1 document · <a href="#">Insert</a></div></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
