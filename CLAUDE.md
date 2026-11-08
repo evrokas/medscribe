@@ -543,5 +543,8 @@ Progress is in the plan's §12. Built so far:
   now uses; pills; breadcrumbs). The framework's `message` module ("Announcements") is left out of the page structure.
 - **Documents list and new document (phase 2):** filters `?f=all|review|draft|issued|withdrawn` and `?q=` (patient, code,
   `#id`) in `page_documents()`; page components `.ms-*` in `css/ui.css`.
+- **Composer shell (phase 3):** `document_edit.zetem` + `web/js/composer.js` + `web/css/composer.css` (`.cx`); every form
+  control stays in the form (Edit only shows or hides it), so the payload is unchanged. The pre-redesign page is
+  `document_edit_classic.zetem` at `/documents/{id}?ui=classic`, kept until phase 8 is accepted.
 - **Screenshots** `php tools/shots.php [--size=WxH] [--role=secretary] [--make=type,…] '/documents/{type}=out.png' …`:
   a temporary account and made-up drafts, removed afterwards; the browser is `tools/shot.js` (Chromium over CDP, no npm).

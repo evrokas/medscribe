@@ -1,0 +1,38 @@
+/* The composer (docs/plans/composer-ui.md §4): header, patient banner, details line, sticky action bar. Scoped to .cx. */
+.cx { display: flex; flex-direction: column; gap: .75rem; color: var(--ms-ink); }
+.cx > fieldset, .cx > .palette { margin: 0; }
+.cx-head { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; }
+.cx-head h2 { margin: 0; font-size: 1.35rem; }
+.cx-back { flex-basis: 100%; font-size: .85rem; text-decoration: none; }
+.cx-dirty { color: #B25E00; font-size: .85rem; font-weight: 600; }
+.cx-head-actions { margin-left: auto; display: flex; gap: .5rem; }
+.cx-banner, .cx-line { border: 1px solid var(--ms-line); border-radius: 12px; background: #fff; padding: .7rem 1rem; }
+.cx-banner { background: #F4FAFB; border-color: #C3DCE1; }
+.cx-banner-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; }
+.cx-avatar { width: 2.4rem; height: 2.4rem; border-radius: 50%; background: #D6EAEE; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; flex: none; }
+.cx-who { flex: 1 1 14rem; min-width: 0; }
+.cx-name { font: 600 1.08rem var(--font-heading); overflow-wrap: anywhere; }
+.cx-warn { padding: .2rem .6rem; border-radius: 999px; background: var(--ms-warn-bg); color: var(--ms-warn); font-size: .8rem; font-weight: 700; }
+.cx .ms-btn { min-height: 2.25rem; }
+.cx-sum { flex: 1 1 16rem; min-width: 0; font-size: .92rem; }
+.cx-edit { border: 0; margin: .8rem 0 0; padding: .8rem 0 0; border-top: 1px solid var(--ms-line-2); border-radius: 0; }
+.cx-edit legend { float: left; width: 100%; padding: 0; margin: 0 0 .5rem; font-weight: 400; }
+.cx .cx-edit label.ms-field { display: flex; flex-direction: column; font-size: .82rem; }
+.cx-adv { margin-top: .7rem; } .cx-adv summary { cursor: pointer; font-size: .85rem; color: var(--ms-ink-2); }
+.cx-adv .ms-field { margin-top: .5rem; display: inline-flex; }
+/* the action bar stays at the bottom of the window while the form scrolls */
+.cx-bar { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; margin: .4rem -1.2rem -1rem;
+  padding: .7rem 1.2rem; background: rgba(255, 255, 255, .97); border-top: 1px solid var(--ms-line); border-radius: 0 0 8px 8px; box-shadow: 0 -4px 12px rgba(16, 35, 70, .06); }
+.cx-checks { position: relative; }
+.cx-ok { color: var(--ms-ok-ink); font-weight: 600; font-size: .88rem; }
+.cx-checks-btn { border: 0; background: var(--ms-warn-bg); color: var(--ms-warn); font: 700 .85rem var(--font-body); padding: .35rem .7rem; border-radius: 999px; cursor: pointer; }
+.cx-checks-list { position: absolute; bottom: calc(100% + .5rem); left: 0; min-width: 18rem; max-width: 34rem; max-height: 50vh; overflow: auto; margin: 0; padding: .5rem;
+  list-style: none; background: #fff; border: 1px solid var(--ms-line); border-radius: 10px; box-shadow: 0 6px 24px rgba(16, 35, 70, .15); }
+.cx-checks-list li { padding: .35rem .5rem; border-radius: 6px; font-size: .88rem; }
+.cx-checks-list .check-error { color: var(--ms-bad); } .cx-checks-list .check-warn { color: var(--ms-warn); }
+.cx-state { font-size: .85rem; color: var(--ms-ink-2); }
+.cx-bad { color: var(--ms-bad); font-weight: 600; }
+.cx-actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: .5rem; }
+.cx-actions .cx-del { border-color: transparent; color: var(--ms-bad); font-weight: 500; }
+.cx-actions .cx-del:hover { border-color: var(--ms-bad); color: var(--ms-bad); }
+.cx.building .cx-actions button { pointer-events: none; opacity: .6; }

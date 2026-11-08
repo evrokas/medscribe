@@ -34,6 +34,8 @@ css:
     src: 'css/styles.css'
   - ui:
     src: 'css/ui.css'
+  - composer:
+    src: 'css/composer.css'
   - boxicons:
     src: 'css/bx/css/boxicons.min.css'
 

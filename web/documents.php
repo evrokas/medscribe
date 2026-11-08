@@ -5,6 +5,8 @@
  * Rendering is in render.php, storage in store.php, compiling in compile.php.
  */
 
+require_once(__DIR__ . '/ui.php');   // section names, status words
+
 const DOC_STATUSES = ['draft', 'review', 'code_reserved'];   // the statuses in which the content can still be edited
 
 function doc_redirect(string $path): void {
@@ -145,6 +147,7 @@ function doc_view_model(array $type, array $inputs): array {
         }
         $secs[] = [
             'id' => $sec['id'], 'heading' => $sec['heading'] ?? '', 'slot' => $sec['slot'] ?? $sec['id'],
+            'name' => ui_section_name($sec, $type),   // never the slot or layout (plan §4.2)
             'src' => (isset($sec['topic_of']) ? 'topic:' : 'section:') . $sec['id'],   // the type editor's preview finds it in the definition
             'layout' => $sec['layout'] ?? 'paragraphs', 'optional' => !empty($sec['optional']),
             'on' => render_section_on($sec, $inputs), 'blocks' => $blocks, 'is_med' => ($sec['layout'] ?? '') === 'medtable', 'meds' => $inputs['meds'][$sec['id']] ?? [],
@@ -348,14 +351,21 @@ function page_document($params) {
     }
     $locked = !in_array($doc['status'], DOC_STATUSES, true);
     $typePart = Renderer::render("composer_type_part.zetem", doc_type_part_data($type, $doc['inputs'], (int)$doc['id'], $locked));
-    return Renderer::render("document_edit.zetem", [
+    $p = $doc['inputs']['patient'] ?? []; $set = $doc['inputs']['settings'] ?? [];
+    $checks = render_checks($type, $doc['inputs'], $issues);
+    return Renderer::render(($_GET['ui'] ?? '') === 'classic' ? "document_edit_classic.zetem" : "document_edit.zetem", [
+        'is_gr' => ($type['lang'] ?? 'gr') !== 'en', 'patient_optional' => ($type['has_patient'] ?? true) === 'optional',
+        'initials' => mb_strtoupper(implode('', array_map(fn($w) => mb_substr($w, 0, 1), array_slice(preg_split('/\s+/u', trim((string)($p['name'] ?? '')), -1, PREG_SPLIT_NO_EMPTY), 0, 2)))),
+        'date_shown' => !empty($set['date']) ? date('d/m/Y', strtotime($set['date'])) : '',
+        'release_number' => (int)(array_column(store_db()->query("SELECT id, number FROM base_releases")->fetchAll(PDO::FETCH_ASSOC), 'number', 'id')[$doc['base_release_id']] ?? 0),
+        'n_checks' => count($checks),
         'type_part' => $typePart,
         'doc' => $doc, 'type_label' => $type['label'] ?? $type['name'], 'p' => $doc['inputs']['patient'] ?? [], 's' => $doc['inputs']['settings'] ?? [],
         'releases' => store_db()->query("SELECT id, number FROM base_releases WHERE status = 'released' ORDER BY number DESC")->fetchAll(PDO::FETCH_ASSOC),
         'tokens' => array_merge(['patient', 'age', 'amka', 'clinic', 'date'], array_keys($type['fields'] ?? [])),
         'has_recipient' => !empty($type['recipient']), 'has_patient' => ($type['has_patient'] ?? true) !== false,
         'titles' => $type['titles'] ?? [], 'closings' => $type['closings'] ?? [],
-        'clinics' => RENDER_CLINICS, 'checks' => render_checks($type, $doc['inputs'], $issues),
+        'clinics' => RENDER_CLINICS, 'checks' => $checks,
         'build' => $build, 'locked' => $locked,
         'pdf_url' => ($build && $build['status'] === 'ok') ? '/documents/' . $doc['id'] . '/preview.pdf?b=' . $build['id'] : null,
         'ready' => $doc['status'] === 'review',
@@ -424,7 +434,7 @@ function page_document_post($params) {
         $r['msg'] = 'Not saved: a PDF of this document is being built right now. Your changes are still in the form; save again in a moment.';
     }
     $kernel->addStatus($r['ok'] ? 'status' : 'error', $r['msg']);
-    doc_redirect("/documents/$id");
+    doc_redirect("/documents/$id" . (($_GET['ui'] ?? '') === 'classic' ? '?ui=classic' : ''));
 }
 
 function page_document_pdf($params) {

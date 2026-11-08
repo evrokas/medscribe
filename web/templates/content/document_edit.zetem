@@ -1,89 +1,121 @@
-<div class="composer splitpane" data-split-key="medscribe.composer.layout">
-  <form method="post" action="{{rel_url('/documents/' . $doc['id'])}}" class="composer-form split-left">
+<div class="composer cx-page splitpane" data-split-key="medscribe.composer.layout">
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'])}}" class="composer-form split-left cx" id="composer-form">
     {{ csrf_field() }}
-    <div class="page-head">
+    <div class="cx-head">
+        <a class="cx-back" href="{{rel_url('/documents')}}">&lsaquo; {{{t('Documents')}}}</a>
         <h2>#{{{$doc['id']}}} {{{$type_label}}}</h2>
         {{ ui_status_pill($doc['status']) }}
+        <span class="cx-dirty" id="cx-dirty" hidden>&#9679; {{{t('Unsaved changes')}}}</span>
+        <span class="cx-head-actions">
+          {% if($doc['status'] == 'issued' || $doc['status'] == 'withdrawn'): %}<a class="ms-btn" href="{{rel_url('/documents/' . $doc['id'] . '/history')}}">{{{t('History')}}}</a>{% endif %}
+          {% if($is_doctor): %}<a class="ms-btn" href="{{rel_url('/documents/' . $doc['id'] . '/issue')}}">{{{$locked ? t('Issue page') : t('Issue...')}}}</a>{% endif %}
+        </span>
     </div>
 
     {% if($unsaved): %}<p class="notice">{{{t('These changes are NOT saved yet: a PDF was being built. Save again.')}}}</p>{% endif %}
     {% if($busy && !$locked): %}<p class="notice">{{{t('A PDF of this document is being built; saving waits until it is done.')}}}</p>{% endif %}
     {% if($locked): %}<p class="notice">{{{t('This document is locked.')}}} {% if($doc['doc_code']): %}<code>{{{$doc['doc_code']}}}</code>{% endif %}</p>{% endif %}
     {% if($doc['status'] == 'code_reserved'): %}<p class="notice">{{{t('Code reserved')}}}: <code>{{{$doc['doc_code']}}}</code>. {{{t('Edits keep the code; the final PDF is built again at the next step.')}}}</p>{% endif %}
-    <p class="links">
-      {% if($is_doctor): %}<a class="btn" href="{{rel_url('/documents/' . $doc['id'] . '/issue')}}">{{{$locked ? t('Issue page') : t('Issue...')}}}</a>{% endif %}
-      {% if($doc['status'] == 'issued' || $doc['status'] == 'withdrawn'): %}<a class="btn" href="{{rel_url('/documents/' . $doc['id'] . '/history')}}">{{{t('History')}}}</a>{% endif %}
-    </p>
 
     {% if($has_patient): %}
-    <fieldset {% if($locked): %}disabled{% endif %}>
-      <legend>{{{t('Patient')}}}{% if($from_zpms): %} <span class="muted">{{{t('from ZPMS; changes here stay on this document only')}}}</span>{% endif %}</legend>
-      <input type="hidden" name="patient[guid]" value="{{{$p['guid'] ?? ''}}}">
-      <input type="hidden" name="patient[dob]" value="{{{$p['dob'] ?? ''}}}">
-      <div class="row">
-        <label>{{{t('Name')}}} <input type="text" name="patient[name]" value="{{{$p['name'] ?? ''}}}" maxlength="255"></label>
-        <label>{{{t('Gender')}}}
-          <select name="patient[gender]">
-            <option value="">-</option>
-            <option value="M" {% if(($p['gender'] ?? '') == 'M'): %}selected{% endif %}>{{{t('Male')}}}</option>
-            <option value="F" {% if(($p['gender'] ?? '') == 'F'): %}selected{% endif %}>{{{t('Female')}}}</option>
-          </select>
-        </label>
-        <label>{{{t('Age')}}} <input type="text" name="patient[age]" value="{{{$p['age'] ?? ''}}}" size="4" maxlength="16"></label>
-        <label>AMKA <input type="text" name="patient[amka]" value="{{{$p['amka'] ?? ''}}}" size="12" maxlength="11"></label>
+    <section class="cx-banner" id="cx-patient" data-gr="{{{$is_gr ? '1' : ''}}}" data-optional="{{{$patient_optional ? '1' : ''}}}">
+      <div class="cx-banner-row">
+        <span class="cx-avatar" aria-hidden="true" id="cx-initials">{{{$initials}}}</span>
+        <div class="cx-who">
+          <div class="cx-name" id="cx-p-name">{% if(($p['name'] ?? '') !== ''): %}{{{$p['name']}}}{% else: %}<span class="muted">{{{$patient_optional ? t('No patient (optional)') : t('No patient name yet')}}}</span>{% endif %}</div>
+          <div class="ms-sub" id="cx-p-sub" data-m="{{{t('Male')}}}" data-f="{{{t('Female')}}}" data-years="{{{t('years')}}}" data-noamka="{{{t('AMKA not given')}}}" data-src="{{{$from_zpms ? t('From ZPMS') : t('Typed by hand')}}}"></div>
+        </div>
+        <span class="cx-warn" id="cx-gender-warn" hidden>{{{t('Gender needed for the Greek text')}}}</span>
+        {% if(!$locked): %}<button type="button" class="ms-btn cx-toggle" aria-expanded="false" aria-controls="cx-patient-edit">{{{($p['name'] ?? '') === '' && $patient_optional ? t('Add') : t('Edit patient')}}}</button>{% endif %}
       </div>
-    </fieldset>
-
+      <fieldset class="cx-edit" id="cx-patient-edit" hidden {% if($locked): %}disabled{% endif %}>
+        <legend class="ms-sub">{{{t('Changes here apply to this document only')}}}{% if($from_zpms): %} ({{{t('nothing is written back to ZPMS')}}}){% endif %}</legend>
+        <input type="hidden" name="patient[guid]" value="{{{$p['guid'] ?? ''}}}">
+        <input type="hidden" name="patient[dob]" value="{{{$p['dob'] ?? ''}}}">
+        <div class="ms-grid">
+          <label class="ms-field ms-wide">{{{t('Name')}}} <input type="text" class="ms-input" name="patient[name]" value="{{{$p['name'] ?? ''}}}" maxlength="255"></label>
+          <label class="ms-field">{{{t('Gender')}}}
+            <select name="patient[gender]" class="ms-input">
+              <option value="">-</option>
+              <option value="M" {% if(($p['gender'] ?? '') == 'M'): %}selected{% endif %}>{{{t('Male')}}}</option>
+              <option value="F" {% if(($p['gender'] ?? '') == 'F'): %}selected{% endif %}>{{{t('Female')}}}</option>
+            </select>
+          </label>
+          <label class="ms-field">{{{t('Age')}}} <input type="text" class="ms-input" name="patient[age]" value="{{{$p['age'] ?? ''}}}" size="4" maxlength="16"></label>
+          <label class="ms-field">AMKA <input type="text" class="ms-input" name="patient[amka]" value="{{{$p['amka'] ?? ''}}}" size="12" maxlength="11"></label>
+        </div>
+      </fieldset>
+    </section>
     {% endif %}
-    <fieldset {% if($locked): %}disabled{% endif %}>
-      <legend>{{{t('Document')}}}</legend>
-      <div class="row">
-        <label>{{{t('Clinic')}}}
-          <select name="settings[clinic]">
-            {% foreach($clinics as $c): %}<option {% if(($s['clinic'] ?? '') == $c): %}selected{% endif %}>{{{$c}}}</option>{% endforeach %}
-          </select>
-        </label>
-        <label>{{{t('Date')}}} <input type="date" name="settings[date]" value="{{{$s['date'] ?? ''}}}"></label>
-        <label>{{{t('Title')}}} <input type="text" name="settings[title]" value="{{{$s['title'] ?? ''}}}" maxlength="255" list="titles">
-          <datalist id="titles">{% foreach($titles as $tt): %}<option value="{{{$tt}}}">{% endforeach %}</datalist></label>
-        <label>{{{t('Closing')}}} <input type="text" name="settings[closing]" value="{{{$s['closing'] ?? ''}}}" maxlength="255" list="closings">
-          <datalist id="closings">{% foreach($closings as $cc): %}<option value="{{{$cc}}}">{% endforeach %}</datalist></label>
-        <label>{{{t('Letterhead version')}}}
-          <select name="base_release_id">
-            {% foreach($releases as $rl): %}<option value="{{{$rl['id']}}}" {% if($rl['id'] == $doc['base_release_id']): %}selected{% endif %}>B{{{$rl['number']}}}</option>{% endforeach %}
-          </select>
-        </label>
-        {% if($has_recipient): %}<label>{{{t('Recipient')}}} <input type="text" name="settings[recipient]" value="{{{$s['recipient'] ?? ''}}}" maxlength="500" size="40"></label>{% endif %}
-        <label>{{{t('Stamp')}}}
-          <select name="settings[stamp]">
-            <option value="no" {% if(($s['stamp'] ?? 'no') != 'yes'): %}selected{% endif %}>{{{t('Doctor details only')}}}</option>
-            <option value="yes" {% if(($s['stamp'] ?? '') == 'yes'): %}selected{% endif %}>{{{t('Signature and stamp')}}}</option>
-          </select>
-        </label>
+
+    <section class="cx-line" id="cx-details">
+      <div class="cx-banner-row">
+        <span class="ms-sub">{{{t('Document')}}}</span>
+        <span id="cx-d-sum" class="cx-sum" data-yes="{{{t('signature and stamp')}}}" data-no="{{{t('doctor details only')}}}" data-closing="{{{t('closing')}}}" data-to="{{{t('to')}}}"></span>
+        {% if(!$locked): %}<button type="button" class="ms-btn cx-toggle" aria-expanded="false" aria-controls="cx-details-edit">{{{t('Edit')}}}</button>{% endif %}
       </div>
-    </fieldset>
+      <fieldset class="cx-edit" id="cx-details-edit" hidden {% if($locked): %}disabled{% endif %}>
+        <div class="ms-grid">
+          <label class="ms-field">{{{t('Clinic')}}}
+            <select name="settings[clinic]" class="ms-input">
+              {% foreach($clinics as $c): %}<option {% if(($s['clinic'] ?? '') == $c): %}selected{% endif %}>{{{$c}}}</option>{% endforeach %}
+            </select>
+          </label>
+          <label class="ms-field">{{{t('Date')}}} <input type="date" class="ms-input" name="settings[date]" value="{{{$s['date'] ?? ''}}}"></label>
+          <label class="ms-field ms-wide">{{{t('Printed title')}}} <input type="text" class="ms-input" name="settings[title]" value="{{{$s['title'] ?? ''}}}" maxlength="255" list="titles">
+            <datalist id="titles">{% foreach($titles as $tt): %}<option value="{{{$tt}}}">{% endforeach %}</datalist></label>
+          <label class="ms-field">{{{t('Closing')}}} <input type="text" class="ms-input" name="settings[closing]" value="{{{$s['closing'] ?? ''}}}" maxlength="255" list="closings">
+            <datalist id="closings">{% foreach($closings as $cc): %}<option value="{{{$cc}}}">{% endforeach %}</datalist></label>
+          <label class="ms-field">{{{t('Stamp')}}}
+            <select name="settings[stamp]" class="ms-input">
+              <option value="no" {% if(($s['stamp'] ?? 'no') != 'yes'): %}selected{% endif %}>{{{t('Doctor details only')}}}</option>
+              <option value="yes" {% if(($s['stamp'] ?? '') == 'yes'): %}selected{% endif %}>{{{t('Signature and stamp')}}}</option>
+            </select>
+          </label>
+          {% if($has_recipient): %}<label class="ms-field ms-wide">{{{t('Recipient')}}} <input type="text" class="ms-input" name="settings[recipient]" value="{{{$s['recipient'] ?? ''}}}" maxlength="500"></label>{% endif %}
+        </div>
+        <details class="cx-adv">
+          <summary>{{{t('Advanced')}}}</summary>
+          <label class="ms-field">{{{t('Letterhead version')}}}
+            <select name="base_release_id" class="ms-input">
+              {% foreach($releases as $rl): %}<option value="{{{$rl['id']}}}" {% if($rl['id'] == $doc['base_release_id']): %}selected{% endif %}>B{{{$rl['number']}}}</option>{% endforeach %}
+            </select>
+          </label>
+          <p class="ms-sub">{{{t('Only before the code is reserved: the QR address of the code is checked against the letterhead chosen then.')}}}</p>
+        </details>
+      </fieldset>
+    </section>
 
     {{ $type_part }}
 
     <p class="palette"><label class="inline">{{{t('Insert a field into the text you are writing')}}}:
       <select id="token-palette"><option value="">@...</option>{% foreach($tokens as $tk): %}<option value="{{{$tk}}}">@{{{$tk}}}</option>{% endforeach %}</select></label></p>
 
-    <div class="checks">
-      {% foreach($checks as $c): %}<div class="check check-{{{$c['level']}}}">{{{$c['msg']}}}</div>{% endforeach %}
-      {% if(count($checks) == 0): %}<div class="check check-ok">{{{t('All checks pass')}}}</div>{% endif %}
-    </div>
-
-    {% if(!$locked): %}
-    <div class="actions">
-      <button type="submit" name="action" value="preview" class="primary">{{{t('Save and preview')}}}</button>
-      <button type="submit" name="action" value="save">{{{t('Save')}}}</button>
-      {% if($ready): %}
-      <button type="submit" name="action" value="draft">{{{t('Back to draft')}}}</button>
-      {% else: %}
-      <button type="submit" name="action" value="ready">{{{t('Ready for review')}}}</button>
+    <div class="cx-bar">
+      <div class="cx-checks">
+        {% if($n_checks == 0): %}
+        <span class="cx-ok">&#10003; {{{t('All checks pass')}}}</span>
+        {% else: %}
+        <button type="button" class="cx-checks-btn" aria-expanded="false" aria-controls="cx-checks-list">&#9888; {{{$n_checks}}} {{{$n_checks == 1 ? t('needs attention') : t('need attention')}}}</button>
+        <ul class="cx-checks-list" id="cx-checks-list" hidden>
+          {% foreach($checks as $c): %}<li class="check check-{{{$c['level']}}}">{{{$c['msg']}}}</li>{% endforeach %}
+        </ul>
+        {% endif %}
+      </div>
+      <span class="cx-state" id="cx-state" data-unsaved="{{{t('Unsaved changes')}}}" data-saving="{{{t('Saving...')}}}" data-building="{{{t('Building preview...')}}}">{% if($unsaved): %}<span class="cx-bad">{{{t('Not saved: a PDF was being built')}}}</span>{% elseif(!$locked): %}{{{t('Saved')}}}{% endif %}</span>
+      {% if(!$locked): %}
+      <span class="cx-actions">
+        <button type="submit" class="ms-btn cx-del" form="delete-form" title="{{{t('Delete this draft')}}}">{{{t('Delete draft')}}}</button>
+        {% if($ready): %}
+        <button type="submit" name="action" value="draft" class="ms-btn">{{{t('Back to draft')}}}</button>
+        {% else: %}
+        <button type="submit" name="action" value="ready" class="ms-btn">{{{t('Ready for review')}}}</button>
+        {% endif %}
+        <button type="submit" name="action" value="save" class="ms-btn">{{{t('Save')}}}</button>
+        <button type="submit" name="action" value="preview" class="ms-btn ms-primary">{{{t('Save and preview')}}}</button>
+      </span>
       {% endif %}
     </div>
-    {% endif %}
   </form>
 
   <div class="composer-splitter" role="separator" aria-orientation="vertical" tabindex="0" title="{{{t('Drag to change the width of the preview')}}}">
@@ -104,6 +136,7 @@
 
   <script src="{{rel_url('/js/splitter.js')}}"></script>
   <script src="{{rel_url('/js/sections.js')}}"></script>
+  <script src="{{rel_url('/js/composer.js')}}"></script>
   <script>
   (function () {
     var last = null;
@@ -137,14 +170,10 @@
     var pal = document.getElementById('token-palette');
     if (pal) pal.addEventListener('change', function () { if (pal.value && last) insert(last, '@' + pal.value); pal.value = ''; });
   })();
-  document.querySelector('.composer-form').addEventListener('submit', function (e) {
-    var b = e.submitter; if (b && b.value === 'preview') { b.textContent = '{{{t('Building preview...')}}}'; setTimeout(function () { document.querySelector('.composer-form').classList.add('building'); }, 0); }
-  });
   </script>
   {% if(!$locked): %}
-  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/delete')}}" class="delete-form" onsubmit="return confirm('{{{t('Delete this draft?')}}}')">
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/delete')}}" id="delete-form" class="delete-form" hidden onsubmit="return confirm('{{{t('Delete this draft?')}}}')">
     {{ csrf_field() }}
-    <button type="submit" class="danger">{{{t('Delete draft')}}}</button>
   </form>
   {% endif %}
 </div>

@@ -1,0 +1,151 @@
+{# The composer before the redesign (docs/plans/composer-ui.md), at ?ui=classic until phase 8 is accepted. #}
+<div class="composer splitpane" data-split-key="medscribe.composer.layout">
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '?ui=classic')}}" class="composer-form split-left">
+    {{ csrf_field() }}
+    <div class="page-head">
+        <h2>#{{{$doc['id']}}} {{{$type_label}}}</h2>
+        {{ ui_status_pill($doc['status']) }}
+    </div>
+
+    {% if($unsaved): %}<p class="notice">{{{t('These changes are NOT saved yet: a PDF was being built. Save again.')}}}</p>{% endif %}
+    {% if($busy && !$locked): %}<p class="notice">{{{t('A PDF of this document is being built; saving waits until it is done.')}}}</p>{% endif %}
+    {% if($locked): %}<p class="notice">{{{t('This document is locked.')}}} {% if($doc['doc_code']): %}<code>{{{$doc['doc_code']}}}</code>{% endif %}</p>{% endif %}
+    {% if($doc['status'] == 'code_reserved'): %}<p class="notice">{{{t('Code reserved')}}}: <code>{{{$doc['doc_code']}}}</code>. {{{t('Edits keep the code; the final PDF is built again at the next step.')}}}</p>{% endif %}
+    <p class="links">
+      {% if($is_doctor): %}<a class="btn" href="{{rel_url('/documents/' . $doc['id'] . '/issue')}}">{{{$locked ? t('Issue page') : t('Issue...')}}}</a>{% endif %}
+      {% if($doc['status'] == 'issued' || $doc['status'] == 'withdrawn'): %}<a class="btn" href="{{rel_url('/documents/' . $doc['id'] . '/history')}}">{{{t('History')}}}</a>{% endif %}
+    </p>
+
+    {% if($has_patient): %}
+    <fieldset {% if($locked): %}disabled{% endif %}>
+      <legend>{{{t('Patient')}}}{% if($from_zpms): %} <span class="muted">{{{t('from ZPMS; changes here stay on this document only')}}}</span>{% endif %}</legend>
+      <input type="hidden" name="patient[guid]" value="{{{$p['guid'] ?? ''}}}">
+      <input type="hidden" name="patient[dob]" value="{{{$p['dob'] ?? ''}}}">
+      <div class="row">
+        <label>{{{t('Name')}}} <input type="text" name="patient[name]" value="{{{$p['name'] ?? ''}}}" maxlength="255"></label>
+        <label>{{{t('Gender')}}}
+          <select name="patient[gender]">
+            <option value="">-</option>
+            <option value="M" {% if(($p['gender'] ?? '') == 'M'): %}selected{% endif %}>{{{t('Male')}}}</option>
+            <option value="F" {% if(($p['gender'] ?? '') == 'F'): %}selected{% endif %}>{{{t('Female')}}}</option>
+          </select>
+        </label>
+        <label>{{{t('Age')}}} <input type="text" name="patient[age]" value="{{{$p['age'] ?? ''}}}" size="4" maxlength="16"></label>
+        <label>AMKA <input type="text" name="patient[amka]" value="{{{$p['amka'] ?? ''}}}" size="12" maxlength="11"></label>
+      </div>
+    </fieldset>
+
+    {% endif %}
+    <fieldset {% if($locked): %}disabled{% endif %}>
+      <legend>{{{t('Document')}}}</legend>
+      <div class="row">
+        <label>{{{t('Clinic')}}}
+          <select name="settings[clinic]">
+            {% foreach($clinics as $c): %}<option {% if(($s['clinic'] ?? '') == $c): %}selected{% endif %}>{{{$c}}}</option>{% endforeach %}
+          </select>
+        </label>
+        <label>{{{t('Date')}}} <input type="date" name="settings[date]" value="{{{$s['date'] ?? ''}}}"></label>
+        <label>{{{t('Title')}}} <input type="text" name="settings[title]" value="{{{$s['title'] ?? ''}}}" maxlength="255" list="titles">
+          <datalist id="titles">{% foreach($titles as $tt): %}<option value="{{{$tt}}}">{% endforeach %}</datalist></label>
+        <label>{{{t('Closing')}}} <input type="text" name="settings[closing]" value="{{{$s['closing'] ?? ''}}}" maxlength="255" list="closings">
+          <datalist id="closings">{% foreach($closings as $cc): %}<option value="{{{$cc}}}">{% endforeach %}</datalist></label>
+        <label>{{{t('Letterhead version')}}}
+          <select name="base_release_id">
+            {% foreach($releases as $rl): %}<option value="{{{$rl['id']}}}" {% if($rl['id'] == $doc['base_release_id']): %}selected{% endif %}>B{{{$rl['number']}}}</option>{% endforeach %}
+          </select>
+        </label>
+        {% if($has_recipient): %}<label>{{{t('Recipient')}}} <input type="text" name="settings[recipient]" value="{{{$s['recipient'] ?? ''}}}" maxlength="500" size="40"></label>{% endif %}
+        <label>{{{t('Stamp')}}}
+          <select name="settings[stamp]">
+            <option value="no" {% if(($s['stamp'] ?? 'no') != 'yes'): %}selected{% endif %}>{{{t('Doctor details only')}}}</option>
+            <option value="yes" {% if(($s['stamp'] ?? '') == 'yes'): %}selected{% endif %}>{{{t('Signature and stamp')}}}</option>
+          </select>
+        </label>
+      </div>
+    </fieldset>
+
+    {{ $type_part }}
+
+    <p class="palette"><label class="inline">{{{t('Insert a field into the text you are writing')}}}:
+      <select id="token-palette"><option value="">@...</option>{% foreach($tokens as $tk): %}<option value="{{{$tk}}}">@{{{$tk}}}</option>{% endforeach %}</select></label></p>
+
+    <div class="checks">
+      {% foreach($checks as $c): %}<div class="check check-{{{$c['level']}}}">{{{$c['msg']}}}</div>{% endforeach %}
+      {% if(count($checks) == 0): %}<div class="check check-ok">{{{t('All checks pass')}}}</div>{% endif %}
+    </div>
+
+    {% if(!$locked): %}
+    <div class="actions">
+      <button type="submit" name="action" value="preview" class="primary">{{{t('Save and preview')}}}</button>
+      <button type="submit" name="action" value="save">{{{t('Save')}}}</button>
+      {% if($ready): %}
+      <button type="submit" name="action" value="draft">{{{t('Back to draft')}}}</button>
+      {% else: %}
+      <button type="submit" name="action" value="ready">{{{t('Ready for review')}}}</button>
+      {% endif %}
+    </div>
+    {% endif %}
+  </form>
+
+  <div class="composer-splitter" role="separator" aria-orientation="vertical" tabindex="0" title="{{{t('Drag to change the width of the preview')}}}">
+    <button type="button" data-dir="left" title="{{{t('Widen the preview')}}}">&#9664;</button>
+    <button type="button" data-dir="right" title="{{{t('Narrow the preview')}}}">&#9654;</button>
+  </div>
+
+  <div class="composer-preview split-right">
+    {% if($pdf_url && $is_a5): %}<p class="print-links">{{{t('Print two A5 per A4 sheet')}}}: <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=seq')}}" target="_blank">{{{t('pages in order')}}}</a> &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=dup')}}" target="_blank">{{{t('each page twice')}}}</a></p>{% endif %}
+    {% if($pdf_url): %}
+    <iframe src="{{rel_url($pdf_url)}}" title="{{{t('Preview')}}}"></iframe>
+    {% elseif($build): %}
+    <pre class="log">{{{$build['log_tail']}}}</pre>
+    {% else: %}
+    <p class="muted">{{{t('No preview yet. Press "Save and preview".')}}}</p>
+    {% endif %}
+  </div>
+
+  <script src="{{rel_url('/js/splitter.js')}}"></script>
+  <script src="{{rel_url('/js/sections.js')}}"></script>
+  <script>
+  (function () {
+    var last = null;
+    document.querySelectorAll('.composer textarea').forEach(function (t) { t.addEventListener('focus', function () { last = t; }); });
+    function insert(t, text) {
+      var s = t.selectionStart || t.value.length, e = t.selectionEnd || t.value.length;
+      t.value = t.value.slice(0, s) + text + t.value.slice(e); t.focus(); t.selectionStart = t.selectionEnd = s + text.length;
+    }
+    document.querySelectorAll('.suggestion').forEach(function (b) { b.addEventListener('click', function () {
+      var t = document.getElementById(b.dataset.target); var d = t.closest('details'); if (d) d.open = true;
+      t.value = (t.value.trim() ? t.value.replace(/\s+$/, '') + '\n\n' : '') + b.dataset.insert; t.focus();
+    }); });
+    function addRow(tableId, d) {
+      var tb = document.querySelector('#' + tableId + ' tbody'), sec = document.getElementById(tableId).dataset.sec, i = Date.now() % 1e9 + tb.children.length;
+      var tr = document.createElement('tr'), mk = function (k, tag, size) {
+        var td = document.createElement('td'), el = document.createElement(tag === 'ta' ? 'textarea' : 'input');
+        el.name = 'meds[' + sec + '][' + i + '][' + k + ']'; if (tag === 'ta') el.rows = 1; else { el.type = 'text'; if (size) el.size = size; }
+        el.value = (d && d[k]) || ''; td.appendChild(el); tr.appendChild(td); };
+      mk('name', 'in'); mk('dose', 'in', 8); mk('freq', 'ta'); mk('days', 'in', 4); mk('notes', 'ta');
+      var td = document.createElement('td'), b = document.createElement('button'); b.type = 'button'; b.className = 'med-del'; b.textContent = '\u00d7'; td.appendChild(b); tr.appendChild(td);
+      tb.appendChild(tr);
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('med-del')) e.target.closest('tr').remove();
+      if (e.target.classList.contains('med-blank')) addRow(e.target.dataset.table, null);
+    });
+    document.querySelectorAll('.med-add').forEach(function (sel) { sel.addEventListener('change', function () {
+      var list = JSON.parse(sel.dataset.drugs), d = list.filter(function (x) { return x.id === sel.value; })[0];
+      if (d) addRow(sel.dataset.table, d); sel.value = '';
+    }); });
+    var pal = document.getElementById('token-palette');
+    if (pal) pal.addEventListener('change', function () { if (pal.value && last) insert(last, '@' + pal.value); pal.value = ''; });
+  })();
+  document.querySelector('.composer-form').addEventListener('submit', function (e) {
+    var b = e.submitter; if (b && b.value === 'preview') { b.textContent = '{{{t('Building preview...')}}}'; setTimeout(function () { document.querySelector('.composer-form').classList.add('building'); }, 0); }
+  });
+  </script>
+  {% if(!$locked): %}
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/delete')}}" class="delete-form" onsubmit="return confirm('{{{t('Delete this draft?')}}}')">
+    {{ csrf_field() }}
+    <button type="submit" class="danger">{{{t('Delete draft')}}}</button>
+  </form>
+  {% endif %}
+</div>

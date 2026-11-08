@@ -290,3 +290,10 @@ versioning); the Greek interface.
   index syntax); fine at this size. New document (`doc_new_types()`): a filterable type list, the patient block hidden for
   `has_patient: false`, marked optional for `"optional"`, gender as two explicit choices, `?type=` preselects. Checks added
   to `bin/check_web.php`.
+- **Phase 3 (2026-11-08):** `document_edit.zetem` rebuilt: header (back link, type label, status pill, "Unsaved changes",
+  History/Issue), patient banner (initials, gender · age · AMKA · source, amber "Gender needed for the Greek text", Edit opens
+  the fields in place; "No patient (optional)" for optional types), details line (Edit; letterhead under Advanced), sticky
+  action bar (checks summary with its list, save state, Delete draft through `form="delete-form"`, Ready/Back, Save, Save
+  and preview). `web/js/composer.js` keeps the summaries in step, marks unsaved changes and warns before leaving;
+  `web/css/composer.css` (`.cx`). Section legends use `ui_section_name()` (no slot or layout). The old page is
+  `document_edit_classic.zetem` at `?ui=classic` (its form posts to `?ui=classic` and comes back there).
