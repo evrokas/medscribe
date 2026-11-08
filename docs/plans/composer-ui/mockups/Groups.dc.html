@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Composer · alternatives and case rule</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Serif:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F2F6F7;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1D2B30}
+a{color:#036379}a:hover{color:#024A5C}
+.top a{color:#fff;text-decoration:none;font-size:15px;opacity:.9}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid #C9D7DA;border-radius:9px;background:#fff;color:#1D2B30;font:600 14px 'IBM Plex Sans',sans-serif;text-decoration:none}
+.btn-p{background:#036379;border-color:#036379;color:#fff}
+.card{background:#fff;border:1px solid #D6E1E3;border-radius:12px}
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.sub{font-size:13px;color:#5B6E74}
+.doc{font-family:'IBM Plex Serif',Georgia,serif;font-size:16px;line-height:1.6}
+.cap{font:600 12px 'IBM Plex Sans',sans-serif;letter-spacing:.04em;color:#6A7C81;margin:18px 0 4px;text-transform:uppercase}
+.s{display:flex;gap:12px;align-items:flex-start;padding:6px 8px;border-radius:8px}
+.s input{margin-top:6px;width:18px;height:18px;accent-color:#036379;flex:none}
+.alt{border:1px solid #C3DCE1;border-radius:10px;background:#F7FBFC;padding:4px 6px}
+.v{display:inline-block;padding:0 7px;border-radius:6px;background:#E2F0F2;color:#024A5C;font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:14px;line-height:1.7}
+.e{display:inline-block;padding:0 7px;border-radius:6px;background:#EEF1F2;color:#6A7C81;border:1px dashed #A9BABE;font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.6}
+.g{display:inline-block;padding:0 5px;border-radius:5px;background:#FFF1D6;color:#7A4B00;font-weight:600}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:999px;border:1px dashed #036379;background:#fff;color:#036379;font:600 14px 'IBM Plex Sans',sans-serif}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-direction: column">
+  <header class="top" style="background: #036379; color: #fff; display: flex; align-items: center; gap: 28px; padding: 0 24px; height: 56px; flex-wrap: wrap">
+    <strong style="font-size: 20px; font-family: 'IBM Plex Serif', serif">MedScribe</strong>
+    <nav style="display: flex; gap: 22px"><a href="#">Home</a><a href="#" style="opacity: 1; font-weight: 600">Documents</a><a href="#">Types</a><a href="#">Library</a></nav>
+    <span style="margin-left: auto; font-size: 14px">Dr Demo · Logout</span>
+  </header>
+
+  <main style="display: flex; flex-wrap: wrap; gap: 18px; padding: 16px 20px 24px; align-items: flex-start">
+    <section style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <a href="List.dc.html" style="font-size: 14px; text-decoration: none">‹ Documents</a>
+        <h1 style="margin: 0; font: 600 22px 'IBM Plex Serif', serif">#2 Προέγκριση χειρουργείου</h1>
+        <span class="pill" style="background: #FFF1D6; color: #7A4B00">Ready for review</span>
+      </div>
+
+      <div class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 12px 16px; background: #FFF8EB; border-color: #F0D49A">
+        <span aria-hidden="true" style="width: 38px; height: 38px; border-radius: 50%; background: #F6E3BC; color: #7A4B00; display: flex; align-items: center; justify-content: center; font-weight: 700">ΓΜ</span>
+        <div style="flex: 1; min-width: 220px"><div style="font: 600 17px 'IBM Plex Serif', serif">Γεωργίου Μαρία</div><div style="font-size: 13px; color: #7A4B00; font-weight: 600">! Gender needed for the Greek text («Ο/Η ασθενής»)</div></div>
+        <div role="radiogroup" aria-label="Gender" style="display: flex; gap: 6px"><button type="button" class="btn" style="min-height: 34px">Male</button><button type="button" class="btn" style="min-height: 34px">Female</button></div>
+      </div>
+
+      <div class="card" style="padding: 12px 16px; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; align-items: center; gap: 10px"><strong style="font-size: 14px">Case features</strong><span class="sub">ready-made changes for a specific case; removing one puts everything back</span></div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+          <button type="button" class="chip">+ Επανάληψη RF γασσερίου</button>
+          <span class="sub">Turns on the 3 «Επανάληψη RF γασσερίου» sentences; turns off «Συντηρητική αγωγή» and the 3 «Ένδειξη» sentences.</span>
+        </div>
+      </div>
+
+      <article class="card doc" style="padding: 18px 26px 20px">
+        <div class="cap">Διάγνωση και ιστορικό · not printed as a heading</div>
+        <div class="alt" role="radiogroup" aria-label="Opening sentence">
+          <label class="s"><input type="radio" name="op" checked><span><span class="g" title="{Ο|Η}: choose the patient's gender">Ο/Η</span> ασθενής πάσχει από <span class="e" title="@diagnosis · empty">Διάγνωση</span>.</span></label>
+          <label class="s"><input type="radio" name="op"><span><span class="g">Ο/Η</span> ασθενής εξετάσθηκε σήμερα λόγω <span class="e">Εξετάσθηκε λόγω</span>.</span></label>
+          <label class="s" style="color: #6A7C81; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px"><input type="radio" name="op"><span>None of these</span></label>
+        </div>
+
+        <div class="cap">Απεικόνιση · not printed as a heading</div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Από τον απεικονιστικό έλεγχο με <span class="v">Μαγνητική Τομογραφία ΑΜΣΣ</span> την <span class="v">03/11/2026</span>, διαπιστώθηκε <span class="e">Ευρήματα απεικόνισης</span>.</span></div>
+
+        <div class="cap">Συντηρητική αγωγή · not printed as a heading</div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span>Η πάθηση δεν ανταποκρίνεται πλέον στη συντηρητική αγωγή (φαρμακευτική αγωγή, φυσικοθεραπείες), παρά τη μακροχρόνια εφαρμογή της.</span></div>
+
+        <div class="cap">Ένδειξη · not printed as a heading</div>
+        <div class="alt" role="radiogroup" aria-label="Indication">
+          <label class="s"><input type="radio" name="ind" checked><span><span class="g">Ο/Η</span> ασθενής χρήζει <span class="e">Χρήζει (επέμβαση)</span>.</span></label>
+          <label class="s"><input type="radio" name="ind"><span><span class="g">Ο/Η</span> ασθενής θα πρέπει να υποβληθεί σε <span class="e">Να υποβληθεί σε (επέμβαση)</span>.</span></label>
+          <label class="s" style="color: #6A7C81; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px"><input type="radio" name="ind"><span>None of these</span></label>
+        </div>
+        <div class="s"><input type="checkbox" aria-label="Include"><span style="color: #6A7C81">Ενδεχομένως, επί σημαντικής αστάθειας που μπορεί να διαπιστωθεί μόνο διεγχειρητικά, να απαιτηθεί επέκταση της σπονδυλοδεσίας στον <span class="e">Επέκταση έως σπόνδυλο</span> σπόνδυλο.</span></div>
+
+        <div class="cap">Συνθήκες επέμβασης · not printed as a heading</div>
+        <div style="font: 500 13px 'IBM Plex Sans', sans-serif; color: #036379; padding: 4px 8px">▸ 2 alternatives (none chosen) and 1 sentence · Show</div>
+      </article>
+
+      <div class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; box-shadow: 0 6px 20px rgba(3,99,121,.12)">
+        <span style="font-size: 13px; color: #0B6B4F">✓ Saved 11:20</span><span class="sub">·</span>
+        <button type="button" style="border: 0; background: none; padding: 0; font: 600 13px 'IBM Plex Sans', sans-serif; color: #A23B2A">2 need attention ▾</button>
+        <div style="margin-left: auto; display: flex; gap: 8px"><button type="button" class="btn">Save</button><button type="button" class="btn btn-p">Save &amp; preview</button><button type="button" class="btn">Back to draft</button></div>
+      </div>
+    </section>
+
+    <aside style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div class="card" style="padding: 16px">
+        <h2 style="margin: 0 0 10px; font-size: 16px">Needs attention</h2>
+        <a href="#" style="display: block; padding: 10px 12px; border-radius: 8px; background: #FDF1EF; color: #8B2E20; text-decoration: none; font-size: 14px; margin-bottom: 8px"><b>The patient's gender is needed</b> for «Ο/Η ασθενής». → Patient</a>
+        <a href="#" style="display: block; padding: 10px 12px; border-radius: 8px; background: #FDF1EF; color: #8B2E20; text-decoration: none; font-size: 14px"><b>Missing value: Διάγνωση</b> → first sentence</a>
+        <p class="sub" style="margin: 10px 0 0">You can still save and preview. Issuing waits until these are fixed.</p>
+      </div>
+      <div class="card" style="padding: 16px; font-size: 14px; line-height: 1.6; color: #3C4F55">
+        <h2 style="margin: 0 0 8px; font-size: 16px; color: #1D2B30">Reading this screen</h2>
+        Round buttons: alternatives, only one prints («None of these» prints none). Tick boxes: sentences that print when ticked. Grey dashed names: values not filled in yet. Amber «Ο/Η»: the gender is missing.
+      </div>
+    </aside>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

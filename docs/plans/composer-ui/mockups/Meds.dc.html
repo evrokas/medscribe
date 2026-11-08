@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Composer · medication table</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Serif:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F2F6F7;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1D2B30}
+a{color:#036379}a:hover{color:#024A5C}
+.top a{color:#fff;text-decoration:none;font-size:15px;opacity:.9}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border:1px solid #C9D7DA;border-radius:9px;background:#fff;color:#1D2B30;font:600 14px 'IBM Plex Sans',sans-serif;text-decoration:none}
+.btn-p{background:#036379;border-color:#036379;color:#fff}
+.card{background:#fff;border:1px solid #D6E1E3;border-radius:12px}
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.sub{font-size:13px;color:#5B6E74}
+.doc{font-family:'IBM Plex Serif',Georgia,serif;font-size:16px;line-height:1.6}
+.h2{font-family:'IBM Plex Serif',serif;font-weight:700;font-size:19px;margin:20px 0 8px}
+.s{display:flex;gap:12px;align-items:flex-start;padding:6px 8px;border-radius:8px}
+.s input{margin-top:6px;width:18px;height:18px;accent-color:#036379;flex:none}
+.e{display:inline-block;padding:0 7px;border-radius:6px;background:#EEF1F2;color:#6A7C81;border:1px dashed #A9BABE;font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.6}
+table{width:100%;border-collapse:collapse;font-family:'IBM Plex Sans',sans-serif;font-size:14px}
+th{text-align:left;font-size:12px;font-weight:700;color:#5B6E74;padding:8px 10px;border-bottom:1px solid #D6E1E3}
+td{padding:6px 6px;border-bottom:1px solid #EAF0F1;vertical-align:top}
+.cell{display:block;width:100%;box-sizing:border-box;min-height:36px;padding:6px 8px;border:1px solid #D6E1E3;border-radius:7px;background:#fff;font:14px/1.5 'IBM Plex Sans',sans-serif;white-space:pre-line}
+.x{width:36px;height:36px;border:1px solid #E3C3BD;border-radius:8px;background:#fff;color:#A23B2A;font-size:18px}
+.grp{display:flex;align-items:center;padding:8px 12px;border-radius:7px;font-size:14px}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-direction: column">
+  <header class="top" style="background: #036379; color: #fff; display: flex; align-items: center; gap: 28px; padding: 0 24px; height: 56px; flex-wrap: wrap">
+    <strong style="font-size: 20px; font-family: 'IBM Plex Serif', serif">MedScribe</strong>
+    <nav style="display: flex; gap: 22px"><a href="#">Home</a><a href="#" style="opacity: 1; font-weight: 600">Documents</a><a href="#">Types</a><a href="#">Library</a></nav>
+    <span style="margin-left: auto; font-size: 14px">Secretary · Logout</span>
+  </header>
+
+  <main style="display: flex; flex-wrap: wrap; gap: 18px; padding: 16px 20px 24px; align-items: flex-start">
+    <section style="flex: 999 1 700px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <a href="List.dc.html" style="font-size: 14px; text-decoration: none">‹ Documents</a>
+        <h1 style="margin: 0; font: 600 22px 'IBM Plex Serif', serif">#3 Συνταγή / Οδηγίες φαρμακευτικής αγωγής (A4)</h1>
+        <span class="pill" style="background: #EEF1F2; color: #3C4F55">Draft</span>
+      </div>
+      <div class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 12px 16px; background: #F4FAFB; border-color: #C3DCE1">
+        <div style="flex: 1"><div style="font: 600 17px 'IBM Plex Serif', serif">Νικολάου Ελένη</div><div class="sub">Female · 58 years · From ZPMS</div></div>
+        <button type="button" class="btn" style="min-height: 36px">Edit patient</button>
+      </div>
+
+      <article class="card doc" style="padding: 18px 26px 22px">
+        <div style="font: 600 12px 'IBM Plex Sans', sans-serif; letter-spacing: .04em; color: #6A7C81; text-transform: uppercase">Patient info rows</div>
+        <div class="s"><input type="checkbox" aria-label="Include"><span style="color: #6A7C81"><b>Διάγνωση:</b> <span class="e">Διάγνωση</span></span></div>
+        <div class="s"><input type="checkbox" aria-label="Include"><span style="color: #6A7C81"><b>Αλλεργίες:</b> <span class="e">Αλλεργίες</span></span></div>
+        <div class="s"><input type="checkbox" aria-label="Include"><span style="color: #6A7C81"><b>Ημ. Χειρουργείου:</b> <span class="e">Ημερομηνία χειρουργείου</span></span></div>
+
+        <div class="h2">Medication table <span style="font: 400 13px 'IBM Plex Sans', sans-serif; color: #5B6E74">· no printed heading</span></div>
+        <div style="overflow-x: auto; border: 1px solid #D6E1E3; border-radius: 10px">
+          <table>
+            <thead><tr><th style="width: 22%">Drug</th><th style="width: 12%">Dose</th><th style="width: 18%">Frequency</th><th style="width: 18%">Days</th><th>Notes</th><th style="width: 44px"><span class="sub">Remove</span></th></tr></thead>
+            <tbody>
+              <tr><td><span class="cell">tb Medrol</span></td><td><span class="cell">4mg</span></td><td><span class="cell">1 x 3
+1 x 2
+1 x 1
+STOP</span></td><td><span class="cell">για 5 ημέρες
+για 5 ημέρες
+για 5 ημέρες</span></td><td><span class="cell"></span></td><td><button type="button" class="x" aria-label="Remove tb Medrol">×</button></td></tr>
+              <tr><td><span class="cell">caps Omeprazole</span></td><td><span class="cell">20mg</span></td><td><span class="cell">1 x 2</span></td><td><span class="cell">10</span></td><td><span class="cell">15 λεπτά πριν το φαγητό</span></td><td><button type="button" class="x" aria-label="Remove caps Omeprazole">×</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; font-family: 'IBM Plex Sans', sans-serif"><button type="button" class="btn btn-p">+ Add medication ▾</button><span class="sub" style="align-self: center">Each line in a cell prints as its own line.</span></div>
+
+        <div class="h2" style="font-size: 13px; font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; letter-spacing: .04em; color: #6A7C81; text-transform: uppercase">«Σημείωση: Μην λαμβάνετε…» · no printed heading</div>
+        <div class="s"><input type="checkbox" checked aria-label="Include"><span><b>Σημείωση:</b> Μην λαμβάνετε αντιφλεγμονώδη φάρμακα (π.χ. Voltaren, Brufen, Ponstan, Naprosyn) χωρίς ιατρική οδηγία.</span></div>
+        <button type="button" style="margin-left: 38px; border: 0; background: none; padding: 4px 0; font: 500 13px 'IBM Plex Sans', sans-serif; color: #036379">▸ Show 3 more optional sentences</button>
+      </article>
+    </section>
+
+    <aside class="card" style="flex: 1 1 360px; min-width: 0; padding: 14px; box-shadow: 0 10px 28px rgba(3,99,121,.15)">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px"><strong>Add medication</strong><button type="button" class="btn" style="margin-left: auto; min-height: 32px; font-size: 13px">Empty row</button></div>
+      <input aria-label="Search the drug library" placeholder="Search, e.g. Medrol" style="width: 100%; box-sizing: border-box; min-height: 40px; padding: 8px 12px; border: 1px solid #C9D7DA; border-radius: 8px; font: 14px 'IBM Plex Sans', sans-serif">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-top: 10px">
+        <div class="grp">Neuropathic pain, antiepileptics<span class="sub" style="margin-left: auto">7</span></div>
+        <div class="grp">Analgesics<span class="sub" style="margin-left: auto">5</span></div>
+        <div class="grp" style="background: #E2F0F2; color: #024A5C; font-weight: 600">Steroids (tapers)<span style="margin-left: auto; font-size: 13px">4</span></div>
+        <div style="padding: 4px 4px 6px 14px; display: flex; flex-direction: column; gap: 4px; font-size: 14px">
+          <button type="button" class="btn" style="justify-content: space-between; min-height: 36px; font-weight: 500">tb Medrol 4mg · 3 steps <span class="sub">add</span></button>
+          <button type="button" class="btn" style="justify-content: space-between; min-height: 36px; font-weight: 500">tb Medrol 4mg · 4 steps <span class="sub">add</span></button>
+          <button type="button" class="btn" style="justify-content: space-between; min-height: 36px; font-weight: 500">syr Dexaton 2mg/5ml <span class="sub">add</span></button>
+          <button type="button" class="btn" style="justify-content: space-between; min-height: 36px; font-weight: 500">tb Dexamethasone 4mg <span class="sub">add</span></button>
+        </div>
+        <div class="grp">NSAIDs<span class="sub" style="margin-left: auto">3</span></div>
+        <div class="grp">Antibiotics<span class="sub" style="margin-left: auto">3</span></div>
+        <div class="grp">Gastroprotection<span class="sub" style="margin-left: auto">3</span></div>
+        <div class="grp">Anticoagulants<span class="sub" style="margin-left: auto">3</span></div>
+        <div class="grp">Other<span class="sub" style="margin-left: auto">4</span></div>
+      </div>
+      <p class="sub" style="margin: 10px 4px 0">The row is copied into this document; edit it freely. Rows with no drug name are dropped on save.</p>
+    </aside>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

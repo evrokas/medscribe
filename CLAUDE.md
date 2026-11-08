@@ -497,5 +497,6 @@ supports. Read the plan before touching `web/types.php`, `type_edit.zetem` or `w
 
 Plan only, nothing built: `docs/plans/composer-ui.md`; screenshots of the current pages in `docs/plans/composer-ui/before/`,
 the supplied design brief and concept images in `docs/plans/composer-ui/proposal/`. Aim: writing a document should read like
-writing the letter (sentences as text, values filled in where they are used), not like filling fields. Open decisions are
-marked ★ in the plan. Shares building blocks with `docs/plans/type-editor-ui.md` (§9 there and here).
+writing the letter (sentences as text, values filled in where they are used), not like filling fields. Decided 2026-11-08:
+Write view is the default, preview stays the real PDF only (no HTML preview), no summary cards; mockup sources in
+`docs/plans/composer-ui/mockups/`. Shares building blocks with `docs/plans/type-editor-ui.md` (§9 there and here).

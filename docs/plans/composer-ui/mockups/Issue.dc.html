@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<title>Issue · review the final PDF</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Serif:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F2F6F7;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1D2B30}
+a{color:#036379}a:hover{color:#024A5C}
+.top a{color:#fff;text-decoration:none;font-size:15px;opacity:.9}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border:1px solid #C9D7DA;border-radius:9px;background:#fff;color:#1D2B30;font:600 14px 'IBM Plex Sans',sans-serif;text-decoration:none}
+.btn-p{background:#036379;border-color:#036379;color:#fff}
+.card{background:#fff;border:1px solid #D6E1E3;border-radius:12px}
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.sub{font-size:13px;color:#5B6E74}
+.step{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:4px 14px;padding:8px 0;border-bottom:1px solid #EAF0F1;font-size:14px}
+.pg p{margin:0 0 7px;font:11.5px/1.55 'IBM Plex Serif',serif}
+.qr{width:62px;height:62px;background:repeating-linear-gradient(90deg,#1D2B30 0 4px,#fff 4px 7px),repeating-linear-gradient(0deg,#1D2B30 0 4px,#fff 4px 9px);background-blend-mode:multiply;border:3px solid #1D2B30;box-sizing:border-box}
+</style>
+</helmet>
+<div style="min-height: 100%; display: flex; flex-direction: column">
+  <header class="top" style="background: #036379; color: #fff; display: flex; align-items: center; gap: 28px; padding: 0 24px; height: 56px; flex-wrap: wrap">
+    <strong style="font-size: 20px; font-family: 'IBM Plex Serif', serif">MedScribe</strong>
+    <nav style="display: flex; gap: 22px"><a href="#">Home</a><a href="#" style="opacity: 1; font-weight: 600">Documents</a><a href="#">Types</a><a href="#">Library</a></nav>
+    <span style="margin-left: auto; font-size: 14px">Dr Demo · Logout</span>
+  </header>
+  <main style="max-width: 1280px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 18px 20px 30px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+      <a href="#" style="font-size: 14px; text-decoration: none">‹ Back to the document</a>
+      <h1 style="margin: 0; font: 600 24px 'IBM Plex Serif', serif">Issue #5 · Βεβαίωση συμβατότητας MRI</h1>
+      <span class="pill" style="background: #E2EEFA; color: #1F4E79">Final PDF ready to approve</span>
+    </div>
+    <ol aria-label="Steps" style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
+      <li class="step"><span class="dot" style="background: #E1F3EC; color: #0A6B4F">✓</span>Prepare: code reserved</li>
+      <li aria-hidden="true" style="width: 60px; height: 2px; background: #C9D7DA"></li>
+      <li class="step" aria-current="step"><span class="dot" style="background: #036379; color: #fff">2</span><span style="color: #036379">Review the final PDF</span></li>
+      <li aria-hidden="true" style="width: 60px; height: 2px; background: #C9D7DA"></li>
+      <li class="step" style="color: #6A7C81"><span class="dot" style="background: #EEF1F2; color: #6A7C81">3</span>Approve and send</li>
+    </ol>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <div class="card" style="padding: 14px 18px">
+          <h2 style="margin: 0 0 6px; font-size: 16px">Summary</h2>
+          <div class="row"><span class="sub">Patient</span><span>Δημητρίου Νίκος · Male · 61</span></div>
+          <div class="row"><span class="sub">DocArc type</span><span>linked ✓</span></div>
+          <div class="row"><span class="sub">DocArc clinic</span><span>Peristeri</span></div>
+          <div class="row"><span class="sub">Code</span><span><code>MRI-2026-H3N8TD</code> <span class="sub">reserved</span></span></div>
+          <div class="row" style="border: 0"><span class="sub">Verification code</span><span>the patient's AMKA</span></div>
+        </div>
+        <div class="card" style="padding: 14px 18px; background: #F4FAFB; border-color: #C3DCE1; font-size: 14px; line-height: 1.55">
+          <b>Nothing has been sent yet.</b> This is exactly the file that will be archived, with the real QR code. Approving freezes the document and sends these bytes; nothing is built again.
+        </div>
+        <div class="card" style="padding: 14px 18px; font-size: 14px"><span style="color: #0B6B4F; font-weight: 600">✓ All checks pass</span></div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <button type="button" class="btn btn-p">Approve and send to DocArc</button>
+          <button type="button" class="btn">Edit again (the code stays)</button>
+        </div>
+      </section>
+
+      <section class="card" style="flex: 1 1 520px; min-width: 0">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #E3ECEE"><strong>Final PDF</strong><span class="sub">1 page · A4</span><a href="#" style="margin-left: auto; font-size: 14px">Open in a new tab</a></div>
+        <div style="padding: 18px; background: #E7EEF0; border-radius: 0 0 12px 12px">
+          <div class="pg" style="background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.12); padding: 26px 30px; aspect-ratio: 210 / 297; box-sizing: border-box">
+            <div style="display: flex; align-items: flex-start; gap: 10px">
+              <div style="flex: 1; text-align: right; font: 600 12px 'IBM Plex Serif', serif; color: #1F4E79">Ευάγγελος Μ. Ρόκας<div style="font: 400 10px 'IBM Plex Sans', sans-serif; color: #5B6E74">Νευροχειρουργός</div></div>
+              <div class="qr" role="img" aria-label="Real QR code"></div>
+            </div>
+            <div style="height: 1.5px; background: #1F4E79; margin: 10px 0 16px"></div>
+            <p style="text-align: center; font-weight: 700; font-size: 13px">Ιατρική Βεβαίωση</p>
+            <p><b>Ημ. Χειρουργείου:</b> 14-03-2025</p>
+            <p>Ο ασθενής υποβλήθηκε στις 14/03/2025 σε διαδερμική σπονδυλοδεσία ΟΜΣΣ με χρήση νευροπλοηγού.</p>
+            <p>Βεβαιώνεται ότι τα υλικά που χρησιμοποιήθηκαν είναι από παραμαγνητικό υλικό, …</p>
+            <p>Το παρόν χορηγείται για χρήση στο διαγνωστικό κέντρο.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

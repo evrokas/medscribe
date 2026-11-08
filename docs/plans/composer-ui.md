@@ -46,23 +46,29 @@ Taken already (carried over from the type editor work, 2026-11-07):
 - **Draft previews show a rectangle with a note instead of the QR; only the final copy has the real QR**
   (type editor plan §6.7). This matches the proposal's "preview QR frames".
 
-Proposed here, **needs the doctor's confirmation** (marked ★ below; defaults in brackets):
-- ★A **Instant print view while typing** [proposed: yes]. The proposal says "actual PDF only, not an HTML
-  approximation". I recommend both: an instant HTML print view of the unsaved form (the same engine path the
-  type editor already uses, `render_html_document()`), plus the real PDF on "Save & preview", labelled
-  clearly. Reason: a 12 s round trip per change is the main reason checking wording feels heavy. The PDF stays
-  the reference for layout, and the issue page always shows the real final PDF.
-- ★B **Write view as the default** [proposed: yes], with the current-style **Form view** kept one click away
-  for people who prefer fields (§4.1).
-- ★C **Summary counters on the documents page** [proposed: only "Waiting for your review" and "My drafts";
-  no "issued this month +8 %" style decoration].
+Decided by the doctor on 2026-11-08:
+- **A · No instant HTML preview.** The preview is the real PDF only, built by "Save & preview", with a clear
+  "Out of date" marker when the form changed since (the proposal's position). The QR rectangle (above) makes
+  each preview build cheaper.
+- **B · The Write view is the default** (§4.2), with the current-style **Form view** one click away for people
+  who prefer fields (§4.1).
+- **C · No summary cards on the documents page.** The one real need behind them is that the doctor notices
+  documents the secretary handed over ("Ready for review"; today that shows only as a badge, see M3 "Not
+  built"). Proposed: the "Ready for review" filter chip carries its number and is the doctor's default view
+  when the number is above zero (§5.2). Awaiting the doctor's confirmation; if declined, plain filter chips.
+
+Mockups: https://claude.ai/artifact/58x9bjCfhJ71dwRXdju6Fy (private to the owner); sources in
+`docs/plans/composer-ui/mockups/*.dc.html` (plain HTML/CSS inside an `<x-dc>` wrapper; read for layout and
+wording, don't serve). They use real type content (kyfoplastiki, proegkrisi, syntagi, vevaiosi-mri) and made-up
+patients, dates, numbers and codes. The edited sentence on `Edit.dc.html` is an invented example of a doctor's
+edit, not proposed wording.
 
 ## 3. Invariants
 
 The proposal's list (§6 there) is adopted as written, with these corrections and additions:
 - #15 "preview QR frames": per §2, a labelled rectangle.
-- #14 "preview is not silently refreshed": applies to the **PDF**. The instant print view (★A) refreshes
-  by itself because it saves nothing and builds no PDF.
+- #14 "preview is not silently refreshed": kept (decision A). Only the Write view's own sentences refresh
+  as values or the gender change (§6.1); that is the editor, not a preview, and it saves nothing.
 - **The form payload stays the same.** Field names posted to `page_document_post` are unchanged:
   `patient[...]`, `settings[...]`, `fields[id]`, `blocks_on[id]`, `groups[group]`, `btext[id]`,
   `sections_on[id]`, `extra[section]`, `meds[section][i][name|dose|freq|days|notes]`, `base_release_id`,
@@ -74,7 +80,7 @@ The proposal's list (§6 there) is adopted as written, with these corrections an
   text box.
 - `format: latex` blocks stay read-only in the composer.
 - No second renderer: anything that shows formatted wording (bold, gender resolved, values filled in) is
-  produced by PHP from the engine (§6.2), not re-implemented in JS.
+  produced by PHP from the engine (§6.1), not re-implemented in JS.
 - Role rules unchanged (secretary: no issue/approve/send/withdraw/library/types).
 - No autosave.
 
@@ -135,11 +141,10 @@ The left pane shows the document in order, section by section, the way it will p
 
 ### 4.3 Preview pane
 
-- Tabs **Print view** (★A, instant HTML, updates ~0.7 s after typing stops, saves nothing) and **PDF**
-  (the last built preview PDF, with its time; "Out of date: Save & preview" when the form changed since).
+- The real PDF from the last "Save & preview", with its build time. When the form has changed since, an
+  "Out of date" pill and a "Save & preview" button sit above it (decision A; no HTML preview).
 - The PDF keeps the draft mark and the QR rectangle; A5 print options move into a small "Print" menu.
-- Source links both ways, as in the type editor: hover a sentence in the print view → ⌖ jumps to it in the
-  Write view; selecting a sentence highlights it in the print view.
+- Narrow screens: Document / Preview tabs.
 
 ### 4.4 Medication table
 
@@ -168,7 +173,9 @@ withdrawn → Withdrawn. Pill colour plus the word; the internal value stays in 
 - Columns: document (#id · type **label**), patient, status pill, updated (relative: "Today 11:18"), by.
 - Filter chips by status (All · Drafts · Ready for review · Issued · Withdrawn) and a search box on patient
   name/code (simple `LIKE` on `documents.patient_name` and `doc_code`; both are columns already).
-- ★C counters. Doctor sees "Ready for review (N)" first; the secretary sees "My drafts".
+- No summary cards (decision C). Proposed: the "Ready for review" chip shows its number, and the doctor's list
+  opens on it when the number is above zero; the secretary's opens on "Drafts". (Awaiting confirmation; mockup
+  `List.dc.html`.)
 
 ### 5.3 New document (`before/02`)
 - One page, three clear blocks: **Document type** (searchable list of type labels), **Patient** (ZPMS search
@@ -189,13 +196,14 @@ Restyle only (cards with excerpt, source, date; Promote/Demote/Hide).
 
 ## 6. Backend additions
 
-1. **Instant print view (★A):** `POST /documents/{id}/print-view` (same access as the composer): takes the
-   unsaved form, runs `doc_inputs_from_post()` and `render_html_document()` (with `trace`), returns HTML +
-   checks. Saves nothing, takes no lock, builds no PDF. Reuses the type editor preview code path.
-2. **Rendered sentences for the Write view:** a PHP function giving, per block, display HTML for the current
-   inputs (markup applied, gender resolved, values as chip spans with `data-field`), using the engine's own
-   functions (`render_block_text`, the markup converter behind `render_html_document`). Returned on page load
-   and by the print-view endpoint, so the Write view refreshes without a JS renderer.
+1. **Rendered sentences for the Write view:** a PHP function giving, per block, display HTML for given inputs
+   (markup applied, gender resolved, values as chip spans with `data-field`), built from the engine's own
+   functions (`render_block_text`, the markup converter behind `render_html_document`). Sent with the page, and
+   by `POST /documents/{id}/sentences` (same access as the composer) for the unsaved form after a value or the
+   gender changes, so the Write view refreshes without a JS copy of the engine. That endpoint saves nothing,
+   takes no lock and builds no PDF; it returns only the sentences, not a document preview (decision A).
+2. **Checks for the unsaved form:** the same endpoint returns `render_checks()` for the unsaved form, so the
+   action bar's checks summary is current before saving.
 3. **Checks with sources:** shared with the type editor (its §6.1).
 4. **Documents list filters/search:** query parameters on `page_documents`, prepared statements, indexed
    columns only.
@@ -215,10 +223,10 @@ phase; update `CLAUDE.md` with what exists.
 | 1 | Shared pieces (with the type editor if not done yet): CSS tokens/components, status words, section naming rule, QR rectangle (§6.5). | Pages unchanged in function; status words everywhere. |
 | 2 | Documents list and new document (§5.2, §5.3). | Filters/search correct; patient-free and English types create drafts as before. |
 | 3 | Composer header, patient banner, details line, sticky action bar, unsaved/beforeunload (§4.1, §4.5 without checks list). Form view = today's form cleaned (no slots). | Payload test identical; save-while-building refusal still hands the form back. |
-| 4 | Print view endpoint + rendered sentences (§6.1, §6.2) and the preview tabs (§4.3). | Print view equals the PDF text for the test documents (text compare); no lock taken. |
+| 4 | Rendered sentences and the `sentences` endpoint (§6.1, §6.2); PDF pane with build time and "Out of date" (§4.3). | Rendered sentence text equals the PDF text for the test documents; the endpoint saves nothing and takes no lock. |
 | 5 | Write view (§4.2): sentences as text, checkboxes/radios, fold of off sentences, inline edit with the chip editor + self-check, restore original, values as chips with popovers, Values list. | Payload test identical for unchanged forms; edit → restore leaves no `blocks[id].text`; every type's blocks pass the self-check or fall back. |
 | 6 | Case feature chips with effect lines; own-text boxes; suggestions drawer; medication table (§4.4). | Feature add/remove restores state; empty med rows dropped; `{br}` round-trips. |
-| 7 | Checks list with go-to-source (§6.3); issue page steps; history list (§5.4). | Issue blocked with reason when checks fail or type unlinked; retry path unchanged (`check_m3.php`). |
+| 7 | Checks list with go-to-source (§6.2, §6.3); issue page steps; history list (§5.4). | Issue blocked with reason when checks fail or type unlinked; retry path unchanged (`check_m3.php`). |
 | 8 | Polish and accessibility (keyboard, focus, contrast, zoom, long Greek names, 1280/1024/narrow), library restyle. | Manual checklist below. |
 
 Keep the old composer at `?ui=classic` until phase 8 is accepted.
@@ -232,7 +240,7 @@ Keep the old composer at `?ui=classic` until phase 8 is accepted.
 - **Rendered sentence test** (`tests/static/`): display HTML for every block of every type with a male and a
   female sample contains no `@`, `**`, `{Ο|Η}` left over, and its text equals the corresponding text in
   `render_html_document()`.
-- **Print view endpoint:** saves nothing (document `udate` unchanged), works while a PDF build holds the lock.
+- **`sentences` endpoint:** saves nothing (document `udate` unchanged), works while a PDF build holds the lock.
 - Status words: every value in `DOC_STATUSES` and the issue statuses has a label.
 
 ## 9. Shared with the type editor plan
@@ -247,13 +255,13 @@ them.
 - kyfoplastiki: the page opens with the patient banner and the document as text; no slot names, no `@` or
   `**` visible; "Παραμείνετε κλινήρης για «Ημέρες κλινήρης» ημέρες…" shows the label pill until filled; filling
   it in the popover updates the sentence and the Values list.
-- Male → female in the banner changes «Ο ασθενής» to «Η ασθενής» in the Write view and the print view.
+- Male → female in the banner changes «Ο ασθενής» to «Η ασθενής» in the Write view (and in the PDF after Save & preview).
 - proegkrisi: the "Ένδειξη" alternatives are radios with "None"; the RF chip says what it changes; adding and
   removing it restores the previous choices.
 - Edit a sentence, save, see "Edited for this document"; Restore original, save, the edit is gone.
 - A block that fails the self-check opens as a plain text box and is saved unchanged.
 - syntagi: add Medrol taper from the library, the frequency shows four lines; save; reopen identical.
-- Print view updates while typing; PDF tab says "Out of date" until Save & preview; PDF shows the QR rectangle.
+- After any change the PDF pane says "Out of date" until Save & preview; the PDF shows the QR rectangle.
 - Save during a running PDF build: refused, typed text still there.
 - Secretary: no Issue button; "Ready for review" works; the doctor's list shows the document under
   "Ready for review".
