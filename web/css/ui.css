@@ -143,3 +143,4 @@ input.ms-date { min-width: 8.5rem; }
 .pdf-pages-list { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: .6rem; display: flex; flex-direction: column; gap: .6rem; }
 .pdf-pages-list canvas { display: block; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.15); max-width: 100%; }
 .ix-step .final-preview .pdf-pages { height: 100%; }
+.ms-field .ms-input, .ms-field input.ms-date { font-weight: 400; color: var(--ms-ink); }

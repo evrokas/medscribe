@@ -38,7 +38,7 @@
         {% if(!$locked): %}<button type="button" class="ms-btn cx-toggle" aria-expanded="false" aria-controls="cx-patient-edit">{{{($p['name'] ?? '') === '' && $patient_optional ? t('Add') : t('Edit patient')}}}</button>{% endif %}
       </div>
       <fieldset class="cx-edit" id="cx-patient-edit" hidden {% if($locked): %}disabled{% endif %}>
-        <legend class="ms-sub">{{{t('Changes here apply to this document only')}}}{% if($from_zpms): %} ({{{t('nothing is written back to ZPMS')}}}){% endif %}</legend>
+        <p class="ms-sub cx-edit-note">{{{t('Changes here apply to this document only')}}}{% if($from_zpms): %} ({{{t('nothing is written back to ZPMS')}}}){% endif %}</p>
         <input type="hidden" name="patient[guid]" value="{{{$p['guid'] ?? ''}}}">
         <input type="hidden" name="patient[dob]" value="{{{$p['dob'] ?? ''}}}">
         <div class="ms-grid">

@@ -16,7 +16,7 @@
 .cx .ms-btn { min-height: 2.25rem; }
 .cx-sum { flex: 1 1 16rem; min-width: 0; font-size: .92rem; }
 .cx-edit { border: 0; margin: .8rem 0 0; padding: .8rem 0 0; border-top: 1px solid var(--ms-line-2); border-radius: 0; }
-.cx-edit legend { float: left; width: 100%; padding: 0; margin: 0 0 .5rem; font-weight: 400; }
+.cx-edit-note { margin: 0 0 .6rem; }
 .cx .cx-edit label.ms-field { display: flex; flex-direction: column; font-size: .82rem; }
 .cx-adv { margin-top: .7rem; } .cx-adv summary { cursor: pointer; font-size: .85rem; color: var(--ms-ink-2); }
 .cx-adv .ms-field { margin-top: .5rem; display: inline-flex; }
