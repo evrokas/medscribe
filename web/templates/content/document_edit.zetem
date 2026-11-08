@@ -1,5 +1,6 @@
+{% attach_library('type-editor') %}
 <div class="composer cx-page splitpane" data-split-key="medscribe.composer.layout">
-  <form method="post" action="{{rel_url('/documents/' . $doc['id'])}}" class="composer-form split-left cx" id="composer-form">
+  <form method="post" action="{{rel_url('/documents/' . $doc['id'])}}" class="composer-form split-left cx" id="composer-form" data-sentences-url="{{rel_url('/documents/' . $doc['id'] . '/sentences')}}" data-known="{{{$known_json}}}" data-locked="{{{$locked ? '1' : ''}}}">
     {{ csrf_field() }}
     <div class="cx-head">
         <a class="cx-back" href="{{rel_url('/documents')}}">&lsaquo; {{{t('Documents')}}}</a>
@@ -7,6 +8,10 @@
         {{ ui_status_pill($doc['status']) }}
         <span class="cx-dirty" id="cx-dirty" hidden>&#9679; {{{t('Unsaved changes')}}}</span>
         <span class="cx-head-actions">
+          <span class="cx-views" role="tablist" aria-label="{{{t('View')}}}">
+            <button type="button" role="tab" data-view="write" aria-selected="true" title="{{{t('The document as it will read')}}}">{{{t('Write')}}}</button>
+            <button type="button" role="tab" data-view="form" aria-selected="false" title="{{{t('Every sentence and value as a field')}}}">{{{t('Form')}}}</button>
+          </span>
           {% if($doc['status'] == 'issued' || $doc['status'] == 'withdrawn'): %}<a class="ms-btn" href="{{rel_url('/documents/' . $doc['id'] . '/history')}}">{{{t('History')}}}</a>{% endif %}
           {% if($is_doctor): %}<a class="ms-btn" href="{{rel_url('/documents/' . $doc['id'] . '/issue')}}">{{{$locked ? t('Issue page') : t('Issue...')}}}</a>{% endif %}
         </span>
@@ -152,6 +157,9 @@
   <script src="{{rel_url('/js/splitter.js')}}"></script>
   <script src="{{rel_url('/js/sections.js')}}"></script>
   <script src="{{rel_url('/js/composer.js')}}"></script>
+  <script src="{{rel_url('/js/type_tree.js')}}"></script>
+  <script src="{{rel_url('/js/type_chips.js')}}"></script>
+  <script src="{{rel_url('/js/composer_write.js')}}"></script>
   <script>
   (function () {
     var last = null;

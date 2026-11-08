@@ -552,6 +552,10 @@ Progress is in the plan's §12. Built so far:
   `web/vendor/flatpickr/`, integrity-checked npm tarball, no CDN) through `web/js/dates.js` (global `foot_script`): shown as
   dd/mm/yyyy, typed dd/mm/yy or dd/mm/yyyy accepted, 24-hour times; the named input keeps the ISO value, so posts are unchanged.
   Server, PHP and MySQL all run on Europe/Athens. Test: `tests/js/dates_test.js`.
+- **Write view (phase 5):** `web/js/composer_write.js` (+ `type_tree.js`, `type_chips.js`, library `type-editor` for the chip
+  CSS) on the same form as the Form view: no extra form control, the textarea stays the source of truth. `composer_type_part.zetem`
+  prints `.cx-say` only when given `sentences` (the composer; not the type editor's Form preview).
 - **Screenshots** `php tools/shots.php [--size=WxH] [--role=secretary] [--make=type,…] [--build=1] [--touch=1] '/documents/{type}=out.png' …`
-  (`--build`: a preview PDF per sample draft; headless Chromium shows no PDF inside the iframe):
+  (`--build`: a preview PDF per sample draft; headless Chromium shows no PDF inside the iframe; `SHOT_JS='…'` runs a script
+  before the shot and prints its result, which is how the Write view was checked end to end):
   a temporary account and made-up drafts, removed afterwards; the browser is `tools/shot.js` (Chromium over CDP, no npm).

@@ -169,9 +169,11 @@ function doc_view_model(array $type, array $inputs): array {
 }
 
 /** The variables of composer_type_part.zetem (the composer's values, case features and sections). */
-function doc_type_part_data(array $type, array $inputs, int $docId, bool $locked): array {
+function doc_type_part_data(array $type, array $inputs, int $docId, bool $locked, bool $withSentences = false): array {
     return [
         'doc_id' => $docId, 'locked' => $locked,
+        // the Write view's rendered sentences (web/sentences.php), next to each block's textarea; the type editor's Form preview has none
+        'sentences' => $withSentences ? sentences_for($type, $inputs) : [],
         'fields' => doc_field_rows($type, $inputs), 'sections' => doc_view_model($type, $inputs),
         'feature_defs' => array_map(fn($id, $f) => ['id' => $id, 'label' => $f['label'] ?? $id, 'on' => in_array($id, $inputs['features'] ?? [], true)],
                                     array_keys($type['features'] ?? []), array_values($type['features'] ?? [])),
@@ -350,7 +352,7 @@ function page_document($params) {
         $build = $st->fetch(PDO::FETCH_ASSOC) ?: null;
     }
     $locked = !in_array($doc['status'], DOC_STATUSES, true);
-    $typePart = Renderer::render("composer_type_part.zetem", doc_type_part_data($type, $doc['inputs'], (int)$doc['id'], $locked));
+    $typePart = Renderer::render("composer_type_part.zetem", doc_type_part_data($type, $doc['inputs'], (int)$doc['id'], $locked, ($_GET['ui'] ?? '') !== 'classic'));
     $p = $doc['inputs']['patient'] ?? []; $set = $doc['inputs']['settings'] ?? [];
     $checks = render_checks($type, $doc['inputs'], $issues);
     return Renderer::render(($_GET['ui'] ?? '') === 'classic' ? "document_edit_classic.zetem" : "document_edit.zetem", [
@@ -366,6 +368,9 @@ function page_document($params) {
         'doc' => $doc, 'type_label' => $type['label'] ?? $type['name'], 'p' => $doc['inputs']['patient'] ?? [], 's' => $doc['inputs']['settings'] ?? [],
         'releases' => store_db()->query("SELECT id, number FROM base_releases WHERE status = 'released' ORDER BY number DESC")->fetchAll(PDO::FETCH_ASSOC),
         'tokens' => array_merge(['patient', 'age', 'amka', 'clinic', 'date'], array_keys($type['fields'] ?? [])),
+        // the chip editor's known names: built-ins and the type's fields, with the labels the chips show
+        'known_json' => json_encode(['patient' => t('Patient'), 'age' => t('Age'), 'amka' => 'AMKA', 'clinic' => t('Clinic'), 'date' => t('Date')]
+                                    + array_map(fn($f) => (string)($f['label'] ?? ''), $type['fields'] ?? []), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
         'has_recipient' => !empty($type['recipient']), 'has_patient' => ($type['has_patient'] ?? true) !== false,
         'titles' => $type['titles'] ?? [], 'closings' => $type['closings'] ?? [],
         'clinics' => RENDER_CLINICS, 'checks' => $checks,

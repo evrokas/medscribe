@@ -1,6 +1,6 @@
 {# The type-dependent part of the composer form; also the type editor's Form preview (inside a disabled fieldset). #}
     {% if(count($fields)): %}
-    <fieldset {% if($locked): %}disabled{% endif %}>
+    <fieldset class="cx-values" {% if($locked): %}disabled{% endif %}>
       <legend>{{{t('Values')}}}</legend>
       <div class="row">
         {% foreach($fields as $f): %}
@@ -63,7 +63,7 @@
       </p>
       {% endif %}
       {% foreach($sec['blocks'] as $b): %}
-      <div class="block {% if($b['on']): %}on{% else: %}off{% endif %}" data-src="block:{{{$b['id']}}}">
+      <div class="block {% if($b['on']): %}on{% else: %}off{% endif %}{% if($b['in_group']): %} in-group{% endif %}" data-src="block:{{{$b['id']}}}" data-block="{{{$b['id']}}}">
         <div class="block-pick">
           {% if($b['in_group']): %}
           <label class="inline"><input type="radio" name="groups[{{{$b['group']}}}]" value="{{{$b['id']}}}" {% if($b['on']): %}checked{% endif %}> {{{$b['label'] ?: ''}}}</label>
@@ -75,13 +75,14 @@
         <textarea rows="{{{max(2, min(8, intdiv(mb_strlen($b['text']), 90) + 1))}}}" readonly class="latex-block">{{{$b['text']}}}</textarea>
         <span class="muted">{{{t('LaTeX block: it can be switched on or off here; its text is changed in the type editor.')}}}</span>
         {% else: %}
-        <textarea name="btext[{{{$b['id']}}}]" rows="{{{max(2, min(8, intdiv(mb_strlen($b['text']), 90) + 1))}}}">{{{$b['text']}}}</textarea>
+        <textarea name="btext[{{{$b['id']}}}]" rows="{{{max(2, min(8, intdiv(mb_strlen($b['text']), 90) + 1))}}}" data-original="{{{$b['original']}}}">{{{$b['text']}}}</textarea>
         {% endif %}
+        {% if(isset($sentences[$b['id']])): %}<div class="cx-say{% if($b['is_latex']): %} cx-say-latex{% endif %}" {% if(!$b['is_latex'] && !$locked): %}tabindex="0" role="button" title="{{{t('Click to edit this sentence for this document')}}}"{% endif %}>{{ $sentences[$b['id']]['html'] }}</div>{% endif %}
         {% if($b['edited']): %}<span class="edited">{{{t('edited for this document')}}}</span>{% endif %}
       </div>
       {% endforeach %}
       {% if($sec['blocks'] && $sec['blocks'][0]['in_group']): %}
-      <label class="inline"><input type="radio" name="groups[{{{$sec['blocks'][0]['group']}}}]" value="" {% if($sec['none_on']): %}checked{% endif %}> {{{t('None')}}}</label>
+      <label class="inline cx-none"><input type="radio" name="groups[{{{$sec['blocks'][0]['group']}}}]" value="" {% if($sec['none_on']): %}checked{% endif %}> {{{t('None of these')}}}</label>
       {% endif %}
       {% if(count($sec['suggestions'])): %}
       <div class="suggestions"><span class="muted">{{{t('From your earlier documents')}}}:</span>

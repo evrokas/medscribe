@@ -307,3 +307,16 @@ versioning); the Greek interface.
   and empty) with the engine's HTML print view, which comes from the same LaTeX as the PDF; no PDF text extraction.
   `bin/check_web.php`: the endpoint answers while the lock is held and changes nothing. `ui_section_name()` names built-in
   tokens (`«[AMKA]»`, not `«@amka»`).
+- **Phase 5 (2026-11-08):** the Write view (`web/js/composer_write.js`, default; Write · Form switch in the header,
+  remembered per browser). It is the same form shown differently, so it adds no form control: each block carries its
+  rendered sentence (`.cx-say`, from `sentences_for()`) next to its textarea (which holds the text and `data-original`);
+  checkbox/radio in the margin, choice groups as one bordered column with "None of these"; off sentences dimmed and folded
+  behind "+ N more optional sentences"; all sections open except optional ones switched off. A click (or Enter) on a
+  sentence opens the chip editor (`type_chips.js`, self-check and plain-text fallback; Bold, "@ Field", Done/Ctrl+Enter,
+  Cancel/Esc); Done writes the textarea. "edited for this document · Restore original" follows the textarea. A value chip
+  opens a small box bound to the real `fields[id]` input (dates through the date picker). Values list collapsed with
+  "N of M filled". After a value, choice, gender or text change the sentences and the checks are fetched from the
+  `sentences` endpoint (debounced). Checked in a real browser (`tools/shots.php` with `SHOT_JS`): edit → Done → save →
+  reload shows the edit; Restore → save → gone; a value through its chip reaches the field and the sentence.
+  `bin/check_payload.php` adds "restore original leaves no stored edit". Medication tables, own text, suggestions and case
+  features keep their Form-view controls until phase 6.

@@ -39,7 +39,12 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     await send('Page.navigate', {url});
     for (let k = 0; k < 100 && !events.includes('Page.loadEventFired'); k++) await sleep(100);
     await sleep(Number(process.env.SHOT_WAIT || 600));
-    if (process.env.SHOT_JS) await send('Runtime.evaluate', {expression: process.env.SHOT_JS, awaitPromise: true});
+    if (process.env.SHOT_JS) {
+      const ev = await send('Runtime.evaluate', {expression: process.env.SHOT_JS, awaitPromise: true, returnByValue: true});
+      const v = ev.result && ev.result.result ? ev.result.result.value : undefined;
+      if (v !== undefined) console.log('js: ' + (typeof v === 'string' ? v : JSON.stringify(v)));
+      if (ev.result && ev.result.exceptionDetails) console.log('js error: ' + JSON.stringify(ev.result.exceptionDetails.exception && ev.result.exceptionDetails.exception.description));
+    }
     if (process.env.SHOT_JS) await sleep(400);
     const r = await send('Page.captureScreenshot', {format: 'png', captureBeyondViewport: false});
     fs.writeFileSync(out, Buffer.from(r.result.data, 'base64'));

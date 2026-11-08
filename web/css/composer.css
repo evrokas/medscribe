@@ -47,3 +47,69 @@
 .cx-menu { position: absolute; right: 0; top: calc(100% + .3rem); z-index: 6; display: flex; flex-direction: column; gap: .3rem; min-width: 12rem; padding: .6rem .8rem;
   background: #fff; border: 1px solid var(--ms-line); border-radius: 10px; box-shadow: 0 6px 24px rgba(16, 35, 70, .15); }
 .composer-preview.cx-pv .muted, .composer-preview.cx-pv .log { padding: 1rem; }
+
+/* the view switch */
+.cx-views { display: inline-flex; padding: 3px; background: #E3ECEE; border-radius: 9px; }
+.cx-views button { border: 0; padding: .35rem .9rem; border-radius: 7px; background: transparent; font: 600 .82rem var(--font-body); color: #3C4F55; cursor: pointer; }
+.cx-views button[aria-selected="true"] { background: #fff; color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.cx-views button:focus-visible { outline: 2px solid var(--primary); }
+.cx-say { display: none; }
+
+/* ---- the Write view (§4.2): the same form, shown as the document ---- */
+.cx-write .cx-say { display: block; flex: 1 1 0; min-width: 0; padding: .3rem .5rem; border-radius: 8px; font: 1rem/1.6 var(--font-heading); color: var(--ms-ink); cursor: text; overflow-wrap: anywhere; }
+.cx-write .cx-say:hover { background: #F2F8F9; box-shadow: inset 0 0 0 1px #D6E6EA; }
+.cx-write .cx-say:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.cx-write .cx-say p { margin: 0 0 .4rem; } .cx-write .cx-say p:last-child { margin-bottom: 0; }
+.cx-write .cx-say ul, .cx-write .cx-say ol { margin: .2rem 0; padding-left: 1.3rem; }
+.cx-write .cx-say-latex { cursor: default; color: var(--ms-ink-2); }
+.cx-write .cx-say-latex:hover { background: none; box-shadow: none; }
+.cx-write .block { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .1rem .4rem; margin: .1rem 0; }
+.cx-write .block > .block-pick { flex: none; padding-top: .45rem; }
+.cx-write .block > .block-pick label { gap: .3rem; font: 600 .82rem var(--font-body); color: var(--ms-ink-2); }
+.cx-write .block > .block-pick input { width: 1.1rem; height: 1.1rem; accent-color: var(--primary); margin: 0; }
+.cx-write .block > textarea, .cx-write .block > .muted, .cx-write .block > textarea.latex-block { display: none; }
+.cx-write .block > .edited { flex-basis: 100%; margin-left: 1.7rem; }
+.cx-write .block.off .cx-say { color: #8A9AA0; }
+.cx-write .block.off .cx-say .cx-v { opacity: .7; }
+.cx-write .block.cx-folded { display: none; }
+.cx-write .block.in-group { margin: 0; padding: .1rem .3rem; border-left: 3px solid #D6E6EA; }
+.cx-write .block.in-group.on { border-left-color: var(--primary); }
+.cx-write .block.cx-editing > .cx-say { display: none; }
+.cx .edited { font-size: .78rem; color: #8A5A00; }
+.cx .edited[hidden] { display: none; }
+.cx-restore { border: 0; background: none; padding: 0; color: var(--primary); font: 600 .78rem var(--font-body); cursor: pointer; text-decoration: underline; }
+.cx-more { display: block; margin: .2rem 0 .3rem 1.7rem; border: 0; background: none; padding: .2rem 0; color: var(--primary); font: 500 .85rem var(--font-body); cursor: pointer; }
+.cx-more:hover { text-decoration: underline; }
+/* values in a sentence */
+.cx-v { display: inline; padding: 0 .35rem; border-radius: 6px; background: #E2F0F2; color: #024A5C; font: 600 .9em var(--font-body); white-space: normal;
+  box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.cx-write .cx-v { cursor: pointer; }
+.cx-write .cx-v:hover { background: #CDE6EA; }
+.cx-v-empty { background: #EEF1F2; color: #6A7C81; font-weight: 500; box-shadow: inset 0 0 0 1px #A9BABE; }
+.cx-v-req { background: var(--ms-warn-bg); color: var(--ms-warn); box-shadow: inset 0 0 0 1px #E8B85C; }
+.cx-g { padding: 0 .25rem; border-radius: 4px; background: var(--ms-warn-bg); color: var(--ms-warn); }
+.cx-write .block { position: relative; }
+.cx-pop { position: absolute; z-index: 8; left: 1.7rem; top: 100%; display: flex; align-items: flex-end; gap: .5rem; padding: .7rem .8rem; background: #fff;
+  border: 1px solid var(--ms-line); border-radius: 10px; box-shadow: 0 8px 28px rgba(16, 35, 70, .18); }
+.cx-pop .ms-input { min-width: 16rem; }
+/* editing a sentence (the chip editor) */
+.cx-editor { flex: 1 1 0; min-width: 0; margin: .2rem 0 .4rem; padding: .5rem; border: 1px solid var(--primary); border-radius: 10px; background: #fff; }
+.cx-editor .te-ce { font: 1rem/1.6 var(--font-heading); min-height: 2.5em; }
+.cx-editor .te-input { width: 100%; box-sizing: border-box; font: .95rem/1.5 var(--font-body); }
+.cx-ed-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin-top: .4rem; }
+.cx-ed-bar .ms-sub { margin-right: auto; }
+.cx-ed-bar .ms-btn, .cx-ed-bar select { min-height: 2rem; font-size: .82rem; }
+/* section headings as printed; the form furniture is quieter */
+.cx-write fieldset.section { border: 0; padding: .2rem 0 .4rem; margin: 0 0 .4rem; border-radius: 0; border-bottom: 1px solid var(--ms-line-2); }
+.cx-write fieldset.section > legend { font: 700 1.08rem var(--font-heading); padding: 0; margin-bottom: .2rem; }
+.cx-write fieldset.section > legend .sec-count { display: none; }
+/* the Values list: one line with its count until opened */
+.cx-values-toggle { margin-left: .6rem; border: 1px solid #C9D7DA; border-radius: 999px; background: #fff; padding: .1rem .7rem; font: 600 .78rem var(--font-body); color: var(--ms-ink-2); cursor: pointer; }
+.cx-values-toggle::after { content: " \25BE"; }
+.cx-write fieldset.cx-values:not(.cx-open) > .row { display: none; }
+.cx-write fieldset.cx-values { padding-bottom: .3rem; }
+.cx:not(.cx-write) .cx-values-toggle { display: none; }
+.cx:not(.cx-write) .edited .cx-restore { display: inline; }
+.cx [hidden], .cx-pv [hidden] { display: none !important; }
+.cx-write label.cx-none { margin: 0 0 .3rem; padding: .3rem .5rem .3rem .45rem; border-left: 3px solid #D6E6EA; font-size: .85rem; color: var(--ms-ink-2); }
+.cx-write label.cx-none input { accent-color: var(--primary); }

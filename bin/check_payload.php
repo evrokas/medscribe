@@ -163,6 +163,13 @@ foreach ($types as $t) {
             check("$t: the new medication row is kept, the empty one dropped, {br} kept", $rows && end($rows)['freq'] === '1x1{br}2x1' && end($rows)['name'] === 'Τεστ');
         }
     }
+    // Restore original (the Write view posts the type's text back): no edit is stored, whatever the surrounding whitespace
+    if (isset($changes['edit'])) {
+        restore($id, $a); submit($id, 'new', $changes['edit']);
+        $bid = null; foreach (render_expand_sections($type) as $sec) foreach (($sec['blocks'] ?? []) as $bl) if (!$bid && ($bl['format'] ?? 'markup') !== 'latex') { $bid = $bl['id']; $orig = $bl['text']; }
+        $z = submit($id, 'new', fn($p) => set_pair($p, "btext[$bid]", "\n" . $orig . "  \n"));
+        check("$t: restore original leaves no stored edit", !isset($z['blocks'][$bid]['text']) && $z === $a);
+    }
     foreach (array_keys($type['features'] ?? []) as $fid) {
         foreach (['classic', 'new'] as $ui) {
             restore($id, $a);
