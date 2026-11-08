@@ -195,10 +195,43 @@
     var b = el('button', 'cx-checks-btn', '⚠ ' + list.length + (list.length === 1 ? ' needs attention' : ' need attention'));
     b.type = 'button'; b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', 'cx-checks-list');
     var ul = el('ul', 'cx-checks-list'); ul.id = 'cx-checks-list'; ul.hidden = true;
-    list.forEach(function (c) { ul.appendChild(el('li', 'check check-' + c.level, c.msg)); });
+    list.forEach(function (c) { var li = el('li', 'check check-' + c.level, c.msg); li.dataset.src = c.src || ''; li.tabIndex = 0; li.title = 'Show where'; ul.appendChild(li); });
     b.addEventListener('click', function () { ul.hidden = !ul.hidden; b.setAttribute('aria-expanded', ul.hidden ? 'false' : 'true'); });
     box.append(b, ul);
   }
+  /* ---------- a check jumps to its source (§4.5): the value, the sentence, or the field ---------- */
+  function flash(node) {
+    if (!node) return false;
+    var sec = node.closest('fieldset.section'); if (sec) sec.classList.remove('collapsed');
+    var blk = node.closest('.block.cx-folded'); if (blk) { var f = blk.closest('fieldset.section'); f.dataset.unfolded = '1'; fold(); }
+    var box = node.closest('.cx-edit[hidden]'); if (box) { box.hidden = false; var t = form.querySelector('[aria-controls="' + box.id + '"]'); if (t) t.setAttribute('aria-expanded', 'true'); }
+    node.scrollIntoView({block: 'center', behavior: 'smooth'});
+    node.classList.add('cx-flash'); setTimeout(function () { node.classList.remove('cx-flash'); }, 1600);
+    return true;
+  }
+  function goTo(src, msg) {
+    var write = form.classList.contains('cx-write'), m = /^(\w+):(.*)$/.exec(src || ''), k = m ? m[1] : '', id = m ? m[2] : '';
+    if (k === 'field') {
+      var chip = write && form.querySelector('.block.on .cx-say .cx-v[data-field="' + CSS.escape(id) + '"]');
+      if (chip && flash(chip)) { setTimeout(function () { openValue(chip); }, 350); return; }
+      if (vals) { vals.classList.add('cx-open'); var inp = form.elements['fields[' + id + ']']; if (inp) { flash(inp.closest('label') || inp); (inp._flatpickr && inp._flatpickr.altInput || inp).focus({preventScroll: true}); return; } }
+    }
+    if (k === 'block') { var b = form.querySelector('.block[data-block="' + CSS.escape(id) + '"]'); if (b && flash(b)) return; }
+    if (k === 'extra') { var d = form.querySelector('textarea[name="extra[' + CSS.escape(id) + ']"]'); if (d) { d.closest('details').open = true; flash(d); d.focus({preventScroll: true}); return; } }
+    if (k === 'section' || k === 'topic') { var s2 = form.querySelector('fieldset.section[data-src="' + CSS.escape(src) + '"]'); if (s2 && flash(s2)) return; }
+    // no source: the patient banner or the details line, by what the check is about
+    var p = /patient|gender/i.test(msg) ? 'patient[' + (/gender/i.test(msg) ? 'gender' : 'name') + ']' : (/clinic/i.test(msg) ? 'settings[clinic]' : (/date/i.test(msg) ? 'settings[date]' : ''));
+    var f2 = p && form.elements[p];
+    if (f2) { flash(f2.closest('label') || f2); (f2._flatpickr && f2._flatpickr.altInput || f2).focus({preventScroll: true}); }
+  }
+  form.addEventListener('click', function (e) {
+    var li = e.target.closest('.cx-checks-list li'); if (!li) return;
+    var ul = li.closest('ul'); ul.hidden = true;
+    var b = form.querySelector('.cx-checks-btn'); if (b) b.setAttribute('aria-expanded', 'false');
+    goTo(li.dataset.src, li.textContent);
+  });
+  form.addEventListener('keydown', function (e) { var li = e.target.closest && e.target.closest('.cx-checks-list li'); if (li && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); li.click(); } });
+
   var RELEVANT = /^(fields\[|patient\[|settings\[|blocks_on\[|groups\[|sections_on\[|btext\[)/;
   form.addEventListener('change', function (e) {
     var n = e.target.name || '';

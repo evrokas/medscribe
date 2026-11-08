@@ -1,87 +1,115 @@
-<div class="page-placeholder issue">
-  <div class="page-head">
+{# Issuing a document (doctor only; composer plan §5.4): three steps. The forms and actions are those of web/issue_pages.php. #}
+<div class="ms-page narrow ix">
+  <div class="ms-head">
+    <a class="cx-back" href="{{rel_url('/documents/' . $doc['id'])}}">&lsaquo; {{{t('Back to the document')}}}</a>
     <h2>{{{t('Issue')}}} #{{{$doc['id']}}} &middot; {{{$type_label}}}</h2>
     {{ ui_status_pill($doc['status']) }}
+    {% if(count($revisions)): %}<a class="ms-btn" href="{{rel_url('/documents/' . $doc['id'] . '/history')}}">{{{t('History')}}}</a>{% endif %}
   </div>
-  <p><a href="{{rel_url('/documents/' . $doc['id'])}}">&larr; {{{t('Back to the document')}}}</a>
-     {% if(count($revisions)): %} &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/history')}}">{{{t('History')}}}</a>{% endif %}</p>
 
-  <table class="status-table">
-    <tr><td>{{{t('Patient')}}}</td><td>{{{$doc['patient_name'] ?: '-'}}}</td></tr>
-    <tr><td>{{{t('DocArc type')}}}</td><td>{% if($type_link): %}{{{$type_link['label_seen']}}} <code>{{{$type_link['code_seen']}}}</code>{% else: %}<span class="check-error">{{{t('not linked')}}}</span> <a href="{{rel_url('/types/links')}}">{{{t('Link it')}}}</a>{% endif %}</td></tr>
-    <tr><td>{{{t('DocArc clinic')}}}</td><td>{% if($clinic_link): %}{{{$clinic_link['label_seen']}}}{% else: %}{{{t('none (the record is sent without a clinic)')}}}{% endif %} <span class="muted">({{{$clinic}}})</span></td></tr>
-    <tr><td>{{{t('Code')}}}</td><td>{% if($doc['doc_code']): %}<code>{{{$doc['doc_code']}}}</code> &middot; <span class="muted">{{{$doc['docarc_url']}}}</span>{% else: %}-{% endif %}</td></tr>
-    {% if($doc['verify_code']): %}<tr><td>{{{t('Verification code')}}}</td><td><strong>{{{$doc['verify_code']}}}</strong> <span class="muted">{{{t('give this to the patient with the QR link')}}}</span></td></tr>{% endif %}
-    {% if($doc['approved_at']): %}<tr><td>{{{t('Approved')}}}</td><td>{{{$doc['approved_at']}}} {{{t('by')}}} {{{$doc['approved_by']}}}</td></tr>{% endif %}
-    {% if($doc['issued_at']): %}<tr><td>{{{t('Issued')}}}</td><td>{{{$doc['issued_at']}}}</td></tr>{% endif %}
-    {% if($doc['status'] == 'withdrawn'): %}<tr><td>{{{t('Withdrawn')}}}</td><td>{{{$doc['withdrawn_at']}}} {{{t('by')}}} {{{$doc['withdrawn_by']}}}: {{{$doc['withdraw_reason']}}}</td></tr>{% endif %}
-  </table>
+  {% if($doc['status'] != 'withdrawn'): %}
+  <ol class="ix-steps" aria-label="{{{t('Steps')}}}">
+    <li class="{{{$step == 1 ? 'now' : 'done'}}}"><span>1</span> {{{t('Prepare')}}}</li>
+    <li class="{{{$step == 2 ? 'now' : ($step > 2 ? 'done' : '')}}}"><span>2</span> {{{t('Review the final PDF')}}}</li>
+    <li class="{{{$step == 3 ? 'now done' : ''}}}"><span>3</span> {{{t('Issued')}}}</li>
+  </ol>
+  {% endif %}
 
-  {% if(!$docarc_on): %}<p class="notice">{{{t('DocArc is not configured (config/docarc_api.php). Documents can be previewed but not issued.')}}}</p>{% endif %}
   {% if($busy): %}<p class="notice">{{{t('A step is running on this document right now.')}}}</p>{% endif %}
 
-  <div class="checks">
-    {% foreach($checks as $c): %}<div class="check check-{{{$c['level']}}}">{{{$c['msg']}}}</div>{% endforeach %}
-    {% if(count($checks) == 0): %}<div class="check check-ok">{{{t('All checks pass')}}}</div>{% endif %}
-  </div>
+  <section class="ms-card pad">
+    <h3>{{{t('Summary')}}}</h3>
+    <dl class="ix-kv">
+      <dt>{{{t('Patient')}}}</dt><dd>{{{$doc['patient_name'] ?: '–'}}}</dd>
+      <dt>{{{t('DocArc type')}}}</dt><dd>{% if($type_link): %}{{{$type_link['label_seen']}}} <code>{{{$type_link['code_seen']}}}</code>{% else: %}<span class="ix-bad">{{{t('not linked')}}}</span> &middot; <a href="{{rel_url('/types/links')}}">{{{t('Link it')}}}</a>{% endif %}</dd>
+      <dt>{{{t('Clinic')}}}</dt><dd>{{{$clinic}}} <span class="ms-sub">({% if($clinic_link): %}DocArc: {{{$clinic_link['label_seen']}}}{% else: %}{{{t('sent to DocArc without a clinic')}}}{% endif %})</span></dd>
+      {% if($doc['doc_code']): %}<dt>{{{t('Code')}}}</dt><dd><code>{{{$doc['doc_code']}}}</code> <span class="ms-sub">{{{$doc['docarc_url']}}}</span></dd>{% endif %}
+      {% if($doc['verify_code']): %}<dt>{{{t('Verification code')}}}</dt><dd><strong>{{{$doc['verify_code']}}}</strong> <span class="ms-sub">{{{t('give this to the patient with the QR link')}}}</span></dd>{% endif %}
+      {% if($doc['approved_at']): %}<dt>{{{t('Approved')}}}</dt><dd>{{{$doc['approved_at']}}} {{{t('by')}}} {{{$doc['approved_by']}}}</dd>{% endif %}
+      {% if($doc['issued_at']): %}<dt>{{{t('Issued')}}}</dt><dd>{{{$doc['issued_at']}}}</dd>{% endif %}
+      {% if($doc['status'] == 'withdrawn'): %}<dt>{{{t('Withdrawn')}}}</dt><dd>{{{$doc['withdrawn_at']}}} {{{t('by')}}} {{{$doc['withdrawn_by']}}}: {{{$doc['withdraw_reason']}}}</dd>{% endif %}
+      <dt>{{{t('Checks')}}}</dt><dd>{% if(count($checks) == 0): %}<span class="cx-ok">&#10003; {{{t('All checks pass')}}}</span>{% else: %}<ul class="ix-checks">{% foreach($checks as $c): %}<li class="check-{{{$c['level']}}}">{{{$c['msg']}}}</li>{% endforeach %}</ul>{% endif %}</dd>
+    </dl>
+  </section>
 
-  {% if(in_array($doc['status'], ['draft', 'review', 'code_reserved'])): %}
-  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
-    {{ csrf_field() }}
-    <button type="submit" name="action" value="prepare" class="primary" {% if($blocking || !$docarc_on || !$type_link): %}disabled{% endif %}>{{{($doc['status'] == 'code_reserved') ? t('Build the final PDF') : t('Request the code and build the final PDF')}}}</button>
-  </form>
-  <p class="muted">{{{t('The code is reserved in DocArc first, because the QR must be inside the PDF. The final PDF is shown here for your approval; nothing is sent yet.')}}}</p>
+  {% if($step == 1): %}
+  <section class="ms-card pad ix-step">
+    <h3>1 &middot; {{{t('Prepare')}}}</h3>
+    <p>{{{t('The code is reserved in DocArc first, because the QR must be inside the PDF. The final PDF is then shown here for your approval; nothing is sent yet.')}}}</p>
+    {% if(count($blocked)): %}
+    <div class="ix-blocked" role="status"><strong>{{{t('Not yet:')}}}</strong><ul>{% foreach($blocked as $why): %}<li>{{{$why}}}</li>{% endforeach %}</ul></div>
+    {% endif %}
+    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}">
+      {{ csrf_field() }}
+      <button type="submit" name="action" value="prepare" class="ms-btn ms-primary" {% if(count($blocked)): %}disabled{% endif %}>{{{($doc['status'] == 'code_reserved') ? t('Build the final PDF') : t('Reserve the code and build the final PDF')}}}</button>
+    </form>
+  </section>
   {% endif %}
 
   {% if($doc['status'] == 'final_compiled'): %}
-  <h3>{{{t('Final PDF (as it will be archived)')}}}</h3>
-  <div class="final-preview"><iframe src="{{rel_url($final_url)}}" title="{{{t('Final PDF')}}}"></iframe></div>
-  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
-    {{ csrf_field() }}
-    <button type="submit" name="action" value="approve" class="primary">{{{t('Approve and send to DocArc')}}}</button>
-    <button type="submit" name="action" value="edit">{{{t('Edit again (the code stays reserved)')}}}</button>
-  </form>
-  <p class="muted">{{{t('Approving freezes the document. Exactly these bytes are sent; nothing is compiled again.')}}}</p>
+  <section class="ms-card pad ix-step">
+    <h3>2 &middot; {{{t('Review the final PDF')}}}</h3>
+    <p>{{{t('This is the exact file that will be archived, with the real QR. Nothing has been sent yet.')}}}</p>
+    <div class="final-preview"><iframe src="{{rel_url($final_url)}}" title="{{{t('Final PDF')}}}"></iframe></div>
+    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="ix-actions">
+      {{ csrf_field() }}
+      <button type="submit" name="action" value="edit" class="ms-btn">{{{t('Edit again (the code stays reserved)')}}}</button>
+      <button type="submit" name="action" value="approve" class="ms-btn ms-primary">{{{t('Approve and send to DocArc')}}}</button>
+    </form>
+    <p class="ms-sub">{{{t('Approving freezes the document. Exactly these bytes are sent; nothing is compiled again.')}}}</p>
+  </section>
   {% endif %}
 
   {% if($doc['status'] == 'approved' || $doc['status'] == 'pdf_sent'): %}
-  <p class="notice">{{{t('Approved and frozen, but not completely sent to DocArc yet.')}}}</p>
-  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
-    {{ csrf_field() }}
-    <button type="submit" name="action" value="send" class="primary">{{{t('Send again')}}}</button>
-  </form>
+  <section class="ms-card pad ix-step">
+    <h3>2 &middot; {{{t('Sending stopped')}}}</h3>
+    <p class="notice">{{{t('Approved and frozen, but not completely sent to DocArc yet (DocArc did not answer, or the connection broke). Sending again continues where it stopped; nothing is built again.')}}}</p>
+    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}">
+      {{ csrf_field() }}
+      <button type="submit" name="action" value="send" class="ms-btn ms-primary">{{{t('Send again')}}}</button>
+    </form>
+  </section>
   {% endif %}
 
   {% if($doc['status'] == 'issued'): %}
-  <h3>{{{t('Issued')}}}</h3>
-  <p><a href="{{rel_url('/documents/' . $doc['id'] . '/rev/1/pdf')}}" target="_blank">PDF</a> &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/rev/1/tex')}}" target="_blank">.tex</a></p>
-  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
-    {{ csrf_field() }}
-    <button type="submit" name="action" value="copy">{{{t('Copy as new (another patient)')}}}</button>
-  </form>
-  <details class="danger-zone">
-    <summary>{{{t('Withdraw (a mistake: wrong patient, must not exist)')}}}</summary>
-    <p class="muted">{{{t('DocArc deletes the whole record, so the printed QR leads nowhere. MedScribe keeps the document, marked withdrawn. A correction is not a withdrawal: revisions are not available yet.')}}}</p>
-    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="form-grid">
+  <section class="ms-card pad ix-step ix-done">
+    <h3>3 &middot; {{{t('Issued')}}}</h3>
+    <p>{{{t('Archived in DocArc as')}}} <code>{{{$doc['doc_code']}}}</code>.{% if($doc['verify_code']): %} {{{t('Verification code')}}}: <strong>{{{$doc['verify_code']}}}</strong>{% endif %}</p>
+    <p class="ix-actions">
+      <a class="ms-btn" href="{{rel_url('/documents/' . $doc['id'] . '/rev/1/pdf')}}" target="_blank">PDF</a>
+      <a class="ms-btn" href="{{rel_url('/documents/' . $doc['id'] . '/rev/1/tex')}}" target="_blank">.tex</a>
+    </p>
+    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}">
       {{ csrf_field() }}
-      <label>{{{t('Reason (required)')}}} <input type="text" name="reason" maxlength="500" required></label>
-      <button type="submit" name="action" value="withdraw" class="danger">{{{t('Withdraw this document')}}}</button>
+      <button type="submit" name="action" value="copy" class="ms-btn">{{{t('Copy as new (another patient)')}}}</button>
+    </form>
+  </section>
+  <details class="ms-card pad ix-danger">
+    <summary>{{{t('Withdraw (a mistake: wrong patient, must not exist)')}}}</summary>
+    <p>{{{t('DocArc deletes the whole record, so the printed QR leads nowhere. MedScribe keeps the document, marked withdrawn. A correction is not a withdrawal: revisions are not available yet.')}}}</p>
+    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="ms-grid">
+      {{ csrf_field() }}
+      <label class="ms-field ms-wide">{{{t('Reason (required)')}}} <input type="text" class="ms-input" name="reason" maxlength="500" required></label>
+      <button type="submit" name="action" value="withdraw" class="ms-btn ix-danger-btn">{{{t('Withdraw this document')}}}</button>
     </form>
   </details>
   {% endif %}
 
   {% if($doc['status'] == 'withdrawn'): %}
-  <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="actions">
-    {{ csrf_field() }}
-    <button type="submit" name="action" value="copy">{{{t('Copy as new (another patient)')}}}</button>
-  </form>
-  <details class="danger-zone">
-    <summary>{{{t('Delete from MedScribe')}}}</summary>
-    <p class="muted">{{{t('Removes the inputs, .tex and PDF. The audit log keeps only that this happened.')}}}</p>
-    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="form-grid">
+  <section class="ms-card pad ix-step">
+    <h3>{{{t('Withdrawn')}}}</h3>
+    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}">
       {{ csrf_field() }}
-      <label>{{{t('Type DELETE to confirm')}}} <input type="text" name="confirm" autocomplete="off"></label>
-      <button type="submit" name="action" value="delete_withdrawn" class="danger">{{{t('Delete permanently')}}}</button>
+      <button type="submit" name="action" value="copy" class="ms-btn">{{{t('Copy as new (another patient)')}}}</button>
+    </form>
+  </section>
+  <details class="ms-card pad ix-danger">
+    <summary>{{{t('Delete from MedScribe')}}}</summary>
+    <p>{{{t('Removes the inputs, .tex and PDF. The audit log keeps only that this happened.')}}}</p>
+    <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="ms-grid">
+      {{ csrf_field() }}
+      <label class="ms-field">{{{t('Type DELETE to confirm')}}} <input type="text" class="ms-input" name="confirm" autocomplete="off"></label>
+      <button type="submit" name="action" value="delete_withdrawn" class="ms-btn ix-danger-btn">{{{t('Delete permanently')}}}</button>
     </form>
   </details>
   {% endif %}

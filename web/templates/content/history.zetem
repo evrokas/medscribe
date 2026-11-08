@@ -1,34 +1,36 @@
-<div class="page-placeholder">
-  <div class="page-head">
+{# The approved revisions of a document (composer plan §5.4): one card per revision with its files and "Rebuild and verify". #}
+<div class="ms-page narrow ix">
+  <div class="ms-head">
+    <a class="cx-back" href="{{rel_url('/documents/' . $doc['id'])}}">&lsaquo; {{{t('Back to the document')}}}</a>
     <h2>{{{t('History')}}} #{{{$doc['id']}}}{% if($doc['doc_code']): %} &middot; <code>{{{$doc['doc_code']}}}</code>{% endif %}</h2>
     {{ ui_status_pill($doc['status']) }}
   </div>
-  <p><a href="{{rel_url('/documents/' . $doc['id'])}}">&larr; {{{t('Back to the document')}}}</a></p>
   {% if(count($revs) == 0): %}
-  <p class="muted">{{{t('No approved revision yet. Drafts are not revisions.')}}}</p>
+  <p class="ms-card pad muted">{{{t('No approved revision yet. Drafts are not revisions.')}}}</p>
   {% else: %}
-  <table class="status-table list">
-    <tr><th>{{{t('Rev')}}}</th><th>{{{t('Status')}}}</th><th>{{{t('Approved')}}}</th><th>{{{t('By')}}}</th><th>{{{t('Files')}}}</th><th>PDF</th></tr>
-    {% foreach($revs as $r): %}
-    <tr>
-      <td>{{{$r['revision']}}}</td><td>{{{$r['status']}}}</td><td>{{{$r['cdate']}}}</td><td>{{{$r['by']}}}</td>
-      <td><a href="{{rel_url('/documents/' . $doc['id'] . '/rev/' . $r['revision'] . '/pdf')}}" target="_blank">PDF</a> &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/rev/' . $r['revision'] . '/tex')}}" target="_blank">.tex</a></td>
-      <td><code>{{{substr($r['pdf_sha256'], 0, 12)}}}</code></td>
-    </tr>
-    <tr><td></td><td colspan="5">
-      <details><summary>{{{t('Built with')}}} ({{{count($r['files'])}}} {{{t('files')}}}; {{{$r['env']}}})</summary>
-        <table class="status-table">
-        {% foreach($r['files'] as $f): %}<tr><td>{{{$f['name']}}}</td><td>v{{{$f['version']}}}</td><td><code>{{{substr($f['sha256'], 0, 12)}}}</code></td></tr>{% endforeach %}
-        </table>
-      </details>
-      {% if($is_doctor): %}
-      <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/history')}}" class="inline-form">
-        {{ csrf_field() }}<input type="hidden" name="revision" value="{{{$r['revision']}}}">
-        <button type="submit">{{{t('Rebuild and verify')}}}</button>
-      </form>
-      {% endif %}
-    </td></tr>
-    {% endforeach %}
-  </table>
+  {% foreach($revs as $r): %}
+  <section class="ms-card pad ix-rev">
+    <div class="ix-rev-head">
+      <h3>{{{t('Revision')}}} {{{$r['revision']}}}</h3>
+      <span class="ms-sub">{{{$r['status']}}} &middot; {{{t('approved')}}} {{{$r['cdate']}}} {{{t('by')}}} {{{$r['by']}}}</span>
+      <span class="ix-actions">
+        <a class="ms-btn" href="{{rel_url('/documents/' . $doc['id'] . '/rev/' . $r['revision'] . '/pdf')}}" target="_blank">PDF</a>
+        <a class="ms-btn" href="{{rel_url('/documents/' . $doc['id'] . '/rev/' . $r['revision'] . '/tex')}}" target="_blank">.tex</a>
+        {% if($is_doctor): %}
+        <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/history')}}" class="inline-form">
+          {{ csrf_field() }}<input type="hidden" name="revision" value="{{{$r['revision']}}}">
+          <button type="submit" class="ms-btn" title="{{{t('Build this revision again from its recorded files and check that the PDF is byte-identical')}}}">{{{t('Rebuild and verify')}}}</button>
+        </form>
+        {% endif %}
+      </span>
+    </div>
+    <p class="ms-sub">PDF <code>{{{substr($r['pdf_sha256'], 0, 12)}}}</code></p>
+    <details><summary>{{{t('Built with')}}} {{{count($r['files'])}}} {{{t('files')}}}{% if($r['env']): %} &middot; {{{$r['env']}}}{% endif %}</summary>
+      <table class="ms-table">
+      {% foreach($r['files'] as $f): %}<tr><td>{{{$f['name']}}}</td><td>v{{{$f['version']}}}</td><td><code>{{{substr($f['sha256'], 0, 12)}}}</code></td></tr>{% endforeach %}
+      </table>
+    </details>
+  </section>
+  {% endforeach %}
   {% endif %}
 </div>

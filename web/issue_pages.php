@@ -43,6 +43,13 @@ function page_issue($params) {
         'qr_base' => issue_qr_base((int)$doc['base_release_id']),
         'revisions' => issue_revisions($id),
         'busy' => $doc['busy_until'] && strtotime($doc['busy_until']) > time(),
+        // the step strip (composer plan §5.4) and why the first step cannot run yet
+        'step' => in_array($doc['status'], ['draft', 'review', 'code_reserved'], true) ? 1 : (in_array($doc['status'], ['final_compiled', 'approved', 'pdf_sent'], true) ? 2 : 3),
+        'blocked' => array_values(array_filter([
+            docarc_enabled() ? null : t('DocArc is not configured (config/docarc_api.php).'),
+            $link ? null : t('This document type is not linked to a DocArc type yet.'),
+            ($n = count(array_filter($checks, fn($c) => $c['level'] === 'error'))) ? $n . ' ' . ($n === 1 ? t('check fails: fix it in the document first.') : t('checks fail: fix them in the document first.')) : null,
+        ])),
     ]);
 }
 

@@ -103,7 +103,7 @@
         {% else: %}
         <button type="button" class="cx-checks-btn" aria-expanded="false" aria-controls="cx-checks-list">&#9888; {{{$n_checks}}} {{{$n_checks == 1 ? t('needs attention') : t('need attention')}}}</button>
         <ul class="cx-checks-list" id="cx-checks-list" hidden>
-          {% foreach($checks as $c): %}<li class="check check-{{{$c['level']}}}">{{{$c['msg']}}}</li>{% endforeach %}
+          {% foreach($checks as $c): %}<li class="check check-{{{$c['level']}}}" data-src="{{{$c['src'] ?? ''}}}" tabindex="0" title="{{{t('Show where')}}}">{{{$c['msg']}}}</li>{% endforeach %}
         </ul>
         {% endif %}
       </div>

@@ -155,3 +155,6 @@
 .cx-drug-blank { color: var(--primary); font-weight: 600; }
 .cx-druggroup > .ms-sub { padding: .4rem .5rem .1rem; font-weight: 700; }
 .cx-medhint { display: none; }
+.cx-checks-list li { cursor: pointer; } .cx-checks-list li:hover, .cx-checks-list li:focus { background: #F2F8F9; outline: none; }
+.cx-flash { animation: cx-flash 1.6s ease-out; border-radius: 6px; }
+@keyframes cx-flash { 0%, 30% { box-shadow: 0 0 0 3px #F5B544; background-color: #FFF4DC; } 100% { box-shadow: 0 0 0 0 transparent; } }

@@ -327,3 +327,12 @@ versioning); the Greek interface.
   drug library searchable and grouped; the library select stays in the HTML, hidden, for no-JS). `{br}` is shown as a line
   break in the cell textareas and turned back into `{br}` on submit; an unchanged cell posts exactly what the server sent.
   Checked in a real browser: Medrol taper from the library shows four lines, posts and stores `{br}`.
+- **Phase 7 (2026-11-08):** checks carry their source to the page (`data-src`); a click (or Enter) on a check opens its
+  place: a value chip in a sentence that is on (and its value box), else the field in the Values list; a sentence; an
+  own-text box; a section; checks with no source go by subject to the patient banner or the details line (fields opened,
+  folded sentences unfolded, a short highlight). Issue page as three steps (Prepare → Review the final PDF → Issued) with a
+  summary card (patient, DocArc type link, clinic, code, verification code, checks); step 1 says why it cannot run yet
+  ("Not yet:" DocArc off, type not linked, N checks fail) and its button is disabled; "Sending stopped: Send again" for
+  `approved`/`pdf_sent`; Withdraw and Delete stay in their own red sections. History: one card per revision with PDF,
+  .tex, "Rebuild and verify" and the files it was built with. Forms and actions unchanged (`check_m3.php` drives the
+  functions; it passed after this phase).

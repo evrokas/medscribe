@@ -555,6 +555,10 @@ Progress is in the plan's §12. Built so far:
 - **Write view (phase 5):** `web/js/composer_write.js` (+ `type_tree.js`, `type_chips.js`, library `type-editor` for the chip
   CSS) on the same form as the Form view: no extra form control, the textarea stays the source of truth. `composer_type_part.zetem`
   prints `.cx-say` only when given `sentences` (the composer; not the type editor's Form preview).
+- **Template cache and tests:** `web/cache/` is shared by Apache (www-data) and the CLI user. Compiled templates written by
+  Apache are 0644, so a `php -S` test server (as the CLI user) cannot rewrite them and silently serves the stale copy (with
+  a warning). Production is not affected (the CLI user's files are group-writable). Remove the stale file (the folder is
+  group-writable; the cache is rebuilt on every request) when a test shows an old page.
 - **Screenshots** `php tools/shots.php [--size=WxH] [--role=secretary] [--make=type,…] [--build=1] [--touch=1] '/documents/{type}=out.png' …`
   (`--build`: a preview PDF per sample draft; headless Chromium shows no PDF inside the iframe; `SHOT_JS='…'` runs a script
   before the shot and prints its result, which is how the Write view was checked end to end):
