@@ -55,15 +55,25 @@ function req(string $path, ?array $post = null): array {
 function tok(string $p): string { preg_match('/name="csrf_token" value="([^"]+)"/', req($p)['body'], $m); return $m[1] ?? ''; }
 req('/login', ['csrf_token' => tok('/login'), 'username' => $U, 'password' => $pw]);
 $ids = [];
-$names = ['Μαρία Παπαδοπούλου', 'Γιώργος Νικολάου', 'Ελένη Κωνσταντίνου', 'Νίκος Αλεξίου', 'Άννα Δημητρίου'];
+$names = isset($opt['names']) ? explode(',', $opt['names']) : ['Μαρία Παπαδοπούλου', 'Γιώργος Νικολάου', 'Ελένη Κωνσταντίνου', 'Νίκος Αλεξίου', 'Άννα Δημητρίου'];
+$genders = isset($opt['genders']) ? explode(',', $opt['genders']) : null;
 foreach ($make as $i => $t) {
-    $r = req('/documents/new', ['csrf_token' => tok('/documents/new'), 'type' => $t, 'patient' => ['name' => $names[$i % 5], 'gender' => $i % 2 ? 'M' : 'F', 'age' => (string)(48 + 3 * $i)], 'clinic' => 'Mandra', 'date' => date('Y-m-d')]);
+    $r = req('/documents/new', ['csrf_token' => tok('/documents/new'), 'type' => $t, 'patient' => ['name' => $names[$i % count($names)], 'gender' => $genders[$i] ?? ($i % 2 ? 'M' : 'F'), 'age' => (string)(48 + 3 * $i)], 'clinic' => 'Mandra', 'date' => date('Y-m-d')]);
     if (preg_match('#/documents/(\d+)$#', $r['location'], $m)) $ids[$t] = $m[1];
 }
 // --build: a preview PDF for each sample draft (the composer's own doc_preview(), as the made-up user)
 if (isset($opt['build'])) {
     $GLOBALS['kernel'] = new class { function getUserName() { return 'wt_shots'; } };
-    foreach ($ids as $id) { $d = doc_load((int)$id); $r = doc_preview($d, doc_typedef((int)$d['typedef_version_id'])); echo 'preview #' . $id . ': ' . ($r['ok'] ? 'ok' : 'failed') . "\n"; }
+    foreach ($ids as $id) {
+        $d = doc_load((int)$id); $r = doc_preview($d, doc_typedef((int)$d['typedef_version_id'])); echo 'preview #' . $id . ': ' . ($r['ok'] ? 'ok' : 'failed') . "\n";
+        // headless Chromium shows no PDF in an iframe: the first page as an image, swapped in by shot.js (SHOT_PDFIMG)
+        if ($r['ok'] && !getenv('SHOT_PDFIMG')) {
+            $tmp = tempnam(sys_get_temp_dir(), 'shotpdf'); file_put_contents("$tmp.pdf", $r['pdf']);
+            exec('pdftoppm -png -r 110 -f 1 -l 1 -singlefile ' . escapeshellarg("$tmp.pdf") . ' ' . escapeshellarg($tmp));
+            if (is_file("$tmp.png")) { putenv('SHOT_PDFIMG=' . $tmp . '.png'); }
+            @unlink("$tmp.pdf"); @unlink($tmp);
+        }
+    }
 }
 if (isset($opt['touch'])) foreach ($ids as $id) $db->exec('UPDATE documents SET udate = DATE_ADD(NOW(), INTERVAL 5 SECOND) WHERE id = ' . (int)$id);   // saved after the build
 $sess = '';
@@ -71,5 +81,6 @@ foreach (file($jar) as $l) { $f = explode("\t", trim($l)); if (count($f) >= 7) $
 $args = ['node', __DIR__ . '/shot.js', $sess, $size];
 foreach ($jobs as [$p, $out]) { $args[] = $base . preg_replace_callback('/\{([\w-]+)\}/', fn($m) => $ids[$m[1]] ?? '0', $p); $args[] = $out; }
 if ($jobs) passthru(implode(' ', array_map('escapeshellarg', $args)));
+if (getenv('SHOT_PDFIMG')) @unlink(getenv('SHOT_PDFIMG'));
 @unlink($jar);
 proc_terminate($srv); proc_close($srv);

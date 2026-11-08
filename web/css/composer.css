@@ -69,7 +69,7 @@
 .cx-write .block > .block-pick input { width: 1.1rem; height: 1.1rem; accent-color: var(--primary); margin: 0; }
 .cx-write .block > textarea, .cx-write .block > .muted, .cx-write .block > textarea.latex-block { display: none; }
 .cx-write .block > .edited { flex-basis: 100%; margin-left: 1.7rem; }
-.cx-write .block.off .cx-say { color: #8A9AA0; }
+.cx-write .block.off .cx-say { color: #66777D; }
 .cx-write .block.off .cx-say .cx-v { opacity: .7; }
 .cx-write .block.cx-folded { display: none; }
 .cx-write .block.in-group { margin: 0; padding: .1rem .3rem; border-left: 3px solid #D6E6EA; }
@@ -158,3 +158,24 @@
 .cx-checks-list li { cursor: pointer; } .cx-checks-list li:hover, .cx-checks-list li:focus { background: #F2F8F9; outline: none; }
 .cx-flash { animation: cx-flash 1.6s ease-out; border-radius: 6px; }
 @keyframes cx-flash { 0%, 30% { box-shadow: 0 0 0 3px #F5B544; background-color: #FFF4DC; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+/* ---- phase 8: widths, delete link, tabs ---- */
+.cx-delrow { margin: .4rem 0 0; text-align: right; }
+.cx-del { border: 0; background: none; color: var(--ms-bad); font: 500 .82rem var(--font-body); cursor: pointer; text-decoration: underline; padding: .2rem; }
+.cx-tabs { display: none; }
+@media (max-width: 1180px) {
+  .cx-bar { gap: .4rem .6rem; padding: .55rem .9rem; margin: .4rem -1.2rem -1rem; }
+  .cx-bar .ms-btn { min-height: 2.1rem; padding: 0 .7rem; font-size: .84rem; }
+  .cx-state { display: none; }
+}
+@media (max-width: 900px) {
+  .cx-tabs { display: flex; grid-column: 1; position: sticky; top: 0; z-index: 9; gap: 0; padding: 3px; background: #E3ECEE; border-radius: 9px; }
+  .cx-tabs button { flex: 1; border: 0; padding: .55rem; border-radius: 7px; background: transparent; font: 600 .9rem var(--font-body); color: #3C4F55; }
+  .cx-tabs button[aria-selected="true"] { background: #fff; color: var(--primary); }
+  .cx-page:not(.show-preview) > .split-right { display: none !important; }
+  .cx-page.show-preview > .split-left, .cx-page.show-preview > .delete-form { display: none !important; }
+  .cx-page .composer-preview { height: calc(100vh - 5rem); }
+  .cx-bar { margin: .4rem -1.2rem -1rem; }
+  .cx-actions { margin-left: 0; width: 100%; } .cx-actions .ms-btn { flex: 1 1 auto; justify-content: center; }
+  .cx-head-actions { margin-left: 0; }
+}

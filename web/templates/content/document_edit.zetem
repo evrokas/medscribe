@@ -1,5 +1,9 @@
 {% attach_library('type-editor') %}
 <div class="composer cx-page splitpane" data-split-key="medscribe.composer.layout">
+  <div class="cx-tabs" role="tablist" aria-label="{{{t('Show')}}}">
+    <button type="button" role="tab" aria-selected="true" data-pane="doc">{{{t('Document')}}}</button>
+    <button type="button" role="tab" aria-selected="false" data-pane="pdf">{{{t('Preview')}}}</button>
+  </div>
   <form method="post" action="{{rel_url('/documents/' . $doc['id'])}}" class="composer-form split-left cx" id="composer-form" data-sentences-url="{{rel_url('/documents/' . $doc['id'] . '/sentences')}}" data-known="{{{$known_json}}}" data-locked="{{{$locked ? '1' : ''}}}">
     {{ csrf_field() }}
     <div class="cx-head">
@@ -96,6 +100,7 @@
     <p class="palette"><label class="inline">{{{t('Insert a field into the text you are writing')}}}:
       <select id="token-palette"><option value="">@...</option>{% foreach($tokens as $tk): %}<option value="{{{$tk}}}">@{{{$tk}}}</option>{% endforeach %}</select></label></p>
 
+    {% if(!$locked): %}<p class="cx-delrow"><button type="submit" class="cx-del" form="delete-form">{{{t('Delete this draft')}}}</button></p>{% endif %}
     <div class="cx-bar">
       <div class="cx-checks">
         {% if($n_checks == 0): %}
@@ -110,7 +115,6 @@
       <span class="cx-state" id="cx-state" data-unsaved="{{{t('Unsaved changes')}}}" data-saving="{{{t('Saving...')}}}" data-building="{{{t('Building preview...')}}}">{% if($unsaved): %}<span class="cx-bad">{{{t('Not saved: a PDF was being built')}}}</span>{% elseif(!$locked): %}{{{t('Saved')}}}{% endif %}</span>
       {% if(!$locked): %}
       <span class="cx-actions">
-        <button type="submit" class="ms-btn cx-del" form="delete-form" title="{{{t('Delete this draft')}}}">{{{t('Delete draft')}}}</button>
         {% if($ready): %}
         <button type="submit" name="action" value="draft" class="ms-btn">{{{t('Back to draft')}}}</button>
         {% else: %}

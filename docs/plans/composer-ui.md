@@ -1,6 +1,6 @@
 # Document composer UI redesign: plan
 
-**Status:** being built (from 2026-11-08); see §12.
+**Status:** built (2026-11-08), awaiting the doctor's acceptance; see §12. `?ui=classic` stays until then.
 **Scope:** documents list, new document, the composer (`/documents/{id}`), its preview, checks, and the
 issue/history pages. **Not** the type editor: it has its own plan, `docs/plans/type-editor-ui.md`, and the
 two share some building blocks (§9).
@@ -336,3 +336,31 @@ versioning); the Greek interface.
   `approved`/`pdf_sent`; Withdraw and Delete stay in their own red sections. History: one card per revision with PDF,
   .tex, "Rebuild and verify" and the files it was built with. Forms and actions unchanged (`check_m3.php` drives the
   functions; it passed after this phase).
+- **Phase 8 (2026-11-08):** widths: below 1180 px the action bar is compact (save state hidden), below 900 px
+  **Document / Preview** tabs (sticky) replace the two panes and the bar takes two rows; "Delete this draft" moved out of
+  the bar to a quiet link above it. Dimmed sentences darker for contrast (#66777D). Library as cards (tier pill, slot,
+  text, uses, last used, Promote/Demote/Hide; same forms). `docs/composer.md` rewritten for the new pages with new
+  screenshots (invented patients only; the list shot is filtered to them). `tools/shots.php` gained `--names`,
+  `--genders` and a rendered first PDF page in place of the iframe (`pdftoppm`), since headless Chromium has no PDF viewer.
+
+### Acceptance run (2026-11-08, headless Chromium on the server, made-up drafts)
+
+- kyfoplastiki, Write view: 42 sentences, no `@token`, no `**`, no `{x|y}` left, no slot or layout name in a heading;
+  «Ημέρες κλινήρης» shows as an empty-value pill; filled through its box it updates the sentence and the Values count. ✓
+- proegkrisi: gender F → M changes «Η ασθενής» to «Ο ασθενής» in the Write view without saving. ✓ The «Ένδειξη»
+  alternatives are radios with "None of these"; the RF chip says "Turns on 3 sentences, turns off 4 sentences"; add and
+  remove restore the choices (`bin/check_payload.php`). ✓
+- Edit a sentence → Done → save → reload shows the edit; Restore original → save → gone (no `blocks[id].text`). ✓
+- A text that does not round-trip opens as plain text: the chip editor's own check (`bin/check_chips_dom.js`, every
+  type's text). ✓
+- syntagi: Medrol taper from the library shows four lines, posts and stores `{br}`. ✓
+- "Out of date" after a save following a build; hidden when there is no PDF. ✓ The PDF has the QR frame (preview). ✓
+- Save during a running build: refused, typed text handed back (`bin/check_web.php`). ✓
+- Secretary: no Issue button (checked in the browser); Ready for review works and the doctor's list opens on it
+  (`bin/check_web.php`). ✓
+- Issue steps: step 1 with its "Not yet" reasons checked in the browser; steps 2–3 and the real QR are covered by
+  `bin/check_m3.php` against a throw-away DocArc, **not clicked through against the live DocArc** (that would create real
+  records). To do by the doctor on a real document.
+- Narrow (420 px), 1024 and 1440–1600 px checked by screenshot. Keyboard: sentences, checks, view switch and tabs are
+  reachable and work with Enter; Esc closes the editor, value box, drawer and drug menu. Value chips inside sentences are
+  mouse targets; by keyboard the same values are in the Values list.

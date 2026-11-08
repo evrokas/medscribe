@@ -122,3 +122,16 @@ input.ms-date { min-width: 8.5rem; }
 .ix .inline-form { display: inline; margin: 0; }
 @media (max-width: 600px) { .ix-kv { grid-template-columns: 1fr; } }
 .ix-checks li { background: none; border: 0; padding: 0; }
+
+/* the library (composer plan §5.5) */
+.lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: .8rem; }
+.lib-card { display: flex; flex-direction: column; gap: .5rem; padding: .9rem 1rem; }
+.lib-hidden { opacity: .6; }
+.lib-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.lib-meta code { margin-left: auto; overflow-wrap: anywhere; }
+.lib-text { margin: 0; font: .98rem/1.55 var(--font-heading); white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.lib-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-top: auto; }
+.lib-foot form { margin-left: auto; display: flex; gap: .4rem; }
+.lib-foot .ms-btn { min-height: 2rem; font-size: .82rem; }
+.ms-chip .lib-n { background: var(--ms-grey-bg); color: var(--ms-ink-2); }
+.ms-chip.on .lib-n { background: rgba(255,255,255,.25); color: #fff; }

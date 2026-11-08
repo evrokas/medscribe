@@ -39,6 +39,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     await send('Page.navigate', {url});
     for (let k = 0; k < 100 && !events.includes('Page.loadEventFired'); k++) await sleep(100);
     await sleep(Number(process.env.SHOT_WAIT || 600));
+    if (process.env.SHOT_PDFIMG && fs.existsSync(process.env.SHOT_PDFIMG)) {
+      const img = 'data:image/png;base64,' + fs.readFileSync(process.env.SHOT_PDFIMG).toString('base64');
+      await send('Runtime.evaluate', {expression: `document.querySelectorAll('.cx-pv iframe').forEach(f => { const i = document.createElement('img'); i.src = ${JSON.stringify(img)}; i.style.cssText = 'width:100%;height:auto;display:block;border-top:1px solid #ddd'; const w = document.createElement('div'); w.style.cssText = 'flex:1 1 auto;overflow:auto;background:#E7EEF0;padding:12px'; w.appendChild(i); f.replaceWith(w); }); 1`});
+      await sleep(300);
+    }
     if (process.env.SHOT_JS) {
       const ev = await send('Runtime.evaluate', {expression: process.env.SHOT_JS, awaitPromise: true, returnByValue: true});
       const v = ev.result && ev.result.result ? ev.result.result.value : undefined;

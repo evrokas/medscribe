@@ -74,5 +74,14 @@
     if (b && b.value === 'preview') setTimeout(function () { form.classList.add('building'); }, 0);
   });
   // a case feature chip submits the form too (its own buttons); the delete form is separate and asks first
+  // narrow screens (plan §4.1): Document / Preview tabs instead of two panes
+  var page = form.closest('.cx-page');
+  if (page) page.querySelectorAll('.cx-tabs [data-pane]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      page.classList.toggle('show-preview', b.dataset.pane === 'pdf');
+      page.querySelectorAll('.cx-tabs [data-pane]').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+      window.scrollTo(0, 0);
+    });
+  });
   window.MSComposer = {markDirty: markDirty, isDirty: function () { return dirty; }};
 })();
