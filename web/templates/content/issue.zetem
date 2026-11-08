@@ -1,7 +1,7 @@
 <div class="page-placeholder issue">
   <div class="page-head">
     <h2>{{{t('Issue')}}} #{{{$doc['id']}}} &middot; {{{$type_label}}}</h2>
-    <span class="badge badge-{{{$doc['status']}}}">{{{$doc['status']}}}</span>
+    {{ ui_status_pill($doc['status']) }}
   </div>
   <p><a href="{{rel_url('/documents/' . $doc['id'])}}">&larr; {{{t('Back to the document')}}}</a>
      {% if(count($revisions)): %} &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/history')}}">{{{t('History')}}}</a>{% endif %}</p>

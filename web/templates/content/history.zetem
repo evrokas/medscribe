@@ -1,7 +1,7 @@
 <div class="page-placeholder">
   <div class="page-head">
     <h2>{{{t('History')}}} #{{{$doc['id']}}}{% if($doc['doc_code']): %} &middot; <code>{{{$doc['doc_code']}}}</code>{% endif %}</h2>
-    <span class="badge badge-{{{$doc['status']}}}">{{{$doc['status']}}}</span>
+    {{ ui_status_pill($doc['status']) }}
   </div>
   <p><a href="{{rel_url('/documents/' . $doc['id'])}}">&larr; {{{t('Back to the document')}}}</a></p>
   {% if(count($revs) == 0): %}

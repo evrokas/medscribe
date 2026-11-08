@@ -3,9 +3,10 @@
  * scoped to .te so nothing else in the app changes. Loaded as the library "type-editor" by type_edit.zetem.
  */
 .te {
-  --te-accent: #2F6FE0; --te-accent-dark: #1D5FD1; --te-accent-soft: #E8F0FD; --te-ink: #16233A; --te-ink-2: #4A5873;
-  --te-line: #DCE3EC; --te-line-2: #E5EAF1; --te-bg: #F6F8FB; --te-ok: #22A06B; --te-warn-bg: #FFF1D6; --te-warn: #7A4B00;
-  --te-ok-bg: #DDF5EA; --te-ok-ink: #0E6640; --te-bad: #C93B3B;
+  /* the shared tokens of css/ui.css */
+  --te-accent: var(--ms-accent); --te-accent-dark: var(--ms-accent-dark); --te-accent-soft: var(--ms-accent-soft); --te-ink: var(--ms-ink);
+  --te-ink-2: var(--ms-ink-2); --te-line: var(--ms-line); --te-line-2: var(--ms-line-2); --te-bg: var(--ms-bg); --te-ok: var(--ms-ok);
+  --te-warn-bg: var(--ms-warn-bg); --te-warn: var(--ms-warn); --te-ok-bg: var(--ms-ok-bg); --te-ok-ink: var(--ms-ok-ink); --te-bad: var(--ms-bad);
   color: var(--te-ink);
 }
 .te .te-head { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin-bottom: .8rem; }

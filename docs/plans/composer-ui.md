@@ -1,6 +1,6 @@
 # Document composer UI redesign: plan
 
-**Status:** plan, nothing built yet (2026-11-08).
+**Status:** being built (from 2026-11-08); see §12.
 **Scope:** documents list, new document, the composer (`/documents/{id}`), its preview, checks, and the
 issue/history pages. **Not** the type editor: it has its own plan, `docs/plans/type-editor-ui.md`, and the
 two share some building blocks (§9).
@@ -272,3 +272,14 @@ them.
 Autosave; new markup; changes to the type format, the engine output, DocArc/ZPMS integrations, permissions
 or statuses; a template gallery; the dark sidebar; document revisions after issue (waits for DocArc
 versioning); the Greek interface.
+
+## 12. Progress
+
+- **Phase 0 (2026-11-08):** baseline 63/63 (`bin/run_tests.sh`, 11 min 44 s). Payload test `bin/check_payload.php` on
+  kyfoplastiki, proegkrisi, syntagi, recommendation-en and epistoli (no released type has `has_patient: false`; the
+  patient-free M8 types are drafts). A case feature's undo can leave `extra` absent where it was `[]`: same meaning, the test
+  treats them as equal.
+- **Phase 1 (2026-11-08):** `web/ui.php` + `web/css/ui.css` (status words and pills on the list, composer, issue and history
+  pages; section naming rule; shared tokens, used by the type editor's CSS), breadcrumbs styled and "Announcements" removed
+  (§1.8). The QR rectangle was already built (type editor phase 0b: qrcode's draft mode, an empty frame of the same size,
+  no text label). Unit test `tests/static/ui_test.php`.

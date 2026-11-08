@@ -1,0 +1,31 @@
+/*
+ * Shared UI tokens and components (docs/plans/composer-ui.md §9; the type editor's look, type-editor.css): loaded on
+ * every page. Tokens are --ms-*; components are opt-in classes (.pill, .ms-btn, .ms-card).
+ */
+:root {
+  --ms-accent: #2F6FE0; --ms-accent-dark: #1D5FD1; --ms-accent-soft: #E8F0FD; --ms-ink: #16233A; --ms-ink-2: #4A5873;
+  --ms-line: #DCE3EC; --ms-line-2: #E5EAF1; --ms-bg: #F6F8FB; --ms-ok: #22A06B; --ms-ok-bg: #DDF5EA; --ms-ok-ink: #0E6640;
+  --ms-warn-bg: #FFF1D6; --ms-warn: #7A4B00; --ms-bad: #C93B3B; --ms-bad-bg: #FDE7E7; --ms-info-bg: #E8F0FD; --ms-info: #1D4FA8;
+  --ms-grey-bg: #EEF1F5; --ms-radius: 10px;
+}
+
+/* status pills (§5.1): colour plus the word; the internal value is the tooltip */
+.pill { display: inline-block; padding: .15rem .65rem; border-radius: 999px; font-size: .78rem; font-weight: 700; line-height: 1.4;
+  white-space: nowrap; background: var(--ms-grey-bg); color: var(--ms-ink-2); }
+.pill-draft { background: var(--ms-grey-bg); color: var(--ms-ink-2); }
+.pill-review { background: var(--ms-warn-bg); color: var(--ms-warn); }
+.pill-code_reserved, .pill-final_compiled { background: var(--ms-info-bg); color: var(--ms-info); }
+.pill-approved, .pill-pdf_sent { background: #FFE9D6; color: #8A3D00; }
+.pill-issued { background: var(--ms-ok-bg); color: var(--ms-ok-ink); }
+.pill-withdrawn { background: var(--ms-bad-bg); color: var(--ms-bad); }
+
+/* breadcrumbs (zeusfw's breadcrumbs.zetem; ZPMS's breadcrumbs.css): a small muted line, no "::" first item, chevrons */
+.breadcrumbs { margin: .8rem 0 0; padding: 0 1.2rem; font-size: .85rem; color: var(--ms-ink-2); }
+.breadcrumbs ul { display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .35rem; margin: 0; padding: 0; list-style: none; }
+.breadcrumbs li.breadcrumb-first { display: none; }
+.breadcrumbs li.breadcrumb-separator { display: inline-flex; font-size: 0; opacity: .6; }
+.breadcrumbs li.breadcrumb-separator::before { content: "\ea50"; font-family: boxicons; font-size: 1rem; line-height: 1; }
+.breadcrumbs a { color: var(--ms-ink-2); text-decoration: none; }
+.breadcrumbs a:hover { color: var(--ms-accent-dark); text-decoration: underline; }
+.breadcrumbs a[href="#"], .breadcrumbs a[href$="/#"] { pointer-events: none; color: inherit; }
+.breadcrumbs li.breadcrumb-item:last-child, .breadcrumbs li.breadcrumb-item:last-child a { color: var(--ms-ink); font-weight: 500; }

@@ -534,3 +534,12 @@ the supplied design brief and concept images in `docs/plans/composer-ui/proposal
 writing the letter (sentences as text, values filled in where they are used), not like filling fields. Decided 2026-11-08:
 Write view is the default, preview stays the real PDF only (no HTML preview), no summary cards; mockup sources in
 `docs/plans/composer-ui/mockups/`. Shares building blocks with `docs/plans/type-editor-ui.md` (§9 there and here).
+
+Progress is in the plan's §12. Built so far:
+- **Payload test** `bin/check_payload.php [type…]` (in the test runner): the classic composer (`?ui=classic`) and the new one
+  must store identical inputs for the same user changes (fast, ~6 s; run it after any composer change).
+- **Shared UI** `web/ui.php` (`ui_status_word()`, `ui_status_pill()`: status words everywhere, the internal value as tooltip;
+  `ui_section_name()`: the type editor's naming rule in PHP) and `web/css/ui.css` (tokens `--ms-*`, which `type-editor.css`
+  now uses; pills; breadcrumbs). The framework's `message` module ("Announcements") is left out of the page structure.
+- **Screenshots** `php tools/shots.php [--size=WxH] [--role=secretary] [--make=type,…] '/documents/{type}=out.png' …`:
+  a temporary account and made-up drafts, removed afterwards; the browser is `tools/shot.js` (Chromium over CDP, no npm).

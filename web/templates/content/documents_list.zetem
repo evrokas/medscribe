@@ -14,7 +14,7 @@
             <td><a href="{{rel_url('/documents/' . $d['id'])}}">{{{$d['patient_name'] ?: '-'}}}</a></td>
             <td>{{{$d['type_name']}}}</td>
             <td><code>{{{$d['doc_code']}}}</code></td>
-            <td><span class="badge badge-{{{$d['status']}}}">{{{$d['status']}}}</span></td>
+            <td>{{ ui_status_pill($d['status']) }}</td>
             <td>{{{$d['cuser']}}}</td>
             <td>{{{$d['udate'] ?: $d['cdate']}}}</td>
         </tr>

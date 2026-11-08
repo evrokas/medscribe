@@ -32,6 +32,8 @@ css:
     src: 'css/navigation.css'
   - styles:
     src: 'css/styles.css'
+  - ui:
+    src: 'css/ui.css'
   - boxicons:
     src: 'css/bx/css/boxicons.min.css'
 
@@ -296,7 +298,7 @@ structure:
     - mainnavigation
   notification:
     - notifications
-    - message
+    # (the framework's `message` module, "Announcements", is not used: MedScribe has no announcements)
   main_content:
     - breadcrumbs
     - content

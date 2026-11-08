@@ -3,7 +3,7 @@
     {{ csrf_field() }}
     <div class="page-head">
         <h2>#{{{$doc['id']}}} {{{$type_label}}}</h2>
-        <span class="badge badge-{{{$doc['status']}}}">{{{$doc['status']}}}</span>
+        {{ ui_status_pill($doc['status']) }}
     </div>
 
     {% if($unsaved): %}<p class="notice">{{{t('These changes are NOT saved yet: a PDF was being built. Save again.')}}}</p>{% endif %}
