@@ -559,6 +559,10 @@ Progress is in the plan's §12. Built so far:
   Apache are 0644, so a `php -S` test server (as the CLI user) cannot rewrite them and silently serves the stale copy (with
   a warning). Production is not affected (the CLI user's files are group-writable). Remove the stale file (the folder is
   group-writable; the cache is rebuilt on every request) when a test shows an old page.
+- **PDFs on phones (2026-11-08):** a PDF in an iframe shows only its first page on mobile browsers. On small or touch screens
+  `web/js/pdf_pages.js` replaces every `iframe[data-pdf-pages]` (composer preview, issue page's final PDF) with all pages drawn
+  by PDF.js 4.10.38 (vendored in `web/vendor/pdfjs/`, integrity-checked, ≥ 4.2.67 for CVE-2024-4367, `isEvalSupported:
+  false`) plus "Open PDF"; desktop keeps the browser's viewer.
 - **Screenshots** `php tools/shots.php [--size=WxH] [--role=secretary] [--make=type,…] [--build=1] [--touch=1] '/documents/{type}=out.png' …`
   (`--build`: a preview PDF per sample draft; headless Chromium shows no PDF inside the iframe; `SHOT_JS='…'` runs a script
   before the shot and prints its result, which is how the Write view was checked end to end):

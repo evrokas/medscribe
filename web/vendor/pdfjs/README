@@ -1,0 +1,4 @@
+pdfjs-dist 4.10.38 (Apache-2.0), build/pdf.min.mjs and build/pdf.worker.min.mjs renamed to .js (served as JavaScript;
+they are ES modules). From the npm registry tarball, integrity
+sha512-/Y3fcFrXEAsMjJXeL9J8+ZG9U01LbuWaYypvDW2ycW1jL269L3js3DVBjDJ0Up9Np1uqDXsDrRihHANhZOlwdQ== (checked 2026-11-08).
+Version >= 4.2.67 on purpose (CVE-2024-4367); loaded with isEvalSupported: false. Used by web/js/pdf_pages.js on small screens.

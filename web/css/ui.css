@@ -135,3 +135,11 @@ input.ms-date { min-width: 8.5rem; }
 .lib-foot .ms-btn { min-height: 2rem; font-size: .82rem; }
 .ms-chip .lib-n { background: var(--ms-grey-bg); color: var(--ms-ink-2); }
 .ms-chip.on .lib-n { background: rgba(255,255,255,.25); color: #fff; }
+
+/* PDFs drawn page by page on small screens (web/js/pdf_pages.js) */
+.pdf-pages { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; background: #E7EEF0; }
+.pdf-pages-bar { display: flex; align-items: center; gap: .8rem; padding: .4rem .8rem; background: #fff; border-bottom: 1px solid var(--ms-line-2); }
+.pdf-pages-bar a { margin-left: auto; font-weight: 600; }
+.pdf-pages-list { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: .6rem; display: flex; flex-direction: column; gap: .6rem; }
+.pdf-pages-list canvas { display: block; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.15); max-width: 100%; }
+.ix-step .final-preview .pdf-pages { height: 100%; }

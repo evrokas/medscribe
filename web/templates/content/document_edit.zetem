@@ -149,7 +149,7 @@
       </span>
     </div>
     {% if($pdf_url): %}
-    <iframe src="{{rel_url($pdf_url)}}" title="{{{t('Preview')}}}"></iframe>
+    <iframe src="{{rel_url($pdf_url)}}" title="{{{t('Preview')}}}" data-pdf-pages data-pdfjs="{{rel_url('/vendor/pdfjs/')}}"></iframe>
     {% elseif($build): %}
     <pre class="log">{{{$build['log_tail']}}}</pre>
     {% else: %}
@@ -164,6 +164,7 @@
   <script src="{{rel_url('/js/type_tree.js')}}"></script>
   <script src="{{rel_url('/js/type_chips.js')}}"></script>
   <script src="{{rel_url('/js/composer_write.js')}}"></script>
+  <script src="{{rel_url('/js/pdf_pages.js')}}"></script>
   <script>
   (function () {
     var last = null;

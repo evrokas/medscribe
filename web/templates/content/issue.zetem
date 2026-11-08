@@ -50,7 +50,8 @@
   <section class="ms-card pad ix-step">
     <h3>2 &middot; {{{t('Review the final PDF')}}}</h3>
     <p>{{{t('This is the exact file that will be archived, with the real QR. Nothing has been sent yet.')}}}</p>
-    <div class="final-preview"><iframe src="{{rel_url($final_url)}}" title="{{{t('Final PDF')}}}"></iframe></div>
+    <div class="final-preview"><iframe src="{{rel_url($final_url)}}" title="{{{t('Final PDF')}}}" data-pdf-pages data-pdfjs="{{rel_url('/vendor/pdfjs/')}}"></iframe></div>
+    <script src="{{rel_url('/js/pdf_pages.js')}}"></script>
     <form method="post" action="{{rel_url('/documents/' . $doc['id'] . '/issue')}}" class="ix-actions">
       {{ csrf_field() }}
       <button type="submit" name="action" value="edit" class="ms-btn">{{{t('Edit again (the code stays reserved)')}}}</button>
