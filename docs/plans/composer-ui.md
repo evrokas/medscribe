@@ -283,3 +283,10 @@ versioning); the Greek interface.
   pages; section naming rule; shared tokens, used by the type editor's CSS), breadcrumbs styled and "Announcements" removed
   (§1.8). The QR rectangle was already built (type editor phase 0b: qrcode's draft mode, an empty frame of the same size,
   no text label). Unit test `tests/static/ui_test.php`.
+- **Phase 2 (2026-11-08):** documents list (`page_documents`: filters All · Ready for review (counted) · Drafts · Issued ·
+  Withdrawn, "Drafts" also holding documents half-way through issuing; search on patient name, code or `#id`, prepared
+  `LIKE` with `%`/`_` escaped; the doctor opens on "Ready for review" when it is not empty, the secretary on Drafts, decided
+  2026-11-08; type labels, clinic, relative times). The `documents` table has no index besides the key (the entity YAML has no
+  index syntax); fine at this size. New document (`doc_new_types()`): a filterable type list, the patient block hidden for
+  `has_patient: false`, marked optional for `"optional"`, gender as two explicit choices, `?type=` preselects. Checks added
+  to `bin/check_web.php`.

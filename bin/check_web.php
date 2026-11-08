@@ -102,6 +102,30 @@ foreach ($types as $t) {
     check("new $t: the type's default-on blocks are on in the new draft ($defaultOn)", $defaultOn === 0 || count($on[0]) >= $defaultOn, count($on[0]) . ' on');
 }
 
+// ---- the documents list (composer plan §5.2): filters, search, default views; the English and patient-optional types
+$r = $dc->post('/documents/new', ['csrf_token' => $dc->token('/documents/new'), 'type' => 'recommendation-en', 'patient' => ['name' => 'WT English', 'gender' => 'M'], 'clinic' => 'Mandra', 'date' => '2026-01-15']);
+check('new recommendation-en (English): a draft', preg_match('#/documents/(\d+)$#', (string)$r['location'], $m) && ($docs[] = (int)$m[1]));
+$r = $dc->post('/documents/new', ['csrf_token' => $dc->token('/documents/new'), 'type' => 'epistoli', 'clinic' => 'Mandra', 'date' => '2026-01-15']);
+check('new epistoli with no patient (optional): a draft', preg_match('#/documents/(\d+)$#', (string)$r['location'], $m) && ($docs[] = (int)$m[1]));
+$r = $dc->post('/documents/new', ['csrf_token' => $dc->token('/documents/new'), 'type' => 'adeia', 'clinic' => 'Mandra', 'date' => '2026-01-15']);
+check('...a type that needs the patient refuses no name', str_ends_with((string)$r['location'], '/documents/new'));
+$wtRev = $docs[1];
+$db->exec("UPDATE documents SET status = 'review' WHERE id = $wtRev");
+$l = $dc->get('/documents')['body'];
+check('list: the doctor opens on "Ready for review" while there are any, with its count', str_contains($l, 'aria-current="page">Ready for review') && preg_match('/Ready for review <span class="ms-count">\d+/', $l) && str_contains($l, "#$wtRev &middot;") && !str_contains($l, "#{$docs[0]} &middot;"));
+$l = $sc->get('/documents')['body'];
+check('list: the secretary opens on drafts', str_contains($l, 'aria-current="page">Drafts') && str_contains($l, "#{$docs[0]} &middot;") && !str_contains($l, "#$wtRev &middot;"));
+check('list: type labels and status words, not ids', str_contains($l, 'Βεβαίωση συμβατότητας MRI') && str_contains($l, '>Draft</span>'));
+$l = $dc->get('/documents?f=all&q=' . rawurlencode('WT vevaiosi-y'))['body'];
+check('list: search by patient name', str_contains($l, 'WT vevaiosi-ylikon') && !str_contains($l, 'WT adeia'));
+$l = $dc->get('/documents?f=all&q=' . rawurlencode('#' . $docs[2]))['body'];
+check('list: search by #number', str_contains($l, "#{$docs[2]} &middot;") && substr_count($l, 'class="ms-doc"') === 1);
+$l = $dc->get('/documents?f=all&q=' . rawurlencode("%' OR 1=1 -- _"))['body'];
+check('list: search text is data (no match, no error)', str_contains($l, 'No document matches') && !preg_match('/<b>(Warning|Fatal error)/', $l));
+$l = $dc->get('/documents?f=issued&q=WT')['body'];
+check('list: filter and search together', !str_contains($l, 'class="ms-doc"'));
+$db->exec("UPDATE documents SET status = 'draft' WHERE id = $wtRev");
+
 // ---- the secretary: can prepare, cannot issue, cannot see the library, types editor or DocArc links
 $id = $docs[0] ?? 0;
 check('secretary: documents list and the composer', $sc->get('/documents')['status'] === 200 && $sc->get("/documents/$id")['status'] === 200);

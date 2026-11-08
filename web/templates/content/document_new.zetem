@@ -1,42 +1,92 @@
-<div class="page-placeholder">
-    <h2>{{{t('New document')}}}</h2>
-    <form method="post" action="{{rel_url('/documents/new')}}" class="form-grid">
+<div class="ms-page narrow">
+    <div class="ms-head"><h2>{{{t('New document')}}}</h2></div>
+    <form method="post" action="{{rel_url('/documents/new')}}" class="ms-new">
         {{ csrf_field() }}
-        <label>{{{t('Document type')}}}
-            <select name="type" required>
-                {% foreach($types as $ty): %}<option value="{{{$ty['name']}}}">{{{$ty['label']}}}</option>{% endforeach %}
-            </select>
-        </label>
-        <fieldset>
-            <legend>{{{t('Patient')}}}</legend>
+        <section class="ms-card pad">
+            <h3>1 &middot; {{{t('Document type')}}}</h3>
+            <input type="search" id="type-q" class="ms-input" placeholder="{{{t('Find a type')}}}" aria-label="{{{t('Find a type')}}}" autocomplete="off">
+            <div class="ms-types" role="radiogroup" aria-label="{{{t('Document type')}}}">
+                {% foreach($types as $i => $ty): %}
+                <label class="ms-type" data-patient="{{{$ty['patient']}}}" data-q="{{{mb_strtolower($ty['label'] . ' ' . $ty['name'])}}}">
+                    <input type="radio" name="type" value="{{{$ty['name']}}}" required {% if($chosen == $ty['name']): %}checked{% endif %}>
+                    <span>{{{$ty['label']}}}</span>
+                    {% if($ty['lang'] == 'en'): %}<span class="ms-tag">English</span>{% endif %}{% if($ty['paper'] == 'A5'): %}<span class="ms-tag">A5</span>{% endif %}{% if($ty['patient'] == 'no'): %}<span class="ms-tag">{{{t('no patient')}}}</span>{% endif %}
+                </label>
+                {% endforeach %}
+                <p class="muted" id="type-none" hidden>{{{t('No type matches.')}}}</p>
+            </div>
+        </section>
+
+        <section class="ms-card pad" id="patient-box">
+            <h3>2 &middot; {{{t('Patient')}}} <span class="ms-sub" id="patient-optional" hidden>({{{t('optional for this type')}}})</span></h3>
             {% if($zpms): %}
             <div class="patient-search">
-                <label>{{{t('Find in ZPMS')}}} <input type="search" id="patient-q" autocomplete="off" placeholder="{{{t('Name or AMKA')}}}" minlength="2"></label>
+                <label class="ms-field">{{{t('Find in ZPMS')}}} <input type="search" id="patient-q" class="ms-input" autocomplete="off" placeholder="{{{t('Name or AMKA')}}}" minlength="2"></label>
                 <ul id="patient-results" class="results" hidden></ul>
+                <p class="ms-sub">{{{t('or type the patient by hand below.')}}}</p>
             </div>
             {% endif %}
             <p class="notice" id="patient-error" {% if(!$zpms_error): %}hidden{% endif %}>{{{t('The patient could not be loaded from ZPMS. You can type the details by hand.')}}}</p>
-            <p class="muted" id="patient-from" {% if(empty($prefill['guid'])): %}hidden{% endif %}>{{{t('From ZPMS')}}}: <span id="patient-from-name">{{{$prefill['name'] ?? ''}}}</span>. <button type="button" class="linklike" id="patient-clear">{{{t('Clear')}}}</button></p>
+            <p class="ms-from" id="patient-from" {% if(empty($prefill['guid'])): %}hidden{% endif %}>{{{t('From ZPMS')}}}: <strong id="patient-from-name">{{{$prefill['name'] ?? ''}}}</strong> <button type="button" class="linklike" id="patient-clear">{{{t('Clear')}}}</button></p>
             <input type="hidden" name="patient[guid]" id="p-guid" value="{{{$prefill['guid'] ?? ''}}}">
             <input type="hidden" name="patient[dob]" id="p-dob" value="{{{$prefill['dob'] ?? ''}}}">
-            <label>{{{t('Name')}}} <input type="text" id="p-name" name="patient[name]" value="{{{$prefill['name'] ?? ''}}}" maxlength="255" {% if(empty($prefill['guid'])): %}autofocus{% endif %}></label>
-            <label>{{{t('Gender')}}}
-                <select name="patient[gender]" id="p-gender">
-                    <option value="">-</option>
-                    <option value="M" {% if(($prefill['gender'] ?? '') == 'M'): %}selected{% endif %}>{{{t('Male')}}}</option>
-                    <option value="F" {% if(($prefill['gender'] ?? '') == 'F'): %}selected{% endif %}>{{{t('Female')}}}</option>
-                </select>
-            </label>
-            <label>{{{t('Age')}}} <input type="text" id="p-age" data-dob-hint="{{{t('from date of birth')}}}" name="patient[age]" value="{{{!empty($prefill['dob']) ? '' : ($prefill['age'] ?? '')}}}" placeholder="{{{!empty($prefill['dob']) ? t('from date of birth') : ''}}}" maxlength="16" size="8"></label>
-            <label>AMKA <input type="text" id="p-amka" name="patient[amka]" value="{{{$prefill['amka'] ?? ''}}}" maxlength="11" size="12" inputmode="numeric"></label>
-        </fieldset>
-        <label>{{{t('Clinic')}}}
-            <select name="clinic">{% foreach($clinics as $c): %}<option>{{{$c}}}</option>{% endforeach %}</select>
-        </label>
-        <label>{{{t('Document date')}}} <input type="date" id="doc-date" name="date" value="{{{$today}}}"></label>
-        <div class="buttons"><button type="submit">{{{t('Create draft')}}}</button></div>
+            <div class="ms-grid">
+                <label class="ms-field ms-wide">{{{t('Name')}}} <input type="text" class="ms-input" id="p-name" name="patient[name]" value="{{{$prefill['name'] ?? ''}}}" maxlength="255"></label>
+                <fieldset class="ms-field ms-radios"><legend>{{{t('Gender')}}}</legend>
+                    <label><input type="radio" name="patient[gender]" value="M" id="p-gender-M" {% if(($prefill['gender'] ?? '') == 'M'): %}checked{% endif %}> {{{t('Male')}}}</label>
+                    <label><input type="radio" name="patient[gender]" value="F" id="p-gender-F" {% if(($prefill['gender'] ?? '') == 'F'): %}checked{% endif %}> {{{t('Female')}}}</label>
+                </fieldset>
+                <label class="ms-field">{{{t('Age')}}} <input type="text" class="ms-input" id="p-age" data-dob-hint="{{{t('from date of birth')}}}" name="patient[age]" value="{{{!empty($prefill['dob']) ? '' : ($prefill['age'] ?? '')}}}" placeholder="{{{!empty($prefill['dob']) ? t('from date of birth') : ''}}}" maxlength="16" size="8"></label>
+                <label class="ms-field">AMKA <input type="text" class="ms-input" id="p-amka" name="patient[amka]" value="{{{$prefill['amka'] ?? ''}}}" maxlength="11" size="12" inputmode="numeric"></label>
+            </div>
+            <p class="ms-sub" id="gender-hint">{{{t('The gender sets the Greek wording (Ο/Η ασθενής).')}}}</p>
+        </section>
+        <p class="ms-card pad muted" id="patient-none" hidden>{{{t('This type has no patient.')}}}</p>
+
+        <section class="ms-card pad">
+            <h3><span id="step3">3</span> &middot; {{{t('Clinic and date')}}}</h3>
+            <div class="ms-grid">
+                <label class="ms-field">{{{t('Clinic')}}}
+                    <select name="clinic" class="ms-input">{% foreach($clinics as $c): %}<option>{{{$c}}}</option>{% endforeach %}</select>
+                </label>
+                <label class="ms-field">{{{t('Document date')}}} <input type="date" class="ms-input" id="doc-date" name="date" value="{{{$today}}}"></label>
+            </div>
+        </section>
+        <div class="ms-head"><button type="submit" class="ms-btn ms-primary">{{{t('Create draft')}}}</button></div>
     </form>
 </div>
+<script>
+(function () {
+  // the type list: filter as you type; the patient block follows the chosen type (hidden, optional or required)
+  var q = document.getElementById('type-q'), items = [].slice.call(document.querySelectorAll('.ms-type'));
+  q.addEventListener('input', function () {
+    var v = q.value.trim().toLowerCase(), n = 0;
+    items.forEach(function (it) { var show = !v || it.dataset.q.indexOf(v) >= 0; it.hidden = !show; if (show) n++; });
+    document.getElementById('type-none').hidden = n > 0;
+  });
+  q.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return; e.preventDefault();
+    var first = items.filter(function (it) { return !it.hidden; })[0]; if (first) { first.querySelector('input').checked = true; sync(); first.querySelector('input').focus(); }
+  });
+  function sync() {
+    var c = document.querySelector('.ms-type input:checked'), mode = c ? c.closest('.ms-type').dataset.patient : 'yes';
+    items.forEach(function (it) { it.classList.toggle('on', it.querySelector('input').checked); });
+    document.getElementById('patient-box').hidden = mode === 'no';
+    document.getElementById('patient-none').hidden = mode !== 'no';
+    document.getElementById('patient-optional').hidden = mode !== 'optional';
+    document.getElementById('p-name').required = mode === 'yes';
+    document.getElementById('step3').textContent = mode === 'no' ? '2' : '3';
+  }
+  items.forEach(function (it) { it.querySelector('input').addEventListener('change', sync); });
+  sync();
+  // a patient-free type posts no patient: the hidden block's fields are cleared on submit
+  document.querySelector('.ms-new').addEventListener('submit', function () {
+    if (!document.getElementById('patient-box').hidden) return;
+    document.querySelectorAll('#patient-box input[type=text], #patient-box input[type=hidden]').forEach(function (i) { i.value = ''; });
+    document.querySelectorAll('#patient-box input[type=radio]').forEach(function (i) { i.checked = false; });
+  });
+})();
+</script>
 {% if($zpms): %}
 <script>
 (function () {
@@ -46,7 +96,7 @@
   // Fill the patient in place: the type, clinic and date already chosen stay as they are.
   function fill(p) {
     el('p-guid').value = p.guid || ''; el('p-dob').value = p.dob || ''; el('p-name').value = p.name || '';
-    el('p-gender').value = p.gender || ''; el('p-amka').value = p.amka || '';
+    ['M', 'F'].forEach(function (g) { el('p-gender-' + g).checked = p.gender === g; }); el('p-amka').value = p.amka || '';
     var age = el('p-age'); age.value = p.dob ? '' : (p.age || ''); age.placeholder = p.dob ? age.dataset.dobHint : '';
     el('patient-from-name').textContent = p.name || ''; el('patient-from').hidden = !p.guid;
   }

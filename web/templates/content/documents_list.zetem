@@ -1,24 +1,39 @@
-<div class="page-placeholder">
-    <div class="page-head">
+<div class="ms-page">
+    <div class="ms-head">
         <h2>{{{t('Documents')}}}</h2>
-        <a class="btn" href="{{rel_url('/documents/new')}}">{{{t('New document')}}}</a>
+        <a class="ms-btn ms-primary" href="{{rel_url('/documents/new')}}">+ {{{t('New document')}}}</a>
     </div>
+    <div class="ms-filters">
+        <nav class="ms-chips" aria-label="{{{t('Filter by status')}}}">
+            {% foreach($filters as $fl): %}
+            <a class="ms-chip{% if($fl['on']): %} on{% endif %}" href="{{rel_url($fl['url'])}}" {% if($fl['on']): %}aria-current="page"{% endif %}>{{{$fl['label']}}}{% if($fl['n']): %} <span class="ms-count">{{{$fl['n']}}}</span>{% endif %}</a>
+            {% endforeach %}
+        </nav>
+        <form method="get" action="{{rel_url('/documents')}}" class="ms-search" role="search">
+            <input type="hidden" name="f" value="{{{$f}}}">
+            <input type="search" name="q" value="{{{$q}}}" placeholder="{{{t('Search patient, code or #number')}}}" aria-label="{{{t('Search')}}}">
+        </form>
+    </div>
+    <div class="ms-card ms-scroll">
     {% if(count($docs) == 0): %}
-    <p class="muted">{{{t('No documents yet.')}}}{% if($types == 0): %} {{{t('There is no released document type: run bin/import_types.php --release.')}}}{% endif %}</p>
+    <p class="muted ms-empty">{% if($q !== ''): %}{{{t('No document matches the search.')}}}{% elseif($f != 'all'): %}{{{t('No documents here.')}}} <a href="{{rel_url('/documents?f=all')}}">{{{t('Show all')}}}</a>{% else: %}{{{t('No documents yet.')}}}{% endif %}{% if($types == 0): %} {{{t('There is no released document type: run bin/import_types.php --release.')}}}{% endif %}</p>
     {% else: %}
-    <table class="status-table list">
-        <tr><th>#</th><th>{{{t('Patient')}}}</th><th>{{{t('Type')}}}</th><th>{{{t('Code')}}}</th><th>{{{t('Status')}}}</th><th>{{{t('By')}}}</th><th>{{{t('Updated')}}}</th></tr>
+    <table class="ms-table">
+        <thead><tr><th>{{{t('Document')}}}</th><th>{{{t('Patient')}}}</th><th>{{{t('Status')}}}</th><th>{{{t('Code')}}}</th><th>{{{t('Updated')}}}</th><th>{{{t('By')}}}</th></tr></thead>
+        <tbody>
         {% foreach($docs as $d): %}
-        <tr>
-            <td><a href="{{rel_url('/documents/' . $d['id'])}}">{{{$d['id']}}}</a></td>
-            <td><a href="{{rel_url('/documents/' . $d['id'])}}">{{{$d['patient_name'] ?: '-'}}}</a></td>
-            <td>{{{$d['type_name']}}}</td>
-            <td><code>{{{$d['doc_code']}}}</code></td>
+        <tr{% if($d['status'] == 'review' && $is_doctor): %} class="ms-attn"{% endif %}>
+            <td><a class="ms-doc" href="{{rel_url('/documents/' . $d['id'])}}">#{{{$d['id']}}} &middot; {{{$d['type_label']}}}</a>{% if($d['clinic']): %}<div class="ms-sub">{{{$d['clinic']}}}</div>{% endif %}</td>
+            <td>{{{$d['patient_name'] ?: '–'}}}</td>
             <td>{{ ui_status_pill($d['status']) }}</td>
+            <td>{% if($d['doc_code']): %}<code>{{{$d['doc_code']}}}</code>{% else: %}<span class="muted">–</span>{% endif %}</td>
+            <td title="{{{$d['when_full']}}}">{{{$d['when']}}}</td>
             <td>{{{$d['cuser']}}}</td>
-            <td>{{{$d['udate'] ?: $d['cdate']}}}</td>
         </tr>
         {% endforeach %}
+        </tbody>
     </table>
     {% endif %}
+    </div>
+    {% if($f == 'review' && $is_doctor && count($docs)): %}<p class="ms-sub">{{{t('Documents the secretary handed over, waiting for you. Everything else is under All.')}}}</p>{% endif %}
 </div>

@@ -16,7 +16,7 @@ require_once(__DIR__ . '/../web/issue.php');
 
 $opt = []; $jobs = [];
 foreach (array_slice($argv, 1) as $a) {
-    if (preg_match('/^--(\w+)=(.*)$/', $a, $m)) $opt[$m[1]] = $m[2]; elseif (str_contains($a, '=')) $jobs[] = explode('=', $a, 2);
+    if (preg_match('/^--(\w+)=(.*)$/', $a, $m)) $opt[$m[1]] = $m[2]; elseif (($k = strrpos($a, "=")) !== false) $jobs[] = [substr($a, 0, $k), substr($a, $k + 1)];   // the last = (a path may hold ?f=…)
 }
 $size = $opt['size'] ?? '1440x1000'; $role = ($opt['role'] ?? 'doctor') === 'secretary' ? 'secretary' : 'doctor';
 $make = array_filter(explode(',', $opt['make'] ?? ''));

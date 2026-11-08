@@ -541,5 +541,7 @@ Progress is in the plan's §12. Built so far:
 - **Shared UI** `web/ui.php` (`ui_status_word()`, `ui_status_pill()`: status words everywhere, the internal value as tooltip;
   `ui_section_name()`: the type editor's naming rule in PHP) and `web/css/ui.css` (tokens `--ms-*`, which `type-editor.css`
   now uses; pills; breadcrumbs). The framework's `message` module ("Announcements") is left out of the page structure.
+- **Documents list and new document (phase 2):** filters `?f=all|review|draft|issued|withdrawn` and `?q=` (patient, code,
+  `#id`) in `page_documents()`; page components `.ms-*` in `css/ui.css`.
 - **Screenshots** `php tools/shots.php [--size=WxH] [--role=secretary] [--make=type,…] '/documents/{type}=out.png' …`:
   a temporary account and made-up drafts, removed afterwards; the browser is `tools/shot.js` (Chromium over CDP, no npm).

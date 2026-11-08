@@ -198,11 +198,64 @@ function doc_preview(array $doc, array $type): array {
 
 /* ----- handlers ----- */
 
+/** The documents list's filters (plan §5.2): name => [label, statuses]. "Drafts" also holds documents half-way through issuing. */
+function doc_list_filters(): array {
+    return [
+        'all' => [t('All'), []],
+        'review' => [t('Ready for review'), ['review']],
+        'draft' => [t('Drafts'), ['draft', 'code_reserved', 'final_compiled', 'approved', 'pdf_sent']],
+        'issued' => [t('Issued'), ['issued']],
+        'withdrawn' => [t('Withdrawn'), ['withdrawn']],
+    ];
+}
+
+/** "Today 11:18", "Yesterday 09:02", else the date. */
+function doc_when(?string $ts): string {
+    if (!$ts || !($u = strtotime($ts))) return '';
+    $d = date('Y-m-d', $u);
+    if ($d === date('Y-m-d')) return t('Today') . ' ' . date('H:i', $u);
+    if ($d === date('Y-m-d', strtotime('-1 day'))) return t('Yesterday') . ' ' . date('H:i', $u);
+    return date('d/m/Y', $u);
+}
+
 function page_documents($params) {
-    $docs = store_db()->query(
-        "SELECT id, type_name, status, patient_name, doc_code, cuser, cdate, udate FROM documents ORDER BY COALESCE(udate, cdate) DESC LIMIT 200")
-        ->fetchAll(PDO::FETCH_ASSOC);
-    return Renderer::render("documents_list.zetem", ['docs' => $docs, 'types' => count(doc_types())]);
+    $filters = doc_list_filters();
+    $db = store_db();
+    $counts = ['review' => (int)$db->query("SELECT COUNT(*) FROM documents WHERE status = 'review'")->fetchColumn()];
+    // the default view: the doctor's list opens on the documents handed over when there are any; the secretary's on drafts
+    $f = (string)($_GET['f'] ?? '');
+    if (!isset($filters[$f])) $f = issue_is_doctor() ? ($counts['review'] > 0 ? 'review' : 'all') : 'draft';
+    $q = mb_substr(trim((string)($_GET['q'] ?? '')), 0, 100);
+    $where = []; $args = [];
+    if ($filters[$f][1]) { $where[] = 'status IN (' . implode(',', array_fill(0, count($filters[$f][1]), '?')) . ')'; $args = $filters[$f][1]; }
+    if ($q !== '') {
+        $like = '%' . addcslashes($q, '%_\\') . '%';
+        $where[] = '(patient_name LIKE ? OR doc_code LIKE ? OR id = ?)'; array_push($args, $like, $like, ctype_digit(ltrim($q, '#')) ? (int)ltrim($q, '#') : 0);
+    }
+    $st = $db->prepare("SELECT id, type_name, status, patient_name, doc_code, cuser, cdate, udate,
+                               JSON_UNQUOTE(JSON_EXTRACT(inputs, '$.settings.clinic')) AS clinic
+                          FROM documents" . ($where ? ' WHERE ' . implode(' AND ', $where) : '') . ' ORDER BY COALESCE(udate, cdate) DESC LIMIT 200');
+    $st->execute($args);
+    $types = doc_types();
+    $labels = array_column(array_map(fn($t) => ['n' => $t['name'], 'l' => $t['def']['label'] ?? $t['name']], $types), 'l', 'n');
+    $docs = array_map(fn($d) => $d + ['type_label' => $labels[$d['type_name']] ?? $d['type_name'], 'when' => doc_when($d['udate'] ?: $d['cdate']),
+                                      'when_full' => (string)($d['udate'] ?: $d['cdate'])], $st->fetchAll(PDO::FETCH_ASSOC));
+    return Renderer::render("documents_list.zetem", [
+        'docs' => $docs, 'types' => count($types), 'f' => $f, 'q' => $q, 'counts' => $counts, 'is_doctor' => issue_is_doctor(),
+        'filters' => array_map(fn($k, $v) => ['id' => $k, 'label' => $v[0], 'on' => $k === $f, 'n' => $counts[$k] ?? null,
+                                              'url' => '/documents?f=' . $k . ($q !== '' ? '&q=' . rawurlencode($q) : '')], array_keys($filters), $filters),
+    ]);
+}
+
+/** The types offered on the new-document page, by label, with what the page needs to know about each. */
+function doc_new_types(): array {
+    $out = array_map(fn($t) => [
+        'name' => $t['name'], 'label' => $t['def']['label'] ?? $t['name'],
+        'patient' => ($t['def']['has_patient'] ?? true) === false ? 'no' : (($t['def']['has_patient'] ?? true) === 'optional' ? 'optional' : 'yes'),
+        'lang' => ($t['def']['lang'] ?? 'gr') === 'en' ? 'en' : 'gr', 'paper' => strtoupper((string)($t['def']['paper'] ?? 'a4')),
+    ], doc_types());
+    usort($out, fn($a, $b) => strcoll($a['label'], $b['label']));
+    return $out;
 }
 
 function page_document_new($params) {
@@ -215,7 +268,7 @@ function page_document_new($params) {
     }
     return Renderer::render("document_new.zetem", [
         'zpms' => zpms_enabled(), 'zpms_error' => $zpmsError, 'prefill' => $prefill ?? [],
-        'types' => array_map(fn($t) => ['name' => $t['name'], 'label' => $t['def']['label'] ?? $t['name']], doc_types()),
+        'types' => doc_new_types(), 'chosen' => (string)($_GET['type'] ?? ''),
         'clinics' => RENDER_CLINICS, 'today' => date('Y-m-d'),
     ]);
 }
