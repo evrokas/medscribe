@@ -241,7 +241,11 @@ function render_markup(string $text, array &$ctx): string {
                 $g = $ctx['gender'] ?? '';
                 if ($g === 'M') $out .= tex_escape($tk['m']);
                 elseif ($g === 'F') $out .= tex_escape($tk['f']);
-                else { $ctx['issues']['gender'] = true; render_issue_at($ctx, 'gender'); $out .= tex_escape($tk['m'] . '/' . $tk['f']); }
+                else {
+                    $ctx['issues']['gender'] = true; render_issue_at($ctx, 'gender');
+                    // the composer's Write view marks both forms (web/sentences.php); never in a PDF or the type editor's preview
+                    $out .= render_trace($ctx, 'gender:', tex_escape($tk['m'] . '/' . $tk['f']), !empty($ctx['mark_gender']));
+                }
                 break;
             case 'token':
                 $name = $tk['v'];

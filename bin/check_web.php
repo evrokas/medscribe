@@ -166,6 +166,17 @@ check('locked: a save during a build changes nothing', $db->query("SELECT inputs
 $page = $sc->get("/documents/$id")['body'];
 check('...and the composer shows the typed values with a "not saved" notice', str_contains($page, 'WT While Busy') && str_contains($page, 'NOT saved'));
 check('...only once', !str_contains($sc->get("/documents/$id")['body'], 'WT While Busy'));
+// the Write view's sentences endpoint (composer plan §6.1): answers while the build holds the lock, saves nothing
+$ud = $db->query("SELECT udate, inputs, busy_until FROM documents WHERE id = $id")->fetch(PDO::FETCH_ASSOC);
+$r = $sc->post("/documents/$id/sentences", ['csrf_token' => $sc->token("/documents/$id"), 'patient' => ['name' => 'WT Sentences', 'gender' => 'F'],
+    'settings' => ['clinic' => 'Mandra', 'date' => '2026-02-01'], 'fields' => ['surgery_date' => ''], 'blocks_on' => ['operation' => 1], 'groups' => ['purpose' => 'purpose_work']]);
+$j = json_decode($r['body'], true);
+check('sentences: rendered for the unsaved form while a build runs, with its checks', $r['status'] === 200 && !empty($j['ok'])
+    && str_contains($j['blocks']['operation']['html'] ?? '', 'cx-v-empty') && $j['blocks']['operation']['on'] === true && is_array($j['checks'] ?? null), substr($r['body'], 0, 200));
+check('sentences: nothing saved, the lock untouched', $db->query("SELECT udate, inputs, busy_until FROM documents WHERE id = $id")->fetch(PDO::FETCH_ASSOC) === $ud);
+$r = $sc->post("/documents/$id/sentences", ['patient' => ['name' => 'x']]);
+check('sentences: CSRF is enforced', $r['status'] === 403 && empty(json_decode($r['body'], true)['ok']));
+check('sentences: logged out, refused', !str_contains((new Client)->post("/documents/$id/sentences", [])['body'], '"ok":true'));
 $r = $dc->post("/documents/$id", ['csrf_token' => $dc->token("/documents/$id"), 'action' => 'preview', 'patient' => ['name' => 'WT While Busy']]);
 check('locked: a preview does not start either', $db->query("SELECT inputs FROM documents WHERE id = $id")->fetchColumn() === $before);
 $db->exec("UPDATE documents SET inputs = JSON_SET(inputs, '$.settings.paper', 'a5') WHERE id = $id");

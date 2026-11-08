@@ -129,6 +129,12 @@ routes:
     handler: page_document_post
     method: post
     access: doctor secretary administrator
+  document_sentences:
+    # the Write view's sentences and the checks for the unsaved form (composer plan §6.1): saves nothing, no lock
+    url: "/documents/{id}/sentences"
+    handler: page_document_sentences
+    method: post
+    access: doctor secretary administrator
   document_pdf:
     title: "Document preview"
     url: "/documents/{id}/preview.pdf"

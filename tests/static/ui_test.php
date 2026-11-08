@@ -28,5 +28,6 @@ eq(ui_section_name(['layout' => 'itemize', 'slot' => 'x.s3_t1', 'blocks' => [['f
    '«Παραμείνετε κλινήρης για [Ημέρες κλινήρης]…»', 'first markup sentence, markup removed, fields by label');
 eq(ui_section_name(['blocks' => [['text' => str_repeat('λέξη ', 20)]]], $type), '«λέξη λέξη λέξη λέξη λέξη λέξη λέξη λέξη…»', 'long sentence cut at a word');
 eq(ui_section_name(['slot' => 'x', 'layout' => 'paragraphs'], $type), 'Section', 'nothing to name it by');
+eq(ui_section_name(['blocks' => [['text' => '@amka']]], $type), '«[AMKA]»', 'a built-in token by name');
 echo $fail ? "$fail of $n failed\n" : "$n passed\n";
 exit($fail ? 1 : 0);

@@ -46,7 +46,9 @@ function ui_cut(string $s, int $n): string {
 function ui_section_name(array $sec, array $type = []): string {
     foreach (['label', 'heading'] as $k) if (trim((string)($sec[$k] ?? '')) !== '') return trim((string)$sec[$k]);
     if (($sec['layout'] ?? '') === 'medtable') return trim((string)($sec['title_page'] ?? '')) ?: t('Medication table');
-    $labels = array_map(fn($f) => (string)($f['label'] ?? ''), $type['fields'] ?? []);
+    // built-in tokens by name, then the type's fields by label
+    $labels = ['patient' => t('Patient'), 'age' => t('Age'), 'amka' => 'AMKA', 'clinic' => t('Clinic'), 'date' => t('Date')]
+            + array_map(fn($f) => (string)($f['label'] ?? ''), $type['fields'] ?? []);
     foreach (($sec['blocks'] ?? []) as $b) {
         if (($b['format'] ?? 'markup') === 'latex') continue;
         $txt = ui_plain_text((string)($b['text'] ?? ''), array_filter($labels));

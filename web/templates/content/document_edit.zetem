@@ -123,8 +123,22 @@
     <button type="button" data-dir="right" title="{{{t('Narrow the preview')}}}">&#9654;</button>
   </div>
 
-  <div class="composer-preview split-right">
-    {% if($pdf_url && $is_a5): %}<p class="print-links">{{{t('Print two A5 per A4 sheet')}}}: <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=seq')}}" target="_blank">{{{t('pages in order')}}}</a> &middot; <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=dup')}}" target="_blank">{{{t('each page twice')}}}</a></p>{% endif %}
+  <div class="composer-preview split-right cx-pv">
+    <div class="cx-pv-head">
+      <strong>{{{t('Preview PDF')}}}</strong>
+      {% if($build): %}<span class="ms-sub" title="{{{$build['cdate']}}}">{{{$build['status'] == 'ok' ? t('built') : t('failed')}}} {{{$build_when}}}</span>{% endif %}
+      <span class="pill pill-review cx-stale" id="cx-stale" {% if(!$stale): %}hidden{% endif %} title="{{{t('The document changed after this PDF was built')}}}">{{{t('Out of date')}}}</span>
+      <span class="cx-pv-actions">
+        {% if($pdf_url && $is_a5): %}
+        <details class="cx-print"><summary class="ms-btn">{{{t('Print')}}}</summary>
+          <div class="cx-menu"><span class="ms-sub">{{{t('Two A5 per A4 sheet')}}}</span>
+            <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=seq')}}" target="_blank">{{{t('pages in order')}}}</a>
+            <a href="{{rel_url('/documents/' . $doc['id'] . '/print.pdf?mode=dup')}}" target="_blank">{{{t('each page twice')}}}</a></div>
+        </details>
+        {% endif %}
+        {% if(!$locked): %}<button type="submit" form="composer-form" name="action" value="preview" class="ms-btn">{{{t('Save and preview')}}}</button>{% endif %}
+      </span>
+    </div>
     {% if($pdf_url): %}
     <iframe src="{{rel_url($pdf_url)}}" title="{{{t('Preview')}}}"></iframe>
     {% elseif($build): %}
@@ -132,6 +146,7 @@
     {% else: %}
     <p class="muted">{{{t('No preview yet. Press "Save and preview".')}}}</p>
     {% endif %}
+    <p class="ms-sub cx-pv-note">{{{t('The real PDF from the last "Save and preview". It has a frame where the QR goes; the real QR is added in the final copy.')}}}</p>
   </div>
 
   <script src="{{rel_url('/js/splitter.js')}}"></script>

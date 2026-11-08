@@ -3,7 +3,8 @@
 /**
  * Dev tool: screenshots of the app as a temporary doctor (or secretary), with made-up sample drafts; everything is
  * removed afterwards. Real HTTP through `php -S`, the browser through tools/shot.js.
- *   php tools/shots.php [--size=1440x1000] [--role=doctor] [--make=type1,type2] <path>=<out.png> ...
+ *   php tools/shots.php [--size=1440x1000] [--role=doctor] [--make=type1,type2] [--build=1] [--touch=1] <path>=<out.png> ...
+ * --build makes a preview PDF of each sample draft (TeX, ~12 s each); --touch then marks them saved after it ("Out of date").
  * In a path, {type} stands for the id of the sample draft made for that type (e.g. /documents/{proegkrisi}).
  */
 require_once(__DIR__ . '/../bin/lib/cli_boot.php');
@@ -59,6 +60,12 @@ foreach ($make as $i => $t) {
     $r = req('/documents/new', ['csrf_token' => tok('/documents/new'), 'type' => $t, 'patient' => ['name' => $names[$i % 5], 'gender' => $i % 2 ? 'M' : 'F', 'age' => (string)(48 + 3 * $i)], 'clinic' => 'Mandra', 'date' => date('Y-m-d')]);
     if (preg_match('#/documents/(\d+)$#', $r['location'], $m)) $ids[$t] = $m[1];
 }
+// --build: a preview PDF for each sample draft (the composer's own doc_preview(), as the made-up user)
+if (isset($opt['build'])) {
+    $GLOBALS['kernel'] = new class { function getUserName() { return 'wt_shots'; } };
+    foreach ($ids as $id) { $d = doc_load((int)$id); $r = doc_preview($d, doc_typedef((int)$d['typedef_version_id'])); echo 'preview #' . $id . ': ' . ($r['ok'] ? 'ok' : 'failed') . "\n"; }
+}
+if (isset($opt['touch'])) foreach ($ids as $id) $db->exec('UPDATE documents SET udate = DATE_ADD(NOW(), INTERVAL 5 SECOND) WHERE id = ' . (int)$id);   // saved after the build
 $sess = '';
 foreach (file($jar) as $l) { $f = explode("\t", trim($l)); if (count($f) >= 7) $sess = $f[5] . '=' . $f[6]; }
 $args = ['node', __DIR__ . '/shot.js', $sess, $size];

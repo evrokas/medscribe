@@ -546,5 +546,8 @@ Progress is in the plan's §12. Built so far:
 - **Composer shell (phase 3):** `document_edit.zetem` + `web/js/composer.js` + `web/css/composer.css` (`.cx`); every form
   control stays in the form (Edit only shows or hides it), so the payload is unchanged. The pre-redesign page is
   `document_edit_classic.zetem` at `/documents/{id}?ui=classic`, kept until phase 8 is accepted.
-- **Screenshots** `php tools/shots.php [--size=WxH] [--role=secretary] [--make=type,…] '/documents/{type}=out.png' …`:
+- **Rendered sentences (phase 4):** `web/sentences.php` (`sentences_for()`, no DB) and `POST /documents/{id}/sentences`
+  (unsaved form → sentences + checks; saves nothing, no lock). Test: `tests/static/sentences_test.php`.
+- **Screenshots** `php tools/shots.php [--size=WxH] [--role=secretary] [--make=type,…] [--build=1] [--touch=1] '/documents/{type}=out.png' …`
+  (`--build`: a preview PDF per sample draft; headless Chromium shows no PDF inside the iframe):
   a temporary account and made-up drafts, removed afterwards; the browser is `tools/shot.js` (Chromium over CDP, no npm).

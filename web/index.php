@@ -11,6 +11,7 @@ require_once(__DIR__ . '/zpms_client.php');
 require_once(__DIR__ . '/docarc_client.php');
 require_once(__DIR__ . '/audit.php');
 require_once(__DIR__ . '/ui.php');
+require_once(__DIR__ . '/sentences.php');
 require_once(__DIR__ . '/documents.php');
 require_once(__DIR__ . '/pool.php');
 require_once(__DIR__ . '/issue.php');

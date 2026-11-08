@@ -359,6 +359,9 @@ function page_document($params) {
         'date_shown' => !empty($set['date']) ? date('d/m/Y', strtotime($set['date'])) : '',
         'release_number' => (int)(array_column(store_db()->query("SELECT id, number FROM base_releases")->fetchAll(PDO::FETCH_ASSOC), 'number', 'id')[$doc['base_release_id']] ?? 0),
         'n_checks' => count($checks),
+        // the PDF is out of date when the document was saved after it was built (the page marks it too as soon as the form changes)
+        'stale' => $build && $doc['udate'] && strtotime((string)$doc['udate']) > strtotime((string)$build['cdate']) + 1,
+        'build_when' => $build ? doc_when((string)$build['cdate']) : '',
         'type_part' => $typePart,
         'doc' => $doc, 'type_label' => $type['label'] ?? $type['name'], 'p' => $doc['inputs']['patient'] ?? [], 's' => $doc['inputs']['settings'] ?? [],
         'releases' => store_db()->query("SELECT id, number FROM base_releases WHERE status = 'released' ORDER BY number DESC")->fetchAll(PDO::FETCH_ASSOC),
@@ -435,6 +438,28 @@ function page_document_post($params) {
     }
     $kernel->addStatus($r['ok'] ? 'status' : 'error', $r['msg']);
     doc_redirect("/documents/$id" . (($_GET['ui'] ?? '') === 'classic' ? '?ui=classic' : ''));
+}
+
+/**
+ * POST /documents/{id}/sentences (composer plan §6.1, §6.2): the composer's unsaved form in, its rendered sentences and
+ * checks out, as JSON. Saves nothing, takes no lock and builds no PDF, so it also answers while a build runs.
+ */
+function page_document_sentences($params) {
+    header('Content-Type: application/json');
+    header('Cache-Control: no-store');
+    $fail = function (int $code, string $msg) { http_response_code($code); echo json_encode(['ok' => false, 'error' => $msg]); exit(); };
+    $doc = doc_load((int)($params['id'] ?? 0));
+    if (!$doc) $fail(404, 'Document not found.');
+    if ($doc['status'] === 'withdrawn' && !issue_is_doctor()) $fail(403, 'Only the doctor can open a withdrawn document.');
+    if (!csrfClass::verifyRequest()) $fail(403, 'Invalid security token.');
+    $type = doc_typedef((int)$doc['typedef_version_id']);
+    if (!$type) $fail(404, 'Type definition not found.');
+    $inputs = doc_inputs_from_post($type, $_POST);
+    foreach (['features', 'feature_undo'] as $k) if (isset($doc['inputs'][$k])) $inputs[$k] = $doc['inputs'][$k];
+    [, $issues] = render_document($type, $inputs);
+    echo json_encode(['ok' => true, 'blocks' => sentences_for($type, $inputs), 'checks' => render_checks($type, $inputs, $issues)],
+                     JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit();
 }
 
 function page_document_pdf($params) {

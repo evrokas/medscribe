@@ -297,3 +297,13 @@ versioning); the Greek interface.
   and preview). `web/js/composer.js` keeps the summaries in step, marks unsaved changes and warns before leaving;
   `web/css/composer.css` (`.cx`). Section legends use `ui_section_name()` (no slot or layout). The old page is
   `document_edit_classic.zetem` at `?ui=classic` (its form posts to `?ui=classic` and comes back there).
+- **Phase 4 (2026-11-08):** `web/sentences.php` (`sentences_for()`: per block, display HTML from `render_markup()` in trace
+  mode + `render_html_tex()`; values as `.cx-v` chips with `data-field`, empty ones as their label (`.cx-v-empty`,
+  `.cx-v-req`), a missing gender as both forms in `.cx-g` through a `mark_gender` context flag that only this file sets).
+  `POST /documents/{id}/sentences` (`page_document_sentences()`): the unsaved form in, `{ok, blocks, checks}` out; CSRF,
+  same access as the composer, withdrawn documents the doctor's only; saves nothing, takes no lock. PDF pane: build time,
+  "Out of date" (saved after the build, or the form changed), its own Save and preview, A5 print options in a Print menu.
+  Exit check: `tests/static/sentences_test.php` compares every block of every type (male, female, no gender; values filled
+  and empty) with the engine's HTML print view, which comes from the same LaTeX as the PDF; no PDF text extraction.
+  `bin/check_web.php`: the endpoint answers while the lock is held and changes nothing. `ui_section_name()` names built-in
+  tokens (`«[AMKA]»`, not `«@amka»`).

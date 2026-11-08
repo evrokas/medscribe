@@ -59,6 +59,7 @@
     if (dirty) return;
     dirty = true;
     document.getElementById('cx-dirty').hidden = false;
+    var stale = document.getElementById('cx-stale'); if (stale && document.querySelector('.cx-pv iframe, .cx-pv .log')) stale.hidden = false;
     if (state) state.textContent = state.dataset.unsaved;
   }
   form.addEventListener('input', markDirty);

@@ -36,3 +36,14 @@
 .cx-actions .cx-del { border-color: transparent; color: var(--ms-bad); font-weight: 500; }
 .cx-actions .cx-del:hover { border-color: var(--ms-bad); color: var(--ms-bad); }
 .cx.building .cx-actions button { pointer-events: none; opacity: .6; }
+/* the PDF pane (§4.3) */
+.cx-pv { display: flex; flex-direction: column; }
+.cx-pv iframe { flex: 1 1 auto; min-height: 0; }
+.cx-pv-head { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; padding: .6rem .9rem; border-bottom: 1px solid var(--ms-line-2); }
+.cx-pv-actions { margin-left: auto; display: flex; gap: .5rem; align-items: center; }
+.cx-pv .ms-btn { min-height: 2.1rem; font-size: .85rem; }
+.cx-pv-note { margin: 0; padding: .5rem .9rem; border-top: 1px solid var(--ms-line-2); }
+.cx-print { position: relative; } .cx-print summary { list-style: none; } .cx-print summary::-webkit-details-marker { display: none; }
+.cx-menu { position: absolute; right: 0; top: calc(100% + .3rem); z-index: 6; display: flex; flex-direction: column; gap: .3rem; min-width: 12rem; padding: .6rem .8rem;
+  background: #fff; border: 1px solid var(--ms-line); border-radius: 10px; box-shadow: 0 6px 24px rgba(16, 35, 70, .15); }
+.composer-preview.cx-pv .muted, .composer-preview.cx-pv .log { padding: 1rem; }
