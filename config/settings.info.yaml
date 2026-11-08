@@ -36,8 +36,19 @@ css:
     src: 'css/ui.css'
   - composer:
     src: 'css/composer.css'
+  - flatpickr:
+    src: 'vendor/flatpickr/flatpickr.min.css'
   - boxicons:
     src: 'css/bx/css/boxicons.min.css'
+
+# on every page: the date picker (flatpickr 4.6.13, vendored in web/vendor/flatpickr) and web/js/dates.js, which attaches it
+foot_script:
+  - flatpickr:
+    type: "text/javascript"
+    src: 'vendor/flatpickr/flatpickr.min.js'
+  - dates:
+    type: "text/javascript"
+    src: 'js/dates.js'
 
 multilingual: false
 

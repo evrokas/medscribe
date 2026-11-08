@@ -88,3 +88,9 @@
 .ms-tag { padding: 0 .4rem; border-radius: 4px; background: var(--ms-grey-bg); color: var(--ms-ink-2); font-size: .7rem; font-weight: 700; }
 .ms-from { margin: .3rem 0 .6rem; padding: .5rem .7rem; border-radius: 8px; background: var(--ms-ok-bg); color: var(--ms-ok-ink); }
 .patient-search { margin-bottom: .6rem; } .patient-search .ms-input { width: 100%; }
+
+/* the date picker (web/js/dates.js): the shown input looks like the field it replaces */
+input.ms-date { min-width: 8.5rem; }
+.flatpickr-calendar { font-family: var(--font-body); }
+.flatpickr-calendar .flatpickr-day.selected, .flatpickr-calendar .flatpickr-day.selected:hover { background: var(--primary); border-color: var(--primary); }
+.flatpickr-calendar .flatpickr-day.today { border-color: var(--primary); }

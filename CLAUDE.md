@@ -548,6 +548,10 @@ Progress is in the plan's §12. Built so far:
   `document_edit_classic.zetem` at `/documents/{id}?ui=classic`, kept until phase 8 is accepted.
 - **Rendered sentences (phase 4):** `web/sentences.php` (`sentences_for()`, no DB) and `POST /documents/{id}/sentences`
   (unsaved form → sentences + checks; saves nothing, no lock). Test: `tests/static/sentences_test.php`.
+- **Dates (decided 2026-11-08):** every `<input type="date|time|datetime-local">` gets flatpickr 4.6.13 (vendored in
+  `web/vendor/flatpickr/`, integrity-checked npm tarball, no CDN) through `web/js/dates.js` (global `foot_script`): shown as
+  dd/mm/yyyy, typed dd/mm/yy or dd/mm/yyyy accepted, 24-hour times; the named input keeps the ISO value, so posts are unchanged.
+  Server, PHP and MySQL all run on Europe/Athens. Test: `tests/js/dates_test.js`.
 - **Screenshots** `php tools/shots.php [--size=WxH] [--role=secretary] [--make=type,…] [--build=1] [--touch=1] '/documents/{type}=out.png' …`
   (`--build`: a preview PDF per sample draft; headless Chromium shows no PDF inside the iframe):
   a temporary account and made-up drafts, removed afterwards; the browser is `tools/shot.js` (Chromium over CDP, no npm).
