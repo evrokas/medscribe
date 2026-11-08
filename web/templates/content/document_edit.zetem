@@ -181,7 +181,9 @@
       mk('name', 'in'); mk('dose', 'in', 8); mk('freq', 'ta'); mk('days', 'in', 4); mk('notes', 'ta');
       var td = document.createElement('td'), b = document.createElement('button'); b.type = 'button'; b.className = 'med-del'; b.textContent = '\u00d7'; td.appendChild(b); tr.appendChild(td);
       tb.appendChild(tr);
+      return tr;
     }
+    window.MSMeds = {addRow: addRow};   // the Write view's "Add medication" menu (composer_write.js)
     document.addEventListener('click', function (e) {
       if (e.target.classList.contains('med-del')) e.target.closest('tr').remove();
       if (e.target.classList.contains('med-blank')) addRow(e.target.dataset.table, null);

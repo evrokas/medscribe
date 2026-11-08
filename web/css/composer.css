@@ -113,3 +113,45 @@
 .cx [hidden], .cx-pv [hidden] { display: none !important; }
 .cx-write label.cx-none { margin: 0 0 .3rem; padding: .3rem .5rem .3rem .45rem; border-left: 3px solid #D6E6EA; font-size: .85rem; color: var(--ms-ink-2); }
 .cx-write label.cx-none input { accent-color: var(--primary); }
+
+/* ---- phase 6: case features, own text, suggestions, medication tables ---- */
+.cx fieldset.features { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .5rem .8rem; }
+.cx fieldset.features > legend { flex-basis: 100%; }
+.cx fieldset.features > p.muted { display: none; }
+.cx-feature { display: inline-flex; flex-direction: column; gap: .15rem; }
+.cx-feature .chip-add { border: 1px dashed var(--primary); border-radius: 999px; background: #fff; color: var(--primary); font: 600 .85rem var(--font-body); padding: .3rem .8rem; cursor: pointer; }
+.cx-feature .chip-add:hover { background: #E6F1F3; }
+.cx-feature .chip { display: inline-flex; align-items: center; gap: .3rem; border-radius: 999px; background: var(--primary); color: #fff; font: 600 .85rem var(--font-body); padding: .3rem .4rem .3rem .8rem; }
+.cx-feature .chip-x { border: 0; background: rgba(255,255,255,.2); color: #fff; width: 1.4rem; height: 1.4rem; border-radius: 50%; cursor: pointer; font-size: .9rem; line-height: 1; }
+.cx-effect { padding-left: .8rem; font-size: .76rem; }
+.cx fieldset.section > .sec-body > details > summary { cursor: pointer; color: var(--primary); font: 500 .85rem var(--font-body); padding: .2rem 0; list-style: none; }
+.cx fieldset.section > .sec-body > details > summary::-webkit-details-marker { display: none; }
+.cx-write fieldset.section > .sec-body > details { margin-left: 1.7rem; }
+.cx-write fieldset.section > .sec-body > details textarea { width: 100%; box-sizing: border-box; font: .95rem/1.5 var(--font-heading); }
+.cx-write .suggestions { display: none; }
+.cx-sugg-btn { margin: .1rem 0 .1rem 1.7rem; border: 1px solid #C9D7DA; border-radius: 999px; background: #fff; padding: .15rem .7rem; font: 600 .78rem var(--font-body); color: var(--ms-ink-2); cursor: pointer; }
+.cx-sugg-btn:hover { border-color: var(--primary); color: var(--primary); }
+.cx:not(.cx-write) .cx-sugg-btn { display: none; }
+.cx-drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 50; width: min(28rem, 100vw); overflow-y: auto; box-sizing: border-box; padding: 1rem;
+  background: #fff; border-left: 1px solid var(--ms-line); box-shadow: -8px 0 30px rgba(16, 35, 70, .18); display: flex; flex-direction: column; gap: .7rem; }
+.cx-drawer-head { display: flex; align-items: center; justify-content: space-between; }
+.cx-sugg { padding: .7rem .8rem; border: 1px solid var(--ms-line); border-radius: 10px; display: flex; flex-direction: column; gap: .4rem; align-items: flex-start; }
+.cx-sugg-text { font: .95rem/1.5 var(--font-heading); white-space: pre-wrap; }
+/* the medication table */
+.cx table.medrows { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.cx table.medrows th { text-align: left; font-size: .76rem; color: var(--ms-ink-2); padding: .4rem .3rem; border-bottom: 1px solid var(--ms-line); }
+.cx table.medrows td { padding: .25rem .2rem; border-bottom: 1px solid #EAF0F1; vertical-align: top; }
+.cx table.medrows input, .cx table.medrows textarea { width: 100%; box-sizing: border-box; border: 1px solid transparent; border-radius: 6px; padding: .3rem .4rem; font: inherit; background: transparent; resize: none; overflow: hidden; }
+.cx table.medrows input:hover, .cx table.medrows textarea:hover { border-color: var(--ms-line); }
+.cx table.medrows input:focus, .cx table.medrows textarea:focus { outline: none; border-color: var(--primary); background: #fff; }
+.cx table.medrows td:first-child input { font-weight: 600; min-width: 8rem; }
+.cx table.medrows .med-del { width: 2rem; height: 2rem; border: 0; border-radius: 8px; background: none; color: var(--ms-bad); font-size: 1.2rem; cursor: pointer; }
+.cx table.medrows .med-del:hover { background: var(--ms-bad-bg); }
+.cx-medadd { position: relative; display: inline-block; }
+.cx-drugs { left: 0; right: auto; width: min(26rem, 80vw); max-height: 60vh; overflow: auto; }
+.cx-drugs .ms-input { width: 100%; }
+.cx-drug { display: block; width: 100%; text-align: left; border: 0; background: none; padding: .35rem .5rem; border-radius: 6px; font: .88rem var(--font-body); cursor: pointer; }
+.cx-drug:hover, .cx-drug:focus { background: #E6F1F3; outline: none; }
+.cx-drug-blank { color: var(--primary); font-weight: 600; }
+.cx-druggroup > .ms-sub { padding: .4rem .5rem .1rem; font-weight: 700; }
+.cx-medhint { display: none; }

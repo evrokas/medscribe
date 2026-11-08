@@ -175,9 +175,23 @@ function doc_type_part_data(array $type, array $inputs, int $docId, bool $locked
         // the Write view's rendered sentences (web/sentences.php), next to each block's textarea; the type editor's Form preview has none
         'sentences' => $withSentences ? sentences_for($type, $inputs) : [],
         'fields' => doc_field_rows($type, $inputs), 'sections' => doc_view_model($type, $inputs),
-        'feature_defs' => array_map(fn($id, $f) => ['id' => $id, 'label' => $f['label'] ?? $id, 'on' => in_array($id, $inputs['features'] ?? [], true)],
+        'feature_defs' => array_map(fn($id, $f) => ['id' => $id, 'label' => $f['label'] ?? $id, 'on' => in_array($id, $inputs['features'] ?? [], true), 'effect' => doc_feature_effect($f)],
                                     array_keys($type['features'] ?? []), array_values($type['features'] ?? [])),
     ];
+}
+
+/** What a case feature does, in one line (plan §4.2): "Turns on 3 sentences, turns off 4, sets 1 value". */
+function doc_feature_effect(array $f): string {
+    $n = ['enable' => 0, 'disable' => 0, 'set' => 0, 'add' => 0];
+    foreach (($f['ops'] ?? []) as $op) if (isset($n[$op['op'] ?? ''])) $n[$op['op']]++;
+    $pl = fn(int $k, string $one, string $many) => $k . ' ' . ($k === 1 ? $one : $many);
+    $parts = [];
+    if ($n['enable']) $parts[] = t('turns on') . ' ' . $pl($n['enable'], t('sentence'), t('sentences'));
+    if ($n['disable']) $parts[] = t('turns off') . ' ' . $pl($n['disable'], t('sentence'), t('sentences'));
+    if ($n['set']) $parts[] = t('sets') . ' ' . $pl($n['set'], t('value'), t('values'));
+    if ($n['add']) $parts[] = t('adds text to') . ' ' . $pl($n['add'], t('section'), t('sections'));
+    $s = implode(', ', $parts);
+    return $s === '' ? '' : mb_strtoupper(mb_substr($s, 0, 1)) . mb_substr($s, 1);
 }
 
 /** Fields with their current values for the form. */

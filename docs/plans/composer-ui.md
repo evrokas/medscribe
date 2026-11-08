@@ -320,3 +320,10 @@ versioning); the Greek interface.
   reload shows the edit; Restore → save → gone; a value through its chip reaches the field and the sentence.
   `bin/check_payload.php` adds "restore original leaves no stored edit". Medication tables, own text, suggestions and case
   features keep their Form-view controls until phase 6.
+- **Phase 6 (2026-11-08):** case feature chips with their effect line (`doc_feature_effect()`: "Turns on 3 sentences,
+  turns off 4 sentences"; add/remove still save first); own text as "+ Add your own text" / "+ Add your own items (one per
+  line)"; suggestions in a drawer per section ("Suggestions (N)", "Use" runs the existing insert into the section's own-text
+  box); medication tables as a table with borderless cells that grow, a large ×, and "+ Add medication" (Empty row, or the
+  drug library searchable and grouped; the library select stays in the HTML, hidden, for no-JS). `{br}` is shown as a line
+  break in the cell textareas and turned back into `{br}` on submit; an unchanged cell posts exactly what the server sent.
+  Checked in a real browser: Medrol taper from the library shows four lines, posts and stores `{br}`.

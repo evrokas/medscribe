@@ -213,6 +213,99 @@
     if (/^btext\[/.test(n)) syncEdited(e.target.closest('.block'));
   });
 
+  /* ---------- medication tables (§4.4): {br} edited as a real line break, posted as {br} ---------- */
+  function grow(t) { t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; }
+  function brCell(t) {
+    if (t.dataset.brShown !== undefined) return;
+    t.dataset.brPosted = t.value;                    // what the server sent: posted back as it is unless edited
+    t.value = t.value.indexOf('\n') < 0 ? t.value.split('{br}').join('\n') : t.value;
+    t.dataset.brShown = t.value;
+    t.rows = 1; grow(t);
+  }
+  function medCells(root) { (root || form).querySelectorAll('table.medrows textarea').forEach(brCell); }
+  form.addEventListener('input', function (e) { if (e.target.matches && e.target.matches('table.medrows textarea')) grow(e.target); });
+  form.addEventListener('submit', function () {
+    form.querySelectorAll('table.medrows textarea').forEach(function (t) {
+      if (t.dataset.brShown === undefined) return;
+      t.value = t.value === t.dataset.brShown ? t.dataset.brPosted : t.value.replace(/\r?\n/g, '{br}');
+    });
+  });
+  // "+ Add medication": from the drug library (searchable, grouped) or an empty row
+  form.querySelectorAll('select.med-add').forEach(function (sel) {
+    var drugs = []; try { drugs = JSON.parse(sel.dataset.drugs || '[]'); } catch (e) {}
+    var wrap = el('span', 'cx-medadd'), btn = el('button', 'ms-btn', '+ Add medication'); btn.type = 'button';
+    btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
+    var menu = el('div', 'cx-menu cx-drugs'); menu.hidden = true;
+    var blank = el('button', 'cx-drug cx-drug-blank', 'Empty row'); blank.type = 'button';
+    var q = el('input', 'ms-input'); q.type = 'search'; q.placeholder = 'Find in the drug library'; q.setAttribute('aria-label', 'Find in the drug library');
+    var list = el('div', 'cx-druglist');
+    var groups = {};
+    drugs.forEach(function (d) {
+      var g = d.group || '';
+      if (!groups[g]) { groups[g] = el('div', 'cx-druggroup'); if (g) groups[g].appendChild(el('div', 'ms-sub', g)); list.appendChild(groups[g]); }
+      var b = el('button', 'cx-drug'); b.type = 'button';
+      b.appendChild(el('strong', '', d.name || '')); b.appendChild(document.createTextNode(' ' + (d.dose || '')));
+      b.dataset.q = ((d.name || '') + ' ' + (d.dose || '') + ' ' + g).toLowerCase();
+      b.addEventListener('click', function () { add(d); });
+      groups[g].appendChild(b);
+    });
+    function add(d) {
+      var tr = window.MSMeds && window.MSMeds.addRow(sel.dataset.table, d);
+      if (tr) { medCells(tr); var f = tr.querySelector('input, textarea'); if (f) f.focus(); form.dispatchEvent(new Event('change')); }
+      close();
+    }
+    function close() { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+    blank.addEventListener('click', function () { add(null); });
+    q.addEventListener('input', function () {
+      var v = q.value.trim().toLowerCase();
+      list.querySelectorAll('.cx-drug').forEach(function (b) { b.hidden = v !== '' && b.dataset.q.indexOf(v) < 0; });
+      list.querySelectorAll('.cx-druggroup').forEach(function (g) { g.hidden = !g.querySelector('.cx-drug:not([hidden])'); });
+    });
+    menu.addEventListener('keydown', function (e) { if (e.key === 'Escape') { close(); btn.focus(); } });
+    btn.addEventListener('click', function () { menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', menu.hidden ? 'false' : 'true'); if (!menu.hidden) q.focus(); });
+    document.addEventListener('mousedown', function (e) { if (!wrap.contains(e.target)) close(); });
+    menu.append(blank, drugs.length ? q : el('span'), list);
+    wrap.append(btn, menu);
+    sel.parentNode.insertBefore(wrap, sel);
+    sel.hidden = true;
+    var old = sel.parentNode.querySelector('.med-blank'); if (old) old.hidden = true;
+  });
+  medCells();
+
+  /* ---------- suggestions from earlier documents: a drawer per section ---------- */
+  var drawer = null;
+  function closeDrawer() { if (drawer) { drawer.remove(); drawer = null; } }
+  form.querySelectorAll('.suggestions').forEach(function (box) {
+    var items = [].slice.call(box.querySelectorAll('.suggestion'));
+    if (!items.length) return;
+    var open = el('button', 'cx-sugg-btn', 'Suggestions (' + items.length + ')'); open.type = 'button';
+    open.title = 'Text you wrote in earlier documents, to copy in and edit';
+    box.parentNode.insertBefore(open, box);
+    open.addEventListener('click', function () {
+      closeDrawer();
+      var sec = box.closest('fieldset.section'), name = sec ? sec.querySelector('legend').firstChild : null;
+      drawer = el('aside', 'cx-drawer'); drawer.setAttribute('role', 'dialog'); drawer.setAttribute('aria-label', 'Suggestions');
+      var head = el('div', 'cx-drawer-head');
+      head.appendChild(el('strong', '', 'Suggestions'));
+      var x = el('button', 'ms-btn', 'Close'); x.type = 'button'; x.addEventListener('click', closeDrawer);
+      head.appendChild(x);
+      drawer.appendChild(head);
+      drawer.appendChild(el('p', 'ms-sub', 'From your earlier documents' + (sec ? ' \u00b7 ' + sec.querySelector('legend').textContent.replace(/\s+/g, ' ').trim() : '') + '. "Use" copies the text into "Add your own text" of this section, to edit there.'));
+      items.forEach(function (it) {
+        var card = el('div', 'cx-sugg');
+        card.appendChild(el('div', 'cx-sugg-text', it.dataset.insert));
+        card.appendChild(el('div', 'ms-sub', it.title || ''));
+        var use = el('button', 'ms-btn', 'Use'); use.type = 'button';
+        use.addEventListener('click', function () { it.click(); closeDrawer(); });
+        card.appendChild(use);
+        drawer.appendChild(card);
+      });
+      drawer.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
+      document.body.appendChild(drawer);
+      x.focus();
+    });
+  });
+
   blocks().forEach(syncEdited);
   countValues();
   var v = 'write'; try { v = localStorage.getItem(KEY) || 'write'; } catch (e) {}

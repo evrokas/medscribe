@@ -20,8 +20,11 @@
     <fieldset class="features"><legend>{{{t('Case features')}}}</legend>
       <p class="muted">{{{t('Adding a feature switches on the lines it brings; removing it puts them back. You can still edit everything by hand.')}}}</p>
       {% foreach($feature_defs as $fd): %}
+      <span class="cx-feature{% if($fd['on']): %} on{% endif %}">
       {% if($fd['on']): %}<span class="chip">{{{$fd['label']}}} <button type="submit" name="action" value="feature_remove" formaction="{{rel_url('/documents/' . $doc_id . '?feature=' . $fd['id'])}}" class="chip-x" title="{{{t('Remove')}}}" onclick="this.form.feature.value='{{{$fd['id']}}}'">&times;</button></span>
       {% else: %}<button type="submit" name="action" value="feature_add" class="chip-add" onclick="this.form.feature.value='{{{$fd['id']}}}'">+ {{{$fd['label']}}}</button>{% endif %}
+      {% if($fd['effect'] !== ''): %}<span class="cx-effect ms-sub">{{{$fd['effect']}}}</span>{% endif %}
+      </span>
       {% endforeach %}
       <input type="hidden" name="feature" value="">
     </fieldset>
@@ -59,7 +62,7 @@
           {% endforeach %}
         </select>
         <button type="button" class="med-blank" data-table="meds-{{{$sec['id']}}}">{{{t('Add an empty row')}}}</button>
-        <span class="muted">{{{t('In a cell, {br} starts a new line.')}}}</span>
+        <span class="muted cx-medhint">{{{t('In a cell, {br} starts a new line.')}}}</span>
       </p>
       {% endif %}
       {% foreach($sec['blocks'] as $b): %}
@@ -92,7 +95,7 @@
       </div>
       {% endif %}
       <details {% if($sec['extra']): %}open{% endif %}>
-        <summary>{{{$sec['is_list'] ? t('Add items (one per line)') : t('Add free text')}}}</summary>
+        <summary>{{{$sec['is_list'] ? t('+ Add your own items (one per line)') : t('+ Add your own text')}}}</summary>
         <textarea id="extra-{{{$sec['id']}}}" name="extra[{{{$sec['id']}}}]" rows="{{{$sec['rows']}}}" placeholder="{% if($sec['placeholder'] !== ''): %}{{{$sec['placeholder']}}}{% else: %}{{{t('Written for this document only')}}}{% endif %}">{{{$sec['extra']}}}</textarea>
       </details>
       </div>
