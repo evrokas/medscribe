@@ -486,6 +486,11 @@ A ZeusFw app scaffold copied from ZPMS: `fw`/`web/core` symlinks, `config/*.in` 
   **"Διαρροή ΕΝΥ" chip** (M6's acceptance case): it switches on the kit's three DURAL TEAR parts (critical instructions,
   headache/drain-site topics, CSF-leak signs in the emergency box) and the alternative intro line.
 
+## User guides
+
+`docs/composer.md` (writing and issuing documents) and `docs/type-editor.md` (the type editor), with screenshots in
+`docs/images/` (`composer-*`, and the type editor's numbered ones). Keep them in step with the pages they describe.
+
 ## Type editor UI redesign (in progress, 2026-11-07)
 
 The plan is `docs/plans/type-editor-ui.md` (its §7 "Progress" says what is built) (decisions, invariants, tab-by-tab spec, backend additions,

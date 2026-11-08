@@ -56,8 +56,8 @@ The list on the left is the document from top to bottom.
 
 Many sections have no heading. The editor names them everywhere by: the **name on the input form** (`label`), else the
 **heading**, else what they hold: `Patient info · <row labels>`, `Shared: <component>`, the medication table's title, or
-the start of the first sentence in «…». The composer's form uses the same name, so the editor and the form never
-disagree.
+the start of the first sentence in «…». The composer's form also uses the `label`, else the heading; a section with
+neither shows its slot there (e.g. `certificate.purpose`), so give such a section a `label` to name it the same in both.
 
 ![A section's properties](images/02-structure-section.png)
 

@@ -30,7 +30,7 @@
     {% if(count($sections) > 1): %}<p class="sec-all"><span role="button" tabindex="0" class="tt-btn" data-sec-all="open">{{{t('Expand all')}}}</span> <span role="button" tabindex="0" class="tt-btn" data-sec-all="close">{{{t('Collapse all')}}}</span></p>{% endif %}
     {% foreach($sections as $sec): %}
     <fieldset class="section{% if($sec['collapsed']): %} collapsed{% endif %}" data-src="{{{$sec['src']}}}" {% if($locked): %}disabled{% endif %}>
-      <legend class="sec-toggle" tabindex="0" title="{{{t('Show or hide this section')}}}"><span class="sec-arrow"></span>{{{$sec['label'] ?: ($sec['heading'] ?: $sec['slot'])}}} <span class="muted">{{{$sec['slot']}}} &middot; {{{$sec['layout']}}}</span> {% if($sec['summary'] !== ''): %}<span class="sec-count muted">&middot; {{{$sec['summary']}}}</span>{% endif %}</legend>
+      <legend class="sec-toggle" tabindex="0" title="{{{t('Show or hide this section')}}}"><span class="sec-arrow"></span>{{{$sec['label'] ?: ($sec['heading'] ?: $sec['slot'])}}} <span class="muted">{{{$sec['slot']}}} &middot; {{{$sec['layout']}}}</span>{% if($sec['summary'] !== ''): %}<span class="sec-count muted"> &middot; {{{$sec['summary']}}}</span>{% endif %}</legend>
       <div class="sec-body">
       {% if($sec['optional']): %}
       <label class="inline"><input type="checkbox" name="sections_on[{{{$sec['id']}}}]" value="1" {% if($sec['on']): %}checked{% endif %}> {{{t('Include this section')}}}</label>
